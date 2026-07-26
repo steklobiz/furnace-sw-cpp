@@ -1,0 +1,78 @@
+[
+ {
+  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/main.o",
+   "app/main.cpp"
+  ],
+  "file": "app/main.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/furnace.o",
+   "app/furnace.cpp"
+  ],
+  "file": "app/furnace.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/hal.o",
+   "platform/pc/hal.cpp"
+  ],
+  "file": "platform/pc/hal.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/ui.o",
+   "app/ui/ui.cpp"
+  ],
+  "file": "app/ui/ui.cpp"
+ }
+]

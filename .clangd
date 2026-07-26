@@ -1,0 +1,4 @@
+CompileFlags:
+  Add:
+    - --gcc-toolchain=C:/Users/Alexander/AppData/Local/Microsoft/WinGet/Packages/BrechtSanders.WinLibs.POSIX.MSVCRT_Microsoft.Winget.Source_8wekyb3d8bbwe/mingw64
+    - --target=x86_64-w64-windows-gnu
