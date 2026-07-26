@@ -1,0 +1,34 @@
+# Build artifacts
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.elf
+*.hex
+*.bin
+*.map
+*.d
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Generated build files
+.cache/
+compile_commands.json
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build directories (uncomment/adjust as needed)
+# build/
+# out/
+# bin/
