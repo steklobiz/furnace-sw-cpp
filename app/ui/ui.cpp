@@ -256,14 +256,17 @@ void Ui::update_monitor() noexcept
     monitor_page_.state =
         furnace_.state();
 
+    monitor_page_.step_type =
+        furnace_.step_type();
+
+    monitor_page_.step =
+        furnace_.current_step();
+
     monitor_page_.temperature =
         furnace_.current_temp();
 
     monitor_page_.setpoint =
         furnace_.setpoint();
-
-    monitor_page_.step =
-        furnace_.current_step();
 
     monitor_page_.profile_elapsed =
         furnace_.profile_elapsed();
@@ -285,6 +288,26 @@ void Ui::check_furnace_state() noexcept
 
         page_changed_ = true;
     }
+}
+
+bool Tui::monitor_changed(
+    const Ui::MonitorPage& page) noexcept
+{
+    return
+        page.state != monitor_cache_.state ||
+        page.step_type != monitor_cache_.step_type ||
+        page.current_step != monitor_cache_.current_step ||
+        page.temperature != monitor_cache_.temperature ||
+        page.setpoint != monitor_cache_.setpoint ||
+        page.profile_elapsed != monitor_cache_.profile_elapsed ||
+        page.step_elapsed != monitor_cache_.step_elapsed ||
+        page.outputs != monitor_cache_.outputs;
+}
+
+const Ui::Button& Ui::main_button(
+    uint8_t index) const noexcept
+{
+    return main_page_.buttons[index];
 }
 
 } // namespace app

@@ -31,42 +31,60 @@ void Tui::process() noexcept
 // Render
 //------------------------------------------------------
 
-
 void Tui::render() noexcept
 {
-    if (!ui_.page_changed())
-        return;
+    if (ui_.page_changed())
+    {
+        switch (ui_.state())
+        {
+        case Ui::State::Main:
 
+            draw_main();
 
-    switch(ui_.state())
+            break;
+
+        case Ui::State::Monitor:
+
+            draw_monitor();
+
+            break;
+
+        case Ui::State::ProfileSelect:
+
+            draw_profile_select();
+
+            break;
+
+        default:
+            break;
+        }
+
+        ui_.clear_page_changed();
+    }
+
+    switch (ui_.state())
     {
     case Ui::State::Main:
 
-        show_main();
+        update_main();
 
         break;
-
 
     case Ui::State::Monitor:
 
-        show_monitor();
+        update_monitor();
 
         break;
-
 
     case Ui::State::ProfileSelect:
 
-        show_profile_select();
+        update_profile_select();
 
         break;
-
 
     default:
         break;
     }
-
-
-    ui_.clear_page_changed();
 }
 
 //------------------------------------------------------
@@ -75,28 +93,28 @@ void Tui::render() noexcept
 
 void Tui::process_input() noexcept
 {
-    switch(ui_.state())
+    char key;
+
+    std::cin >> key;
+
+
+    if (ui_.state() == Ui::State::Main)
     {
-    case Ui::State::Main:
+        if (key >= '1' && key <= '9')
+        {
+            const uint8_t index =
+                static_cast<uint8_t>(key - '1');
 
-        process_main_input();
-        break;
-
-
-    case Ui::State::ProfileSelect:
-
-        process_profile_select_input();
-        break;
+            const auto& page =
+                ui_.main_page();
 
 
-    case Ui::State::Monitor:
-
-        process_monitor_input();
-        break;
-
-
-    default:
-        break;
+            if (index < page.count)
+            {
+                execute_action(
+                    page.buttons[index].action);
+            }
+        }
     }
 }
 
@@ -259,113 +277,190 @@ void Tui::process_profile_select_input() noexcept
 // Page display
 //------------------------------------------------------
 
+void Tui::draw_main() noexcept
+{
+    clear_screen();
 
-void Tui::show_main() noexcept
+    std::cout
+        << "========================\n"
+        << "       MAIN PAGE\n"
+        << "========================\n";
+}
+
+void Tui::draw_monitor() noexcept
+{
+    clear_screen();
+
+    std::cout
+        << "========================\n"
+        << "        MONITOR\n"
+        << "========================\n\n"
+
+        << "State:\n"
+        << "Step:\n"
+        << "Type:\n"
+        << "Temperature:\n"
+        << "Setpoint:\n"
+        << "Profile time:\n"
+        << "Step time:\n"
+        << "Outputs:\n\n"
+
+        << "1. Back\n"
+        << "2. Stop\n";
+}
+
+void Tui::draw_profile_select() noexcept
+{
+    clear_screen();
+
+    std::cout
+        << "========================\n"
+        << "    SELECT PROFILE\n"
+        << "========================\n\n";
+}
+
+void Tui::update_main() noexcept
 {
     const auto& page = ui_.main_page();
 
-    std::cout
-        << "\n========================\n"
-        << "        MAIN PAGE       \n"
-        << "========================\n\n";
-
+    move_cursor(5, 1);
 
     for (uint8_t i = 0; i < page.count; ++i)
     {
         std::cout
             << (i + 1)
             << ". "
-            << action_name(
-                   page.buttons[i].action)
-            << '\n';
+            << action_name(page.buttons[i].action)
+            << "            \n";
+    }
+}
+
+void Tui::update_monitor() noexcept
+{
+    const auto& page = ui_.monitor_page();
+
+    if (!monitor_cache_valid_ ||
+        page.state != monitor_cache_.state)
+    {
+        move_cursor(
+            MonitorLayout::StateRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << Furnace::state_name(page.state)
+            << "        ";
+    }
+    
+    if (!monitor_cache_valid_ ||
+    page.step != monitor_cache_.step)
+    {
+        move_cursor(
+            MonitorLayout::StepRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << page.step
+            << "        ";
     }
 
-    std::cout << '\n';
+  if (!monitor_cache_valid_ ||
+    page.step_type != monitor_cache_.step_type)
+    {
+        move_cursor(
+            MonitorLayout::TypeRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << Furnace::step_type_name(page.step_type)
+            << "        ";
+    }  
+    
+    if (!monitor_cache_valid_ ||
+    page.temperature != monitor_cache_.temperature)
+    {
+        move_cursor(
+            MonitorLayout::TemperatureRow,
+            MonitorLayout::ValueColumn);
+
+        std::cout
+            << page.temperature
+            << " C     ";
+    }
+
+
+    if (!monitor_cache_valid_ ||
+        page.setpoint != monitor_cache_.setpoint)
+    {
+        move_cursor(
+            MonitorLayout::SetpointRow,
+            MonitorLayout::ValueColumn);
+
+        std::cout
+            << page.setpoint
+            << " C     ";
+    }
+
+
+    if (!monitor_cache_valid_ ||
+        page.profile_elapsed != monitor_cache_.profile_elapsed)
+    {
+        move_cursor(
+            MonitorLayout::ProfileTimeRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << page.profile_elapsed
+            << " s     ";
+    }
+    
+
+    if (!monitor_cache_valid_ ||
+    page.step_elapsed != monitor_cache_.step_elapsed)
+    {
+        move_cursor(
+            MonitorLayout::StepTimeRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << page.step_elapsed
+            << " s     ";
+    }
+
+    
+    if (!monitor_cache_valid_ ||
+    page.outputs != monitor_cache_.outputs)
+    {
+        move_cursor(
+            MonitorLayout::OutputsRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << unsigned(page.outputs)
+            << "        ";
+    }    
+    
+    
+    monitor_cache_ = page;
+    monitor_cache_valid_ = true;
 }
 
-void Tui::show_monitor() noexcept
+void Tui::update_profile_select() noexcept
 {
-    const auto& page =
-        ui_.monitor_page();
-
-
-    std::cout
-        << "\n========================\n"
-        << "        MONITOR         \n"
-        << "========================\n\n";
-
-
-    std::cout
-        << "State       : "
-        << state_name(page.state)
-        << '\n';
-
-
-    std::cout
-        << "Step        : "
-        << page.step
-        << '\n';
-
-
-    std::cout
-        << "Type        : "
-        << step_type_name(page.step_type)
-        << '\n';
-
-
-    std::cout
-        << "Temperature : "
-        << page.temperature
-        << " C\n";
-
-
-    std::cout
-        << "Setpoint    : "
-        << page.setpoint
-        << " C\n";
-
-
-    std::cout
-        << "Profile time: "
-        << page.profile_elapsed
-        << " s\n";
-
-
-    std::cout
-        << "Step time   : "
-        << page.step_elapsed
-        << " s\n";
-
-
-    std::cout
-        << "Outputs     : "
-        << static_cast<unsigned>(
-               page.outputs)
-        << "\n\n";
-}
-
-void Tui::show_profile_select() noexcept
-{
-    std::cout
-        << "\n========================\n"
-        << "    SELECT PROFILE      \n"
-        << "========================\n\n";
-
+    move_cursor(5,1);
 
     for (uint8_t i = 0; i < 10; ++i)
     {
         std::cout
-            << "  "
-            << static_cast<unsigned>(i)
+            << i
             << ". Profile "
-            << static_cast<unsigned>(i)
+            << unsigned(i)
             << '\n';
     }
 
-
     std::cout
-        << "\n  b. Back\n";
+        << "\nB. Back\n";
 }
+
 
 //------------------------------------------------------
 // Helpers
@@ -466,6 +561,27 @@ Ui::Event::Id Tui::event_from_action(
     default:
         return Ui::Event::Id::None;
     }
+}
+
+//------------------------------------------------------
+// Cursor helpers
+//------------------------------------------------------
+
+void Tui::clear_screen() noexcept
+{
+    std::cout << "\033[2J\033[H";
+}
+
+void Tui::move_cursor(
+    uint8_t row,
+    uint8_t column) noexcept
+{
+    std::cout
+        << "\033["
+        << unsigned(row)
+        << ';'
+        << unsigned(column)
+        << 'H';
 }
 
 } // namespace app

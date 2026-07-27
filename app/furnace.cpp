@@ -38,6 +38,33 @@ const char* Furnace::state_name(State state) noexcept
     }
 }
 
+
+const char* Furnace::step_type_name(
+    StepType type) noexcept
+{
+    switch(type)
+    {
+    case StepType::Heating:
+
+        return "Heating";
+
+
+    case StepType::Holding:
+
+        return "Holding";
+
+
+    case StepType::Cooling:
+
+        return "Cooling";
+
+
+    default:
+
+        return "Unknown";
+    }
+}
+
 void Furnace::load_profile(uint8_t) noexcept
 {
     

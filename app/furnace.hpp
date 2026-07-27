@@ -41,8 +41,9 @@ public:
 
     void load_profile(uint8_t) noexcept;
     
-    static const char* state_name(State state) noexcept; // Temporary metod for debuging purposes
-    
+    static const char* state_name(State state) noexcept; // only for TUI
+    static const char* step_type_name(StepType type) noexcept; // only for TUI
+        
     // UI getters 
     State state() const noexcept;
     StepType step_type() const noexcept;

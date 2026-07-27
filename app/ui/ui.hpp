@@ -82,6 +82,20 @@ public:
         uint8_t count = 0;
     };
 
+    enum class MonitorField : uint8_t
+    {
+        State,
+        Step,
+        StepType,
+        Temperature,
+        Setpoint,
+        ProfileTime,
+        StepTime,
+        Outputs,
+
+        Count
+    };
+    
     struct MonitorPage
     {
         Furnace::State state;
@@ -166,6 +180,12 @@ private:
     void update_monitor() noexcept;
 
     void check_furnace_state() noexcept;
+    
+    bool monitor_changed(
+        const Ui::MonitorPage& page) noexcept;
+
+    const Button& main_button(
+        uint8_t index) const noexcept;    
     
 private:
 
