@@ -27,7 +27,7 @@ void Tui::update_main() noexcept
         std::cout
             << (i + 1)
             << ". "
-            << action_name(page.buttons[i].action)
+            << main_action_name(page.buttons[i].action)
             << "            \n";
     }
 }    
@@ -117,7 +117,7 @@ void Tui::process_main_input() noexcept
     }
 }
 
-const char* Tui::action_name(
+const char* Tui::main_action_name(
     Ui::Button::Action action) noexcept
 {
     switch(action)

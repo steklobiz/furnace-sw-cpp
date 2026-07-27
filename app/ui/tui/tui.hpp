@@ -16,24 +16,26 @@ public:
 private:
 
     void render() noexcept;
-
-    void draw_main() noexcept;
-    void draw_monitor() noexcept;
-    void draw_profile_select() noexcept;
-
-    void update_main() noexcept;
-    void update_monitor() noexcept;
-    void update_profile_select() noexcept;
-
-    
-    
     void process_input() noexcept; 
-    void process_main_input() noexcept;
-    void process_monitor_input() noexcept;
-    void process_profile_select_input() noexcept;
 
-    static const char* action_name(
+    // Main page
+    void draw_main() noexcept;
+    void update_main() noexcept;
+    void process_main_input() noexcept;
+    static const char* main_action_name(
         Ui::Button::Action action) noexcept;
+
+    // Monitor page
+    void draw_monitor() noexcept;
+    void update_monitor() noexcept;
+    void process_monitor_input() noexcept;
+
+    // Profile select page
+    void draw_profile_select() noexcept;
+    void update_profile_select() noexcept;
+    void process_profile_select_input() noexcept;    
+    
+
 
     static const char* state_name(
         Furnace::State state) noexcept;
