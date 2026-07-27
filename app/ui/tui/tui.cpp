@@ -563,6 +563,54 @@ Ui::Event::Id Tui::event_from_action(
     }
 }
 
+
+void Tui::execute_action(
+    Ui::Button::Action action) noexcept
+{
+    switch(action)
+    {
+    case Ui::Button::Action::StartProfile:
+
+        ui_.dispatch(
+            Ui::Event(
+                Ui::Event::Id::StartProfile));
+
+        break;
+
+
+    case Ui::Button::Action::Monitor:
+
+        ui_.dispatch(
+            Ui::Event(
+                Ui::Event::Id::OpenMonitor));
+
+        break;
+
+
+    case Ui::Button::Action::Stop:
+
+        ui_.dispatch(
+            Ui::Event(
+                Ui::Event::Id::Stop));
+
+        break;
+
+
+    case Ui::Button::Action::Reset:
+
+        ui_.dispatch(
+            Ui::Event(
+                Ui::Event::Id::Reset));
+
+        break;
+
+
+    default:
+
+        break;
+    }
+}
+
 //------------------------------------------------------
 // Cursor helpers
 //------------------------------------------------------

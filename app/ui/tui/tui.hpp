@@ -43,9 +43,13 @@ private:
                
     Ui::Event::Id event_from_action(
         Ui::Button::Action action) noexcept;
-
+        
+    void execute_action(
+        Ui::Button::Action action) noexcept;
+        
     void move_cursor(
         uint8_t row, uint8_t column) noexcept;
+        
     static void clear_screen() noexcept;
 
         

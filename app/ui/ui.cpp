@@ -290,19 +290,6 @@ void Ui::check_furnace_state() noexcept
     }
 }
 
-bool Tui::monitor_changed(
-    const Ui::MonitorPage& page) noexcept
-{
-    return
-        page.state != monitor_cache_.state ||
-        page.step_type != monitor_cache_.step_type ||
-        page.current_step != monitor_cache_.current_step ||
-        page.temperature != monitor_cache_.temperature ||
-        page.setpoint != monitor_cache_.setpoint ||
-        page.profile_elapsed != monitor_cache_.profile_elapsed ||
-        page.step_elapsed != monitor_cache_.step_elapsed ||
-        page.outputs != monitor_cache_.outputs;
-}
 
 const Ui::Button& Ui::main_button(
     uint8_t index) const noexcept

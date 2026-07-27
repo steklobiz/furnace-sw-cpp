@@ -181,9 +181,6 @@ private:
 
     void check_furnace_state() noexcept;
     
-    bool monitor_changed(
-        const Ui::MonitorPage& page) noexcept;
-
     const Button& main_button(
         uint8_t index) const noexcept;    
     
