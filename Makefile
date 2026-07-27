@@ -1,20 +1,27 @@
 CXX      := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic -Iapp -Iapp/ui
+CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic \
+            -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/dwin
 LDFLAGS := -static
 
 SRCDIR   := app
 UIDIR    := app/ui
+TUIDIR   := app/ui/tui
+DWINDIR  := app/ui/dwin
 HALDIR   := platform/pc
 BUILDDIR := build
 TARGET   := $(BUILDDIR)/fsm.exe
 
-APP_SRCS := $(wildcard $(SRCDIR)/*.cpp)
-UI_SRCS  := $(wildcard $(UIDIR)/*.cpp)
-HAL_SRCS := $(wildcard $(HALDIR)/*.cpp)
-SRCS     := $(APP_SRCS) $(UI_SRCS) $(HAL_SRCS)
-OBJS     := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
-            $(patsubst $(UIDIR)/%.cpp, $(BUILDDIR)/%.o, $(UI_SRCS)) \
-            $(patsubst $(HALDIR)/%.cpp, $(BUILDDIR)/%.o, $(HAL_SRCS))
+APP_SRCS  := $(wildcard $(SRCDIR)/*.cpp)
+UI_SRCS   := $(wildcard $(UIDIR)/*.cpp)
+TUI_SRCS  := $(wildcard $(TUIDIR)/*.cpp)
+DWIN_SRCS := $(wildcard $(DWINDIR)/*.cpp)
+HAL_SRCS  := $(wildcard $(HALDIR)/*.cpp)
+SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(HAL_SRCS)
+OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
+             $(patsubst $(UIDIR)/%.cpp, $(BUILDDIR)/%.o, $(UI_SRCS)) \
+             $(patsubst $(TUIDIR)/%.cpp, $(BUILDDIR)/%.o, $(TUI_SRCS)) \
+             $(patsubst $(DWINDIR)/%.cpp, $(BUILDDIR)/%.o, $(DWIN_SRCS)) \
+             $(patsubst $(HALDIR)/%.cpp, $(BUILDDIR)/%.o, $(HAL_SRCS))
 
 .PHONY: all clean compiledb run
 
@@ -27,6 +34,12 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/%.o: $(UIDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
+
+$(BUILDDIR)/%.o: $(TUIDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
+
+$(BUILDDIR)/%.o: $(DWINDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/%.o: $(HALDIR)/%.cpp | $(BUILDDIR)

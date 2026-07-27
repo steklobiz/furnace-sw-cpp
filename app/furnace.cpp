@@ -38,7 +38,6 @@ const char* Furnace::state_name(State state) noexcept
     }
 }
 
-
 const char* Furnace::step_type_name(
     StepType type) noexcept
 {
