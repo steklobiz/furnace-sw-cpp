@@ -171,5 +171,22 @@ void Tui::execute_action(
     }
 }
 
+bool Tui::buttons_changed(
+    const Ui::MainPage& page) const noexcept
+{
+    if (page.count != main_cache_.count)
+        return true;
+
+    for (uint8_t i = 0; i < page.count; ++i)
+    {
+        if (page.buttons[i].action !=
+            main_cache_.buttons[i].action)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 } // namespace app

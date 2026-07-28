@@ -18,7 +18,10 @@ private:
     void render() noexcept;
     void process_input() noexcept; 
 
-    // Main page
+    //------------------------------------------------------
+    // Main page functions
+    //------------------------------------------------------
+
     void draw_main() noexcept;
     void update_main() noexcept;
     void process_main_input() noexcept;    
@@ -32,7 +35,10 @@ private:
     static const char* main_action_name(
         Ui::Button::Action action) noexcept;
 
-    // Monitor page
+    //------------------------------------------------------
+    // Monitor page functions
+    //------------------------------------------------------
+        
     void draw_monitor() noexcept;
     void update_monitor() noexcept;
     void process_monitor_input() noexcept;
@@ -43,16 +49,18 @@ private:
     bool monitor_field_changed(
         Ui::MonitorField field) const noexcept;
                     
-    // Profile select page
+    //------------------------------------------------------
+    // Profile select page functions
+    //------------------------------------------------------
+
     void draw_profile_select() noexcept;
     void update_profile_select() noexcept;
     void process_profile_select_input() noexcept;    
     
-    // Common heppers
-
-//    static const char* state_name(
-//        Furnace::State state) noexcept;
-
+    //------------------------------------------------------
+    // Common helper functions
+    //------------------------------------------------------
+    
     static const char* step_type_name(
         Furnace::StepType type) noexcept;
                        
@@ -63,9 +71,12 @@ private:
         uint8_t row, uint8_t column) noexcept;
         
     static void clear_screen() noexcept;
-
+    
     void clear_field(
         Ui::MonitorField field) noexcept;
+            
+    bool buttons_changed(
+        const Ui::MainPage& page) const noexcept;    
         
 private:
 
