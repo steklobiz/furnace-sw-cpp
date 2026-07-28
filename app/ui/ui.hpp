@@ -89,8 +89,8 @@ public:
         StepType,
         Temperature,
         Setpoint,
-        ProfileTime,
-        StepTime,
+        ProfileElapsed,
+        StepElapsed,
         Outputs,
 
         Count

@@ -29,7 +29,11 @@ private:
     void draw_monitor() noexcept;
     void update_monitor() noexcept;
     void process_monitor_input() noexcept;
-
+    void draw_monitor_field(
+        Ui::MonitorField field) noexcept;    
+    bool monitor_field_changed(
+        Ui::MonitorField field) const noexcept;
+                    
     // Profile select page
     void draw_profile_select() noexcept;
     void update_profile_select() noexcept;
@@ -54,6 +58,8 @@ private:
         
     static void clear_screen() noexcept;
 
+    void clear_field(
+        Ui::MonitorField field) noexcept;
         
 private:
 

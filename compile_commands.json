@@ -1,6 +1,6 @@
 [
  {
-  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
   "arguments": [
    "g++",
    "-std=c++17",
@@ -9,25 +9,8 @@
    "-Wpedantic",
    "-Iapp",
    "-Iapp/ui",
-   "-Icore",
-   "-Iplatform/pc",
-   "-c",
-   "-o",
-   "build/main.o",
-   "app/main.cpp"
-  ],
-  "file": "app/main.cpp"
- },
- {
-  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
-  "arguments": [
-   "g++",
-   "-std=c++17",
-   "-Wall",
-   "-Wextra",
-   "-Wpedantic",
-   "-Iapp",
-   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
    "-Icore",
    "-Iplatform/pc",
    "-c",
@@ -38,7 +21,7 @@
   "file": "app/furnace.cpp"
  },
  {
-  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
   "arguments": [
    "g++",
    "-std=c++17",
@@ -47,17 +30,19 @@
    "-Wpedantic",
    "-Iapp",
    "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
    "-Icore",
    "-Iplatform/pc",
    "-c",
    "-o",
-   "build/hal.o",
-   "platform/pc/hal.cpp"
+   "build/main.o",
+   "app/main.cpp"
   ],
-  "file": "platform/pc/hal.cpp"
+  "file": "app/main.cpp"
  },
  {
-  "directory": "D:/work/Embedded/Sandbox/event-enter-exit-fsm-cpp",
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
   "arguments": [
    "g++",
    "-std=c++17",
@@ -66,6 +51,8 @@
    "-Wpedantic",
    "-Iapp",
    "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
    "-Icore",
    "-Iplatform/pc",
    "-c",
@@ -74,5 +61,236 @@
    "app/ui/ui.cpp"
   ],
   "file": "app/ui/ui.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/tui.o",
+   "app/ui/tui/tui.cpp"
+  ],
+  "file": "app/ui/tui/tui.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/tui_main.o",
+   "app/ui/tui/tui_main.cpp"
+  ],
+  "file": "app/ui/tui/tui_main.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/tui_monitor.o",
+   "app/ui/tui/tui_monitor.cpp"
+  ],
+  "file": "app/ui/tui/tui_monitor.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/tui_profile_select.o",
+   "app/ui/tui/tui_profile_select.cpp"
+  ],
+  "file": "app/ui/tui/tui_profile_select.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/tui_terminal.o",
+   "app/ui/tui/tui_terminal.cpp"
+  ],
+  "file": "app/ui/tui/tui_terminal.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/dwin.o",
+   "app/ui/dwin/dwin.cpp"
+  ],
+  "file": "app/ui/dwin/dwin.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/dwin_main.o",
+   "app/ui/dwin/dwin_main.cpp"
+  ],
+  "file": "app/ui/dwin/dwin_main.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/dwin_monitor.o",
+   "app/ui/dwin/dwin_monitor.cpp"
+  ],
+  "file": "app/ui/dwin/dwin_monitor.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/dwin_profile_select.o",
+   "app/ui/dwin/dwin_profile_select.cpp"
+  ],
+  "file": "app/ui/dwin/dwin_profile_select.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/dwin_protocol.o",
+   "app/ui/dwin/dwin_protocol.cpp"
+  ],
+  "file": "app/ui/dwin/dwin_protocol.cpp"
+ },
+ {
+  "directory": "D:/work/Embedded/projects/prototypes/furnace-sw-cpp",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-Iapp",
+   "-Iapp/ui",
+   "-Iapp/ui/tui",
+   "-Iapp/ui/dwin",
+   "-Icore",
+   "-Iplatform/pc",
+   "-c",
+   "-o",
+   "build/hal.o",
+   "platform/pc/hal.cpp"
+  ],
+  "file": "platform/pc/hal.cpp"
  }
 ]

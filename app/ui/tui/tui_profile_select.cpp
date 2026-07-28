@@ -14,7 +14,8 @@ void Tui::draw_profile_select() noexcept
         << "========================\n"
         << "    SELECT PROFILE\n"
         << "========================\n\n";
-}    
+}
+    
     
 void Tui::update_profile_select() noexcept
 {
