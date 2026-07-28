@@ -35,11 +35,15 @@ void Tui::render() noexcept
         {
         case Ui::State::Main:
 
+            main_cache_initialized_ = false;
+
             draw_main();
 
             break;
 
         case Ui::State::Monitor:
+        
+            main_cache_initialized_ = false;
 
             draw_monitor();
 
@@ -85,28 +89,32 @@ void Tui::render() noexcept
 
 void Tui::process_input() noexcept
 {
-    char key;
-
-    std::cin >> key;
-
-
-    if (ui_.state() == Ui::State::Main)
+    switch (ui_.state())
     {
-        if (key >= '1' && key <= '9')
-        {
-            const uint8_t index =
-                static_cast<uint8_t>(key - '1');
+    case Ui::State::Main:
 
-            const auto& page =
-                ui_.main_page();
+        process_main_input();
+
+        break;
 
 
-            if (index < page.count)
-            {
-                execute_action(
-                    page.buttons[index].action);
-            }
-        }
+    case Ui::State::Monitor:
+
+        process_monitor_input();
+
+        break;
+
+
+    case Ui::State::ProfileSelect:
+
+        process_profile_select_input();
+
+        break;
+
+
+    default:
+
+        break;
     }
 }
 
@@ -114,26 +122,6 @@ void Tui::process_input() noexcept
 //------------------------------------------------------
 // Common UI helpers
 //------------------------------------------------------
-
-
-Ui::Event::Id Tui::event_from_action(
-    Ui::Button::Action action) noexcept
-{
-    switch(action)
-    {
-    case Ui::Button::Action::StartProfile:
-        return Ui::Event::Id::StartProfile;
-
-    case Ui::Button::Action::Monitor:
-        return Ui::Event::Id::OpenMonitor;
-
-    case Ui::Button::Action::Back:
-        return Ui::Event::Id::Back;
-
-    default:
-        return Ui::Event::Id::None;
-    }
-}
 
 
 void Tui::execute_action(

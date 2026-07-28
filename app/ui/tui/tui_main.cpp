@@ -12,7 +12,10 @@ void Tui::draw_main() noexcept
     std::cout
         << "========================\n"
         << "       MAIN PAGE\n"
-        << "========================\n";
+        << "========================\n"
+        << "\n"
+        << "State:\n"
+        << "Temperature:\n";
 }
     
     
@@ -25,7 +28,7 @@ void Tui::update_main() noexcept
     for (uint8_t i = 0; i < page.count; ++i)
     {
         std::cout
-            << (i + 1)
+            << static_cast<unsigned>(i + 1)
             << ". "
             << main_action_name(page.buttons[i].action)
             << "            \n";
@@ -40,81 +43,26 @@ void Tui::process_main_input() noexcept
 
 
     if (key < '1' || key > '9')
+    {
         return;
+    }
 
 
     const auto index =
         static_cast<uint8_t>(key - '1');
-
 
     const auto& page =
         ui_.main_page();
 
 
     if (index >= page.count)
-        return;
-
-
-    const auto action =
-        page.buttons[index].action;
-
-
-    switch(action)
     {
-    case Ui::Button::Action::StartProfile:
-
-        ui_.dispatch(
-        {
-            Ui::Event::Id::StartProfile
-        });
-
-        break;
-
-
-    case Ui::Button::Action::Monitor:
-
-        ui_.dispatch(
-        {
-            Ui::Event::Id::OpenMonitor
-        });
-
-        break;
-
-
-    case Ui::Button::Action::Stop:
-
-        ui_.dispatch(
-        {
-            Ui::Event::Id::Stop
-        });
-
-        break;
-
-
-    case Ui::Button::Action::Reset:
-
-        ui_.dispatch(
-        {
-            Ui::Event::Id::Reset
-        });
-
-        break;
-
-
-    case Ui::Button::Action::Back:
-
-        ui_.dispatch(
-        {
-            Ui::Event::Id::Back
-        });
-
-        break;
-
-
-    default:
-
-        break;
+        return;
     }
+
+
+    execute_action(
+        page.buttons[index].action);
 }
 
 const char* Tui::main_action_name(

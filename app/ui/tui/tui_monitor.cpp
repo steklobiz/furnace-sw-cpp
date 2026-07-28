@@ -7,7 +7,8 @@
 namespace app
 {
     
-// namespace { 
+namespace 
+{ 
         
 struct Field
 {
@@ -37,13 +38,13 @@ monitor_layout_
     Field{12,18,4}    // Outputs
 };
   
-constexpr const Field& layout(
-    Ui::MonitorField id) noexcept
+constexpr auto const& layout(
+    Ui::MonitorField field) noexcept
 {
-    return monitor_layout_[index(id)];
-}    
+    return monitor_layout_[index(field)];
+}
          
-// } // anonymus namespace
+} // anonymus namespace
    
 void Tui::draw_monitor() noexcept
 {
@@ -85,7 +86,9 @@ void Tui::update_monitor() noexcept
 
     monitor_cache_ = ui_.monitor_page();
 
-    monitor_cache_valid_ = true;
+    monitor_cache_initialized_ = true;
+    
+    move_cursor(20, 1);
 }
 
 void Tui::draw_monitor_field(
@@ -233,7 +236,7 @@ bool Tui::monitor_field_changed(
 {
     const auto& page = ui_.monitor_page();
 
-    if (!monitor_cache_valid_)
+    if (!monitor_cache_initialized_)
         return true;
 
     switch (field)

@@ -19,21 +19,23 @@ void Tui::draw_profile_select() noexcept
     
 void Tui::update_profile_select() noexcept
 {
-    move_cursor(5,1);
+    move_cursor(5, 1);
 
-    for (uint8_t i = 0; i < 10; ++i)
+    for (uint8_t i = 0; i < 10; ++i) // TODO: replace 10 with constant
     {
         std::cout
-            << i
+            << "   "
+            << static_cast<unsigned>(i)
             << ". Profile "
-            << unsigned(i)
-            << '\n';
+            << static_cast<unsigned>(i)
+            << "          \n";
     }
 
     std::cout
         << "\nB. Back\n";
-}
-    
+
+    move_cursor(17, 1);
+}    
     
 void Tui::process_profile_select_input() noexcept
 {
