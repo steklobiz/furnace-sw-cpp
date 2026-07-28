@@ -75,27 +75,18 @@ public:
         Action action;
     };
     
+    // Page models
     struct MainPage
     {
+        Furnace::State state;
+    
+        uint16_t temperature;
+    
         std::array<Button, 6> buttons;
     
         uint8_t count = 0;
     };
 
-    enum class MonitorField : uint8_t
-    {
-        State,
-        Step,
-        StepType,
-        Temperature,
-        Setpoint,
-        ProfileElapsed,
-        StepElapsed,
-        Outputs,
-
-        Count
-    };
-    
     struct MonitorPage
     {
         Furnace::State state;
@@ -111,6 +102,30 @@ public:
         uint32_t step_elapsed;
     
         uint8_t outputs;
+    };
+
+    // Page fields    
+    enum class MonitorField : uint8_t
+    {
+        State,
+        Step,
+        StepType,
+        Temperature,
+        Setpoint,
+        ProfileElapsed,
+        StepElapsed,
+        Outputs,
+
+        Count
+    };
+    
+    enum class MainField : uint8_t
+    {
+        State,
+        Temperature,
+        Buttons,
+    
+        Count
     };
             
     Ui(Furnace& furnace);

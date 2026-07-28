@@ -191,6 +191,13 @@ void Ui::update() noexcept
 
 void Ui::update_main() noexcept
 {
+    
+    main_page_.state =
+        furnace_.state();
+
+    main_page_.temperature =
+        furnace_.current_temp();
+        
     main_page_.count = 0;
 
     switch (furnace_.state())

@@ -21,7 +21,13 @@ private:
     // Main page
     void draw_main() noexcept;
     void update_main() noexcept;
-    void process_main_input() noexcept;
+    void process_main_input() noexcept;    
+    
+    void draw_main_field(
+        Ui::MainField field) noexcept;
+        
+    bool main_field_changed(
+        Ui::MainField field) const noexcept;
     
     static const char* main_action_name(
         Ui::Button::Action action) noexcept;
@@ -44,8 +50,8 @@ private:
     
     // Common heppers
 
-    static const char* state_name(
-        Furnace::State state) noexcept;
+//    static const char* state_name(
+//        Furnace::State state) noexcept;
 
     static const char* step_type_name(
         Furnace::StepType type) noexcept;

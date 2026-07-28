@@ -12,8 +12,8 @@ void Tui::draw_main() noexcept
     std::cout
         << "========================\n"
         << "       MAIN PAGE\n"
-        << "========================\n"
-        << "\n"
+        << "========================\n\n"
+        
         << "State:\n"
         << "Temperature:\n";
 }
@@ -21,18 +21,43 @@ void Tui::draw_main() noexcept
     
 void Tui::update_main() noexcept
 {
-    const auto& page = ui_.main_page();
+    const auto& page =
+        ui_.main_page();
 
-    move_cursor(5, 1);
 
-    for (uint8_t i = 0; i < page.count; ++i)
-    {
-        std::cout
-            << static_cast<unsigned>(i + 1)
-            << ". "
-            << main_action_name(page.buttons[i].action)
-            << "            \n";
-    }
+    move_cursor(
+        MainLayout::StateRow,
+        MainLayout::ValueColumn);
+
+    std::cout
+        << "          ";
+
+    move_cursor(
+        MainLayout::StateRow,
+        MainLayout::ValueColumn);
+
+    std::cout
+        << Furnace::state_name(page.state);
+
+
+    move_cursor(
+        MainLayout::TemperatureRow,
+        MainLayout::ValueColumn);
+
+    std::cout
+        << "          ";
+
+    move_cursor(
+        MainLayout::TemperatureRow,
+        MainLayout::ValueColumn);
+
+    std::cout
+        << page.temperature
+        << " C";
+
+    move_cursor(
+        15,
+        1);
 }    
     
 void Tui::process_main_input() noexcept
