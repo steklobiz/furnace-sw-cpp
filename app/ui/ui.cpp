@@ -240,6 +240,16 @@ void Ui::update_main() noexcept
 
         break;
 
+    case Furnace::State::Stopped:
+    
+        main_page_.buttons[0] =
+        {
+            Button::Action::Reset
+        };
+    
+        main_page_.count = 1;
+    
+        break;        
 
     case Furnace::State::Finished:
 

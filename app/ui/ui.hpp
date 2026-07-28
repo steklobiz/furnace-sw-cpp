@@ -79,11 +79,9 @@ public:
     struct MainPage
     {
         Furnace::State state;
-    
         uint16_t temperature;
     
         std::array<Button, 6> buttons;
-    
         uint8_t count = 0;
     };
 
