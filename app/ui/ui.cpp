@@ -1,4 +1,5 @@
 #include "ui.hpp"
+#include "profiles.hpp"
 
 #include <iostream>
 
@@ -31,9 +32,10 @@ const Ui::Fsm::Tables Ui::tables_
 // Construction
 //------------------------------------------------------
 
-Ui::Ui(Furnace& furnace)
+Ui::Ui(Furnace& furnace, Profiles& profiles) noexcept
     :
     furnace_(furnace),
+    profiles_(profiles),
     previous_furnace_state_(furnace.state()),
     fsm_(
     *this,
@@ -125,9 +127,8 @@ Ui::State Ui::profile_select(
     {
     case Event::Id::SelectProfile:
 
-        furnace_.load_profile(
-            event.data);
-
+        profiles_.open(event.data);
+ 
         furnace_.start();
 
         return State::Monitor;
@@ -192,6 +193,9 @@ void Ui::update() noexcept
 void Ui::update_main() noexcept
 {
     
+    main_page_.profile_id =
+        profiles_.selected_id();
+
     main_page_.state =
         furnace_.state();
 

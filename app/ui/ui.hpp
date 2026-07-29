@@ -5,7 +5,7 @@
 
 #include "fsm.hpp"
 #include "furnace.hpp"
-
+#include "profiles.hpp"
 
 namespace app
 {
@@ -78,6 +78,8 @@ public:
     // Page models
     struct MainPage
     {
+        uint8_t profile_id;
+        
         Furnace::State state;
         uint16_t temperature;
     
@@ -126,7 +128,9 @@ public:
         Count
     };
             
-    Ui(Furnace& furnace);
+    Ui( 
+        Furnace& furnace,   
+        Profiles& profiles) noexcept;
 
     void process() noexcept;
 
@@ -204,6 +208,8 @@ private:
     
     Furnace& furnace_;
 
+    Profiles& profiles_;
+    
     Furnace::State previous_furnace_state_;
     
     Fsm fsm_;

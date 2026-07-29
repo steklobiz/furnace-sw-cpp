@@ -4,21 +4,21 @@ namespace app
 {
 
 const Profile&
-Profiles::current() const noexcept
+Profiles::view() const noexcept
 {
     return current_profile_;
 }
 
 
 Profile&
-Profiles::current() noexcept
+Profiles::edit() noexcept
 {
     return current_profile_;
 }
 
 
 uint8_t
-Profiles::selected() const noexcept
+Profiles::selected_id() const noexcept
 {
     return selected_profile_id_;
 }

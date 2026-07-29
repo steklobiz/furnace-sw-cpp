@@ -74,7 +74,7 @@ private:
     
     void clear_field(
         Ui::MonitorField field) noexcept;
-            
+                
     bool buttons_changed(
         const Ui::MainPage& page) const noexcept;    
         

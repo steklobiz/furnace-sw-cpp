@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "fsm.hpp"
+#include "profiles.hpp"
 
 namespace app {
     
@@ -30,7 +31,7 @@ public:
         Cooling
     };        
 
-    Furnace();
+    Furnace(Profiles& profiles) noexcept;
     
     // Should be executed by scheduler once a second
     void process() { fsm_.dispatch(Event::Tick); }
@@ -38,8 +39,6 @@ public:
     void start()   { fsm_.dispatch(Event::Start); }
     void stop()    { fsm_.dispatch(Event::Stop);  }
     void reset()   { fsm_.dispatch(Event::Reset); }
-
-    void load_profile(uint8_t) noexcept;
     
     static const char* state_name(State state) noexcept; // only for TUI
     static const char* step_type_name(StepType type) noexcept; // only for TUI
@@ -72,24 +71,13 @@ private:
         Continue,
         WaitForOperator,
     };
-    
+    /*
     struct Step{
         uint8_t setpoint_c;
         uint8_t duration_sec; 
         uint8_t flags;         //  outputs + actions
-    }; 
-
-
-    Step profile_ [MAX_RPOFILE_STEPS] =
-    {
-        {70, 20, 0},
-        {70, 25, 1},
-        {125, 15, 2},
-        {125, 20, 3},
-        {0, 0, 4}    // terminator
-    };
-    
-        
+    };     
+      */  
     using Fsm = core::Fsm<Furnace, State, Event>;
 
     //------------------------------------------------------
@@ -175,6 +163,8 @@ private:
         fsm_tables_
     };
 
+    Profiles& profiles_;
+    
     uint8_t current_step_ = 0;
 
     // Elapsed time 

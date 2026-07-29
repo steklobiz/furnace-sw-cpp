@@ -5,8 +5,9 @@
 namespace app
 {
     
+Furnace::Furnace(Profiles& profiles) noexcept 
+    :profiles_(profiles)
 
-Furnace::Furnace()
 {
     std::cout << "Furnace is ready..."  << std::endl;
 }
@@ -63,11 +64,6 @@ const char* Furnace::step_type_name(
         return "Unknown";
     }
 }
-
-void Furnace::load_profile(uint8_t) noexcept
-{
-    
-};
 
 
 //------------------------------------------------------
@@ -190,16 +186,18 @@ void Furnace::start_profile() noexcept
 
 
 // Step's beginning
-// - initialize timing
 // - apply outputs
 // - anything common to every step
 void Furnace::enter_step() noexcept
-{    
-    hal::set_outputs(profile_[current_step_].flags);
+{   
+    const auto& step =
+        profiles_.view().steps[current_step_];
+         
+    hal::set_outputs(step.flags);
         
-    std::cout << "setpoint: "<< static_cast<unsigned>(profile_[current_step_].setpoint_c)
-        << "| duration: " << static_cast<unsigned>(profile_[current_step_].duration_sec)
-        << "| flags: " << static_cast<unsigned>(profile_[current_step_].flags)
+    std::cout << "setpoint: "<< static_cast<unsigned>(step.setpoint_c)
+        << "| duration: " << static_cast<unsigned>(step.duration)
+        << "| flags: " << static_cast<unsigned>(step.flags)
         << std::endl;
 };
 
@@ -218,20 +216,21 @@ Furnace::State Furnace::next_step() noexcept
         return State::Finished;
     }
 
-    const Step& step = profile_[current_step_];
+    const Step& step =
+        profiles_.view().steps[current_step_];
 
     // Case 2:
     // 0-0 marker means end of profile.
     if (step.setpoint_c == 0 &&
-        step.duration_sec == 0)
+        step.duration == 0)
     {
         return State::Finished;
     }
 
     // New step starts from the previous step target.
     step_start_temperature_c_ =
-        profile_[current_step_ - 1].setpoint_c;
-
+        profiles_.view().steps[current_step_ - 1].setpoint_c;
+    
     step_elapsed_s_ = 0;    
         
     enter_step();
@@ -242,13 +241,14 @@ Furnace::State Furnace::next_step() noexcept
 
 void Furnace::update_temperature() noexcept
 {
-    const Step& step = profile_[current_step_];
-
+    const Step& step =
+        profiles_.view().steps[current_step_];
+    
     current_temperature_c_ =
         step_start_temperature_c_
         + (step.setpoint_c - step_start_temperature_c_)
         * static_cast<int32_t>(step_elapsed_s_)
-        / step.duration_sec;
+        / step.duration;
 
     std::cout
         << "step: "
@@ -263,9 +263,10 @@ void Furnace::update_temperature() noexcept
 // Chacks if current step finished
 bool Furnace::is_step_finished() const noexcept
 {
-    const Step& step = profile_[current_step_];
+    const Step& step =
+        profiles_.view().steps[current_step_];
 
-    return step_elapsed_s_ >= step.duration_sec;
+    return step_elapsed_s_ >= step.duration;
 }
 
 
@@ -278,7 +279,8 @@ Furnace::State Furnace::state() const noexcept
 
 Furnace::StepType Furnace::step_type() const noexcept
 {
-    const Step& step = profile_[current_step_];
+    const Step& step =
+        profiles_.view().steps[current_step_];
 
     if (step.setpoint_c > step_start_temperature_c_)
         return StepType::Heating;
@@ -301,7 +303,7 @@ uint16_t Furnace::current_step() const noexcept
 
 uint16_t Furnace::setpoint() const noexcept
 {
-    return profile_[current_step_].setpoint_c; 
+    return profiles_.view().steps[current_step_].setpoint_c;
 };
     
 uint32_t Furnace::profile_elapsed() const noexcept
@@ -316,7 +318,7 @@ uint32_t Furnace::step_elapsed() const noexcept
 
 uint8_t Furnace::outputs() const noexcept
 {
-    return profile_[current_step_].flags;
+    return profiles_.view().steps[current_step_].flags;
 };
 
 

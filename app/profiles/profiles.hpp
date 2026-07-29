@@ -30,13 +30,14 @@ public:
 
     Profiles() = default;
 
+    // For reading
+    const Profile& view() const noexcept;
 
-    const Profile& current() const noexcept;
+    // For editing
+    Profile& edit() noexcept;
 
-    Profile& current() noexcept;
 
-
-    uint8_t selected() const noexcept;
+    uint8_t selected_id() const noexcept;
 
 
     bool open(
