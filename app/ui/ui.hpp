@@ -123,8 +123,9 @@ public:
     {
         State,
         Temperature,
+        ProfileId,
         Buttons,
-    
+        
         Count
     };
             

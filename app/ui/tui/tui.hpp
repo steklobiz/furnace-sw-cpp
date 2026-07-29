@@ -86,6 +86,7 @@ private:
     
         static constexpr uint8_t StateRow       = 5;
         static constexpr uint8_t TemperatureRow = 6;
+        static constexpr uint8_t ProfileIdRow   = 7;
     
         static constexpr uint8_t ButtonsRow    = 9;
     };

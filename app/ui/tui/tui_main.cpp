@@ -15,7 +15,9 @@ void Tui::draw_main() noexcept
         << "========================\n\n"
         
         << "State:\n"
-        << "Temperature:\n";
+        << "Temperature:\n"
+        << "Profile ID:\n";
+        
 }
     
     
@@ -117,7 +119,30 @@ void Tui::draw_main_field(
             << " C";
 
         break;
+        
+    case Ui::MainField::ProfileId:
 
+        move_cursor(
+            MainLayout::ProfileIdRow,
+            MainLayout::ValueColumn);
+
+        std::cout
+            << "          ";
+
+        move_cursor(
+            MainLayout::ProfileIdRow,
+            MainLayout::ValueColumn);
+
+        if (page.profile_id > 0)
+        {
+            std::cout << static_cast<unsigned>(page.profile_id);
+        }
+        else
+        {
+            std::cout << "(none)";
+        }
+
+        break;
 
     case Ui::MainField::Buttons:
 
@@ -164,6 +189,10 @@ bool Tui::main_field_changed(
 
         return page.temperature != main_cache_.temperature;
 
+    
+    case Ui::MainField::ProfileId:
+
+        return page.profile_id != main_cache_.profile_id;            
 
     case Ui::MainField::Buttons:
 
