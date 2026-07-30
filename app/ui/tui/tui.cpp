@@ -129,7 +129,7 @@ void Tui::execute_action(
 {
     switch(action)
     {
-    case Ui::Button::Action::StartProfile:
+    case Ui::Button::Action::Start:
 
         ui_.dispatch(
             Ui::Event(

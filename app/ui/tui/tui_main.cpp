@@ -209,7 +209,7 @@ const char* Tui::main_action_name(
 {
     switch(action)
     {
-    case Ui::Button::Action::StartProfile:
+    case Ui::Button::Action::Start:
         return "Start";
 
     case Ui::Button::Action::Monitor:

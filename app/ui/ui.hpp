@@ -33,10 +33,10 @@ public:
             Stop,
             Reset,
 
-            OpenMonitor,
-            
             SelectProfile,
-            
+
+            OpenMonitor,
+                        
             Back
         };
 
@@ -64,10 +64,13 @@ public:
         {
             None,
     
-            StartProfile,
-            Monitor,
+            Start,
             Stop,
             Reset,
+            
+            SelectProfile,
+
+            Monitor,
             Settings,
             EditProfile,
             Back

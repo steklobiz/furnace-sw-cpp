@@ -73,9 +73,12 @@ Ui::State Ui::main(const Event& event) noexcept
 {
     switch(event.id)
     {
-    case Event::Id::Start:
+    case Event::Id::SelectProfile:
         return State::ProfileSelect;
 
+    case Event::Id::Start:
+        return State::Monitor;        
+        
     case Event::Id::OpenMonitor:
         return State::Monitor;
 
@@ -210,20 +213,27 @@ void Ui::update_main() noexcept
 
         main_page_.buttons[0] =
         {
-            Button::Action::StartProfile
+            Button::Action::SelectProfile
+        };        
+
+    
+        main_page_.buttons[1] =
+        {
+            Button::Action::Start
         };
 
-        main_page_.buttons[1] =
+        
+        main_page_.buttons[2] =
         {
             Button::Action::EditProfile
         };
 
-        main_page_.buttons[2] =
+        main_page_.buttons[3] =
         {
             Button::Action::Settings
         };
 
-        main_page_.count = 3;
+        main_page_.count = 4;
 
         break;
 
