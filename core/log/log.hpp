@@ -1,161 +1,114 @@
 #pragma once
 
 #include <cstdint>
-#include "log_backend.hpp"
+#include <type_traits>
 
-namespace core
+namespace core::log
 {
+
+enum class Level : uint8_t
+{
+    Off,
+    Error,
+    Warning,
+    Info
+};
+
+struct Tag
+{
+    const char* name;
+    Level level;
+};
 
 template<class Backend>
-class BasicLog
+class Logger
 {
 public:
-
-    template<typename... Args>
-    static void info(const char* tag, Args&&... args) noexcept
+    template<class... Args>
+    static void info(const Tag& tag, Args&&... args) noexcept
     {
-        write("[INFO] [");
-        write(tag);
-        write("] ");
-
-        write_all(args...);
-
-        write('\n');
+        log(Level::Info, tag, static_cast<Args&&>(args)...);
     }
 
-
-    template<typename... Args>
-    static void warning(const char* tag, Args&&... args) noexcept
+    template<class... Args>
+    static void warning(const Tag& tag, Args&&... args) noexcept
     {
-        write("[WARNING] [");
-        write(tag);
-        write("] ");
-
-        write_all(args...);
-
-        write('\n');
+        log(Level::Warning, tag, static_cast<Args&&>(args)...);
     }
 
-
-    template<typename... Args>
-    static void error(const char* tag, Args&&... args) noexcept
+    template<class... Args>
+    static void error(const Tag& tag, Args&&... args) noexcept
     {
-        write("[ERROR] [");
-        write(tag);
-        write("] ");
-
-        write_all(args...);
-
-        write('\n');
+        log(Level::Error, tag, static_cast<Args&&>(args)...);
     }
-
 
 private:
-
-    static void write(char c) noexcept
+    template<class... Args>
+    static void log(Level level, const Tag& tag, Args&&... args) noexcept
     {
-        Backend::write(c);
-    }
-
-
-    static void write(const char* text) noexcept
-    {
-        while (*text)
-        {
-            write(*text++);
-        }
-    }
-
-
-    static void write(bool value) noexcept
-    {
-        write(value ? "true" : "false");
-    }
-
-
-    static void write(uint8_t value) noexcept
-    {
-        write(static_cast<uint32_t>(value));
-    }
-
-
-    static void write(uint16_t value) noexcept
-    {
-        write(static_cast<uint32_t>(value));
-    }
-
-
-    static void write(uint32_t value) noexcept
-    {
-        char buffer[10];
-        uint8_t index = 0;
-
-        if (value == 0)
-        {
-            write('0');
+        if (level > tag.level)
             return;
-        }
 
-        while (value > 0)
+        write_prefix(level);
+        write('[');
+        write_string(tag.name);
+        write(']');
+        write(' ');
+
+        (write_value(static_cast<Args&&>(args)), ...);
+
+        write('\n');
+    }
+
+    static void write_prefix(Level level) noexcept
+    {
+        switch(level)
         {
-            buffer[index++] =
-                static_cast<char>('0' + (value % 10));
-
-            value /= 10;
-        }
-
-        while (index > 0)
-        {
-            write(buffer[--index]);
+        case Level::Info:    write_string("[INFO] "); break;
+        case Level::Warning: write_string("[WARNING] "); break;
+        case Level::Error:   write_string("[ERROR] "); break;
+        default: break;
         }
     }
 
+    static void write(char c) noexcept { Backend::write(c); }
 
-    static void write(int8_t value) noexcept
+    static void write_string(const char* s) noexcept
     {
-        write(static_cast<int32_t>(value));
+        while(*s) write(*s++);
     }
 
+    static void write_value(const char* s) noexcept { write_string(s); }
+    static void write_value(char c) noexcept { write(c); }
+    static void write_value(bool v) noexcept { write_string(v ? "true":"false"); }
 
-    static void write(int16_t value) noexcept
+    template<class T>
+    static std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>
+    write_value(T v) noexcept
     {
-        write(static_cast<int32_t>(value));
+        using U = std::make_unsigned_t<T>;
+        if(v<0){ write('-'); write_unsigned(static_cast<U>(-(v+1))+1); }
+        else write_unsigned(static_cast<U>(v));
     }
 
-
-    static void write(int32_t value) noexcept
+    template<class T>
+    static std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>
+    write_value(T v) noexcept
     {
-        if (value < 0)
-        {
-            write('-');
-
-            // avoid overflow for INT32_MIN
-            uint32_t magnitude =
-                static_cast<uint32_t>(-(value + 1));
-
-            magnitude += 1;
-
-            write(magnitude);
-            return;
-        }
-
-        write(static_cast<uint32_t>(value));
+        write_unsigned(v);
     }
 
-
-    template<typename T>
-    static void write_all(T&& value) noexcept
+    template<class U>
+    static void write_unsigned(U value) noexcept
     {
-        write(value);
-    }
-
-
-    template<typename T, typename... Args>
-    static void write_all(T&& value, Args&&... args) noexcept
-    {
-        write(value);
-        write_all(args...);
+        char buf[10*sizeof(U)];
+        unsigned i=0;
+        do{
+            buf[i++] = char('0' + value%10);
+            value/=10;
+        }while(value);
+        while(i) write(buf[--i]);
     }
 };
 
-} // namespace core
+} // namespace core::log

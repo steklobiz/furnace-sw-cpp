@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-namespace platform
-{
-namespace log
+#include "log.hpp"
+
+namespace platform::log
 {
 
 struct Backend
@@ -15,5 +15,6 @@ struct Backend
     }
 };
 
-} // namespace log
-} // namespace platform
+using Log = core::log::Logger<Backend>;
+
+} // namespace platform::log

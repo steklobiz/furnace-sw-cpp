@@ -1,17 +1,18 @@
 #pragma once
 
-namespace platform
-{
-namespace log
+#include "core/log.hpp"
+
+namespace platform::log
 {
 
 struct Backend
 {
     static void write(char c) noexcept
     {
-        usart.write(c);
+        // TODO: Forward character to USART driver.
     }
 };
 
-} // namespace log
-} // namespace platform
+using Log = core::log::Logger<Backend>;
+
+} // namespace platform::log
