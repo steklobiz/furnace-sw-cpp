@@ -138,15 +138,6 @@ void Tui::execute_action(
         break;
 
 
-    case Ui::Button::Action::Monitor:
-
-        ui_.dispatch(
-            Ui::Event(
-                Ui::Event::Id::OpenMonitor));
-
-        break;
-
-
     case Ui::Button::Action::Stop:
 
         ui_.dispatch(
@@ -164,7 +155,24 @@ void Tui::execute_action(
 
         break;
 
+        
+    case Ui::Button::Action::SelectProfile:
 
+        ui_.dispatch(
+            Ui::Event(
+                Ui::Event::Id::SelectProfile));
+
+        break;
+                
+    case Ui::Button::Action::Monitor:
+
+        ui_.dispatch(
+            Ui::Event(
+                Ui::Event::Id::OpenMonitor));
+
+        break;
+
+        
     default:
 
         break;

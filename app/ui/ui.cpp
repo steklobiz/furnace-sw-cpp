@@ -73,27 +73,28 @@ Ui::State Ui::main(const Event& event) noexcept
 {
     switch(event.id)
     {
-    case Event::Id::SelectProfile:
-        return State::ProfileSelect;
-
     case Event::Id::Start:
         return State::Monitor;        
-        
-    case Event::Id::OpenMonitor:
-        return State::Monitor;
 
     case Event::Id::Stop:
 
         furnace_.stop();
     
         return State::Main;    
-
+        
     case Event::Id::Reset:
 
         furnace_.reset();
     
         return State::Main;    
-    
+        
+        
+    case Event::Id::SelectProfile:
+        return State::ProfileSelect;
+
+        
+    case Event::Id::OpenMonitor:
+        return State::Monitor;    
         
     default:
         return State::Main;
@@ -132,9 +133,9 @@ Ui::State Ui::profile_select(
 
         profiles_.open(event.data);
  
-        furnace_.start();
+//        furnace_.start();
 
-        return State::Monitor;
+        return State::Main;// State::Monitor;
 
 
     case Event::Id::Back:

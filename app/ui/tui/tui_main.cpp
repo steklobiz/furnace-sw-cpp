@@ -208,18 +208,21 @@ const char* Tui::main_action_name(
     Ui::Button::Action action) noexcept
 {
     switch(action)
-    {
+    {        
     case Ui::Button::Action::Start:
         return "Start";
-
-    case Ui::Button::Action::Monitor:
-        return "Monitor";
 
     case Ui::Button::Action::Stop:
         return "Stop";
 
     case Ui::Button::Action::Reset:
         return "Reset";
+        
+    case Ui::Button::Action::SelectProfile:
+        return "Select Profile";        
+        
+    case Ui::Button::Action::Monitor:
+        return "Monitor";
 
     case Ui::Button::Action::Settings:
         return "Settings";
