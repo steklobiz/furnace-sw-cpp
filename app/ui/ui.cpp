@@ -73,7 +73,7 @@ Ui::State Ui::main(const Event& event) noexcept
 {
     switch(event.id)
     {
-    case Event::Id::StartProfile:
+    case Event::Id::Start:
         return State::ProfileSelect;
 
     case Event::Id::OpenMonitor:

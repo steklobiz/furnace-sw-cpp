@@ -133,7 +133,7 @@ void Tui::execute_action(
 
         ui_.dispatch(
             Ui::Event(
-                Ui::Event::Id::StartProfile));
+                Ui::Event::Id::Start));
 
         break;
 

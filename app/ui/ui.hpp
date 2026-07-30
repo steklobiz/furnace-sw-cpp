@@ -29,12 +29,13 @@ public:
         {
             None,
             
-            StartProfile,
-            SelectProfile,
-            OpenMonitor,
-             
+            Start, 
             Stop,
             Reset,
+
+            OpenMonitor,
+            
+            SelectProfile,
             
             Back
         };
