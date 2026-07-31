@@ -32,10 +32,14 @@ const Ui::Fsm::Tables Ui::tables_
 // Construction
 //------------------------------------------------------
 
-Ui::Ui(Furnace& furnace, Profiles& profiles) noexcept
+Ui::Ui(
+    Furnace& furnace, 
+    ProfileManager& profiles,
+    SettingManager& settings) noexcept
     :
     furnace_(furnace),
     profiles_(profiles),
+    settings_(settings),    
     previous_furnace_state_(furnace.state()),
     fsm_(
     *this,
@@ -74,6 +78,9 @@ Ui::State Ui::main(const Event& event) noexcept
     switch(event.id)
     {
     case Event::Id::Start:
+    
+        furnace_.start();
+    
         return State::Monitor;        
 
     case Event::Id::Stop:

@@ -6,6 +6,7 @@
 #include "fsm.hpp"
 #include "furnace.hpp"
 #include "profiles.hpp"
+#include "settings.hpp"
 
 namespace app
 {
@@ -135,7 +136,8 @@ public:
             
     Ui( 
         Furnace& furnace,   
-        Profiles& profiles) noexcept;
+        ProfileManager& profiles,
+        SettingManager& settings) noexcept;
 
     void process() noexcept;
 
@@ -213,7 +215,8 @@ private:
     
     Furnace& furnace_;
 
-    Profiles& profiles_;
+    ProfileManager& profiles_;
+    SettingManager& settings_;
     
     Furnace::State previous_furnace_state_;
     

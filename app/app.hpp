@@ -14,7 +14,7 @@ public:
     App()
         :
         furnace_(profiles_, settings_),
-        ui_(furnace_, profiles_),
+        ui_(furnace_, profiles_, settings_),
         tui_(ui_)
     {
         app::Profile& p = profiles_.edit();
