@@ -1,15 +1,28 @@
+#include <iostream>
+
 #include "furnace.hpp"
 #include "hal.hpp"
-#include <iostream>
+#include "logger.hpp"
+
 
 namespace app
 {
+
+namespace {
     
+constexpr Tag tag{
+    "FURN", 
+    Level::Info
+};
+    
+} // anonymus namespace
+    
+        
 Furnace::Furnace(Profiles& profiles) noexcept 
     :profiles_(profiles)
 
 {
-    std::cout << "Furnace is ready..."  << std::endl;
+    Log::info(tag, "Furnace initialied");
 }
 
 const char* Furnace::state_name(State state) noexcept
@@ -17,24 +30,32 @@ const char* Furnace::state_name(State state) noexcept
     switch (state)
     {
     case State::Idle:
+
         return "Idle";
 
     case State::Running:
+
         return "Running";
 
     case State::Waiting:
+
         return "Waiting";
 
     case State::Finished:
+
         return "Finished";
 
     case State::Stopped:
+
         return "Stopped";
 
     case State::Error:
+
         return "Error";
 
+
     default:
+
         return "Unknown";
     }
 }
@@ -48,11 +69,9 @@ const char* Furnace::step_type_name(
 
         return "Heating";
 
-
     case StepType::Holding:
 
         return "Holding";
-
 
     case StepType::Cooling:
 
@@ -75,7 +94,9 @@ Furnace::State Furnace::idle(const Event& event) noexcept
     switch (event)
     {
     case Event::Start:
-    
+        
+        Log::info(tag, "Start rporfile");
+
         start_profile();
 
         return State::Running;
@@ -92,7 +113,9 @@ Furnace::State Furnace::running(const Event& event) noexcept
     {
     case Event::Stop:
     
-         hal::reset_outputs();
+        Log::info(tag, "Stop rporfile");
+    
+        hal::reset_outputs();
     
         return State::Stopped;
         
@@ -195,10 +218,13 @@ void Furnace::enter_step() noexcept
          
     hal::set_outputs(step.flags);
         
-    std::cout << "setpoint: "<< static_cast<unsigned>(step.setpoint_c)
-        << "| duration: " << static_cast<unsigned>(step.duration)
-        << "| flags: " << static_cast<unsigned>(step.flags)
-        << std::endl;
+    Log::info(tag,
+        "step: ",current_step_,
+         " (",  step_type_name(step_type()),")"
+        " ; setpoint: ", static_cast<unsigned>(step.setpoint_c),
+        " ; duration: ", static_cast<unsigned>(step.duration),
+        " ; flags: ", static_cast<unsigned>(step.flags)
+    );
 };
 
 // Step's end. Switching from current step to next one
@@ -250,14 +276,10 @@ void Furnace::update_temperature() noexcept
         * static_cast<int32_t>(step_elapsed_s_)
         / step.duration;
 
-    std::cout
-        << "step: "
-        << unsigned(current_step_)
-        << "| time: "
-        << step_elapsed_s_
-        << "| temp: "
-        << current_temperature_c_
-        << '\n';
+
+    Log::info(tag,
+        "time: ", step_elapsed_s_,
+        " ; temp: ", current_temperature_c_);
 }
 
 // Chacks if current step finished
