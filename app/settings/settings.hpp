@@ -5,6 +5,22 @@
 namespace app
 {
 
+// TOD: 
+// 1.split structure into areas:
+// struct Settings
+// {
+//     ThermalSettings thermal;
+//     UiSettings ui;
+// };    
+//
+// usage:
+// settings_.edit().thermal
+// settings_.view().ui
+//
+// 2.Think aout adding:
+// bool modified() const noexcept;
+// void mark_modified() noexcept;    
+
 struct Settings
 {
     uint16_t buzzer_volume = 100;
