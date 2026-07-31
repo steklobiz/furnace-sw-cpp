@@ -19,13 +19,14 @@ constexpr Tag tag{
     
         
 Furnace::Furnace(Profiles& profiles) noexcept 
-    :profiles_(profiles)
-
+    :
+    profiles_(profiles)
 {
     Log::info(tag, "Furnace initialied");
 }
 
-const char* Furnace::state_name(State state) noexcept
+const char* 
+Furnace::state_name(State state) noexcept
 {
     switch (state)
     {
@@ -60,8 +61,8 @@ const char* Furnace::state_name(State state) noexcept
     }
 }
 
-const char* Furnace::step_type_name(
-    StepType type) noexcept
+const char* 
+Furnace::step_type_name(StepType type) noexcept
 {
     switch(type)
     {
@@ -89,7 +90,8 @@ const char* Furnace::step_type_name(
 // State handlers
 //------------------------------------------------------
 
-Furnace::State Furnace::idle(const Event& event) noexcept
+Furnace::State 
+Furnace::idle(const Event& event) noexcept
 {
     switch (event)
     {
@@ -107,7 +109,8 @@ Furnace::State Furnace::idle(const Event& event) noexcept
     }
 }
 
-Furnace::State Furnace::running(const Event& event) noexcept
+Furnace::State 
+Furnace::running(const Event& event) noexcept
 {
     switch (event)
     {
@@ -134,7 +137,8 @@ Furnace::State Furnace::running(const Event& event) noexcept
     }
 }
 
-Furnace::State Furnace::waiting(const Event& event) noexcept
+Furnace::State 
+Furnace::waiting(const Event& event) noexcept
 {
     switch (event)
     {
@@ -155,7 +159,8 @@ Furnace::State Furnace::waiting(const Event& event) noexcept
 }
 
 
-Furnace::State Furnace::finished(const Event& event) noexcept
+Furnace::State 
+Furnace::finished(const Event& event) noexcept
 {
     switch (event)
     {
@@ -166,7 +171,8 @@ Furnace::State Furnace::finished(const Event& event) noexcept
     }
 }
 
-Furnace::State Furnace::stopped(const Event& event) noexcept
+Furnace::State 
+Furnace::stopped(const Event& event) noexcept
 {
     switch (event)
     {
@@ -177,7 +183,8 @@ Furnace::State Furnace::stopped(const Event& event) noexcept
     }    
 };    
 
-Furnace::State Furnace::error(const Event& event) noexcept
+Furnace::State 
+Furnace::error(const Event& event) noexcept
 {
     switch (event)
     {
@@ -195,7 +202,8 @@ Furnace::State Furnace::error(const Event& event) noexcept
 // Starting profile from Idle state:
 // - reset profile
 // - first step starts from ambient
-void Furnace::start_profile() noexcept
+void 
+Furnace::start_profile() noexcept
 {
     current_step_ = 0;
     
@@ -211,7 +219,8 @@ void Furnace::start_profile() noexcept
 // Step's beginning
 // - apply outputs
 // - anything common to every step
-void Furnace::enter_step() noexcept
+void 
+Furnace::enter_step() noexcept
 {   
     const auto& step =
         profiles_.view().steps[current_step_];
@@ -228,30 +237,30 @@ void Furnace::enter_step() noexcept
 };
 
 // Step's end. Switching from current step to next one
-Furnace::State Furnace::next_step() noexcept
+Furnace::State 
+Furnace::next_step() noexcept
 {
     // Current step is finished.
     // Move to the next one.
     ++current_step_;
 
-    // Case 1:
-    // We reached the maximum number of steps.
-    // Profile is finished.
-    if (current_step_ >= MAX_RPOFILE_STEPS)
-    {
-        return State::Finished;
-    }
-
     const Step& step =
         profiles_.view().steps[current_step_];
-
-    // Case 2:
-    // 0-0 marker means end of profile.
-    if (step.setpoint_c == 0 &&
-        step.duration == 0)
+        
+    // Case 1: We reached the maximum number of steps.
+    if ((current_step_ >= MAX_RPOFILE_STEPS) ||
+        // Case 2: 0-0 marker means end of profile.
+        (step.setpoint_c == 0 && step.duration == 0))    
     {
+        // Profile is finished.
+
+        Log::info(tag, "Profile finished");
+
+        // TODO: Do i need to reset outputs?
+                
         return State::Finished;
     }
+
 
     // New step starts from the previous step target.
     step_start_temperature_c_ =
@@ -265,7 +274,8 @@ Furnace::State Furnace::next_step() noexcept
 }
 
 
-void Furnace::update_temperature() noexcept
+void 
+Furnace::update_temperature() noexcept
 {
     const Step& step =
         profiles_.view().steps[current_step_];
@@ -283,7 +293,8 @@ void Furnace::update_temperature() noexcept
 }
 
 // Chacks if current step finished
-bool Furnace::is_step_finished() const noexcept
+bool 
+Furnace::is_step_finished() const noexcept
 {
     const Step& step =
         profiles_.view().steps[current_step_];
@@ -294,12 +305,14 @@ bool Furnace::is_step_finished() const noexcept
 
 // Getters for UI output
 
-Furnace::State Furnace::state() const noexcept
+Furnace::State 
+Furnace::state() const noexcept
 {
     return fsm_.state();
 }
 
-Furnace::StepType Furnace::step_type() const noexcept
+Furnace::StepType 
+Furnace::step_type() const noexcept
 {
     const Step& step =
         profiles_.view().steps[current_step_];
@@ -313,32 +326,38 @@ Furnace::StepType Furnace::step_type() const noexcept
     return StepType::Holding;
 }
 
-uint16_t Furnace::current_temp() const noexcept
+uint16_t 
+Furnace::current_temp() const noexcept
 {
     return current_temperature_c_;
 };
 
-uint16_t Furnace::current_step() const noexcept
+uint16_t 
+Furnace::current_step() const noexcept
 {
     return current_step_;
 };
 
-uint16_t Furnace::setpoint() const noexcept
+uint16_t 
+Furnace::setpoint() const noexcept
 {
     return profiles_.view().steps[current_step_].setpoint_c;
 };
     
-uint32_t Furnace::profile_elapsed() const noexcept
+uint32_t 
+Furnace::profile_elapsed() const noexcept
 {
     return profile_elapsed_s_;    
 };
 
-uint32_t Furnace::step_elapsed() const noexcept
+uint32_t 
+Furnace::step_elapsed() const noexcept
 {
     return step_elapsed_s_;
 };
 
-uint8_t Furnace::outputs() const noexcept
+uint8_t 
+Furnace::outputs() const noexcept
 {
     return profiles_.view().steps[current_step_].flags;
 };
