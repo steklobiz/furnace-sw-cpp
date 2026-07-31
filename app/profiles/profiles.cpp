@@ -25,8 +25,7 @@ Profiles::selected_id() const noexcept
 
 
 bool
-Profiles::open(
-    uint8_t profile_id) noexcept
+Profiles::open(uint8_t profile_id) noexcept
 {
     selected_profile_id_ = profile_id;
 

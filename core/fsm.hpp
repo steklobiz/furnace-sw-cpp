@@ -71,7 +71,8 @@ public:
         return state_;
     }
 
-    void dispatch(const Event& event) noexcept
+    void 
+    dispatch(const Event& event) noexcept
     {
                 
         const auto handler =
@@ -89,12 +90,14 @@ public:
 
 private:
 
-    static constexpr std::size_t index(State state) noexcept
+    static constexpr std::size_t 
+    index(State state) noexcept
     {
         return static_cast<std::size_t>(state);
     }
 
-    void transition(State next) noexcept
+    void 
+    transition(State next) noexcept
     {
         if (next == state_)
             return;
