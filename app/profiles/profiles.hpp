@@ -1,3 +1,4 @@
+// profiles.hpp
 #pragma once
 
 #include <array>
@@ -24,11 +25,11 @@ struct Profile
 };
 
 
-class Profiles
+class ProfileManager
 {
 public:
 
-    Profiles() = default;
+    ProfileManager() = default;
 
     // For reading
     const Profile& view() const noexcept;

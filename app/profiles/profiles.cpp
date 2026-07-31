@@ -1,31 +1,31 @@
+// profiles.cpp
 #include "profiles.hpp"
 
-namespace app
-{
+namespace app {
 
 const Profile&
-Profiles::view() const noexcept
+ProfileManager::view() const noexcept
 {
     return current_profile_;
 }
 
 
 Profile&
-Profiles::edit() noexcept
+ProfileManager::edit() noexcept
 {
     return current_profile_;
 }
 
 
 uint8_t
-Profiles::selected_id() const noexcept
+ProfileManager::selected_id() const noexcept
 {
     return selected_profile_id_;
 }
 
 
 bool
-Profiles::open(uint8_t profile_id) noexcept
+ProfileManager::open(uint8_t profile_id) noexcept
 {
     selected_profile_id_ = profile_id;
 
@@ -37,7 +37,7 @@ Profiles::open(uint8_t profile_id) noexcept
 
 
 bool
-Profiles::save() noexcept
+ProfileManager::save() noexcept
 {
     // TODO:
     // save current_profile_ to EEPROM
@@ -45,4 +45,4 @@ Profiles::save() noexcept
     return true;
 }
 
-}
+} // namespace app
