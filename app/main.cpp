@@ -1,25 +1,16 @@
-#include <iostream>
-// #include <iomanip>
-// #include "furnace.hpp"
-// #include "ui.hpp"
-// #include "tui.hpp"
-// #include "hal.hpp"
-// #include "thermal_model.hpp"
-#include "app.hpp"
-#include "log.hpp"
+// main.cpp
+#include "logger.hpp"
 
-using Log = core::BasicLog<platform::log::Backend>;
+// Define tags
+constexpr Tag app_tag{"Application", Level::Off};
+constexpr Tag network_tag{"Network", Level::Off};
 
 int main()
 {
-    Log::info("MAIN", "Start...");
-/*
-    app::App app;
-
-    while (true)
-    {
-        app.process();
-    }
-*/  
-    return 0;  
-};
+    Log::info(app_tag, "Application started");
+    Log::warning(network_tag, "Network timeout");
+    Log::error(app_tag, "Critical error: ", -1);
+    Log::info(app_tag, "Value: ", 42, " and flag: ", true);
+    
+    return 0;
+}

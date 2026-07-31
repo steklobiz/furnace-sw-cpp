@@ -5,6 +5,8 @@
 #include "hal.hpp"
 #include "thermal_model.hpp"
 
+
+// need to be namespace platform::hal {
 namespace hal {
     
     simulator::ThermalParams params{
