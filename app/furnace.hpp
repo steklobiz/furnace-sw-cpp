@@ -1,3 +1,4 @@
+// furnace.hpp
 #pragma once
 
 #include <cstdint>
@@ -7,7 +8,6 @@
 
 namespace app {
     
-
 
 class Furnace
 {
@@ -56,8 +56,8 @@ public:
         
 private:
 
-    static constexpr uint8_t MAX_RPOFILE_STEPS = 5;
-    static constexpr int8_t ambient_temperature_c_ = 25;
+    static constexpr uint8_t MAX_RPOFILE_STEPS = 5;      // temporary
+    static constexpr int8_t ambient_temperature_c_ = 25; // temporary
 
     enum class Event : uint8_t
     {

@@ -1,3 +1,4 @@
+// furnace.cpp
 #include <iostream>
 
 #include "furnace.hpp"
@@ -5,8 +6,7 @@
 #include "logger.hpp"
 
 
-namespace app
-{
+namespace app {
 
 namespace {
     
@@ -249,7 +249,7 @@ Furnace::next_step() noexcept
         profiles_.view().steps[current_step_];
         
     // Case 1: We reached the maximum number of steps.
-    if ((current_step_ >= MAX_RPOFILE_STEPS) ||
+    if ((current_step_ >= MAX_RPOFILE_STEPS) ||         // TODO::Replace MAX_RPOFILE_STEPS with congfig constant
         // Case 2: 0-0 marker means end of profile.
         (step.setpoint_c == 0 && step.duration == 0))    
     {
