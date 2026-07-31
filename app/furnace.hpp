@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "fsm.hpp"
 #include "profiles.hpp"
+#include "settings.hpp"
 
 namespace app {
     
@@ -31,7 +32,7 @@ public:
         Cooling
     };        
 
-    Furnace(Profiles& profiles) noexcept;
+    Furnace(ProfileManager& profiles, SettingManager& settings) noexcept;
     
     // Should be executed by scheduler once a second
     void process() { fsm_.dispatch(Event::Tick); }
@@ -163,7 +164,8 @@ private:
         fsm_tables_
     };
 
-    Profiles& profiles_;
+    ProfileManager& profiles_;
+    SettingManager& settings_;
     
     uint8_t current_step_ = 0;
 

@@ -18,9 +18,10 @@ constexpr Tag tag{
 } // anonymus namespace
     
         
-Furnace::Furnace(Profiles& profiles) noexcept 
+Furnace::Furnace(ProfileManager& profiles, SettingManager& settings) noexcept 
     :
-    profiles_(profiles)
+    profiles_(profiles),
+    settings_(settings)
 {
     Log::info(tag, "Furnace initialied");
 }
