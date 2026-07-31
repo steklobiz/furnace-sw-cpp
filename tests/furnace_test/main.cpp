@@ -18,6 +18,7 @@ int main()
     
     // Get a reference (alias) to the internal profile
     app::Profile& p = profiles.edit();
+
     p.steps[0] = {50, 10, 0x01};  // setpoint 100°C, duration 30s, flags
     p.steps[1] = {50, 10,  0x02};
     p.steps[2] = {100, 10, 0x00};
