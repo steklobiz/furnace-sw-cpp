@@ -19,11 +19,8 @@ public:
 
     static constexpr uint8_t MaxTasks = 16;
 
-
-
+    
     Scheduler();
-
-
 
     //
     // Register a member function as a repeating task.

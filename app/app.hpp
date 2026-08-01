@@ -80,9 +80,6 @@ private:
 
 private:
 
-    // Application-owned objects.
-    // Order is important:
-    // members are constructed in declaration order.
     ProfileManager profiles_;
     
     SettingManager settings_;

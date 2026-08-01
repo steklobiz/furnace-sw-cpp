@@ -49,6 +49,30 @@ public:
 
         return true;
     }
+    
+    // Inserts an element at the end of the buffer.
+    //
+    // Always succeeds. If the buffer is full, the oldest element
+    // is removed and replaced by the new element.
+    //
+    // This operation keeps the buffer size unchanged when full.
+    bool push_overwrite(const T& value) noexcept  // Always succeeds, overwrites oldest if full
+    {
+        if (size_ == Capacity) 
+        {
+            read_index_ = next_index(read_index_);  // Drop oldest
+        } else 
+        {
+            ++size_;
+        }
+
+        buffer_[write_index_] = value;
+        
+        write_index_ = next_index(write_index_);
+        
+        return true;
+    }
+
 
     // Removes the oldest element from the buffer.
     //
@@ -80,6 +104,22 @@ public:
         size_ = 0;
     }
 
+
+    // Returns an element by its position relative to the newest element.
+    //
+    // Index 0 refers to the newest element.
+    // Index 1 refers to the previous element, and so on.
+    //
+    // The caller must ensure index < size().
+    const T& from_newest(std::size_t index) const noexcept
+    {
+        const std::size_t idx =
+            (write_index_ + Capacity - 1 - index) % Capacity;
+    
+        return buffer_[idx];
+    }
+    
+    
     // Returns the current number of stored elements.
     std::size_t size() const noexcept
     {
