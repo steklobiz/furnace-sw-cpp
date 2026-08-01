@@ -21,6 +21,7 @@ constexpr Tag tag{
         
 Furnace::Furnace(ProfileManager& profiles, SettingManager& settings) noexcept 
     :
+    pid_(core::Pid::Config{1000, 100, 0, 0}),
     profiles_(profiles),
     settings_(settings)
 {

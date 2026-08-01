@@ -4,6 +4,14 @@
 namespace core
 {
 
+namespace
+{
+
+// Upper output limit (heater duty range 0..255).
+constexpr int32_t output_max = 255;
+
+} // anonymous namespace
+
 
 Pid::Pid(const Config& config) noexcept
     :
@@ -70,9 +78,9 @@ int32_t Pid::update(
     //
     // Output limiting
     //
-    if (output > config_.output_max)
+    if (output > output_max)
     {
-        output = config_.output_max;
+        output = output_max;
 
         // anti windup
         integral_ = output - p - d;

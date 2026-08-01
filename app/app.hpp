@@ -1,8 +1,13 @@
 #pragma once
+
 #include "profiles.hpp"
 #include "furnace.hpp"
 #include "ui.hpp"
 #include "tui.hpp"
+
+#include "scheduler.hpp"
+#include "hal.hpp"
+
 
 namespace app
 {
@@ -11,35 +16,87 @@ class App
 {
 public:
 
+
     App()
         :
         furnace_(profiles_, settings_),
         ui_(furnace_, profiles_, settings_),
         tui_(ui_)
     {
-        app::Profile& p = profiles_.edit();
+    }
+    
+    bool init()
+    {
+        // Temporary test profile.
+        // Later this will probably come from EEPROM / flash storage.
+        Profile& p = profiles_.edit();
 
         p.steps[0] = {50, 10, 0x01};
         p.steps[1] = {50, 10, 0x02};
         p.steps[2] = {100, 10, 0x00};
         p.steps[3] = {100, 10, 0x00};
         p.steps[4] = {50, 10, 0x00};
-        p.steps[5] = {000, 00, 0x00};
-    }
+        p.steps[5] = {0, 0, 0x00};
 
-    void process() noexcept
+        // Registration order defines execution order.
+        // Scheduler stores:
+        //     object pointer
+        //     generated callback function
+        // No wrappers are required.
+
+        // furnace_.process()
+        scheduler_.every<Furnace, &Furnace::process>(
+            1000,
+            furnace_);
+        // ui_.process()        
+        scheduler_.every<Ui, &Ui::process>(
+            100,
+            ui_);
+        // tui_.process()        
+        scheduler_.every<Tui, &Tui::process>(
+            100,
+            tui_);
+    
+        return true; // replace with false if anything fails    
+    }
+    
+
+    void run() noexcept
     {
-        furnace_.process();
-        ui_.process();
-        tui_.process();
+        while(true)
+        {
+            // Execute ready scheduler tasks.
+            scheduler_.run();
+
+            // Small delay to avoid a busy loop.
+            // Scheduler precision depends on this value.
+            hal::delay_ms(loop_delay_ms);
+        }
     }
 
 private:
+
+    static constexpr uint32_t loop_delay_ms = 5;
+
+private:
+
+    // Application-owned objects.
+    // Order is important:
+    // members are constructed in declaration order.
     ProfileManager profiles_;
+    
     SettingManager settings_;
+
+
     Furnace furnace_;
+
     Ui ui_;
+
     Tui tui_;
+
+
+    core::Scheduler scheduler_;
+
 };
 
 } // namespace app

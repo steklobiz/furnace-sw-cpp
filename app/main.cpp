@@ -1,7 +1,6 @@
 // main.cpp
 #include "app.hpp"
 #include "logger.hpp"
-#include "hal.hpp"
 
 // Define tags
 namespace{
@@ -13,18 +12,22 @@ constexpr Tag tag {
 
 }
 
-app::App myapp;
-
 int main()
 {
+    hal::init();
+     
     Log::info(tag, "Application started");
 
-    while(1)
-    {
-        myapp.process();
+    app::App myapp;
 
-        hal::delay_ms(1000);
+    if (!myapp.init())
+    {
+        while(true)
+        {
+        }
     }
+        
+    myapp.run();
     
     return 0;
 }
