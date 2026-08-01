@@ -5,6 +5,7 @@
 #include "fsm.hpp"
 #include "profiles.hpp"
 #include "settings.hpp"
+#include "pid.hpp"
 
 namespace app {
     
@@ -164,6 +165,8 @@ private:
         fsm_tables_
     };
 
+    core::Pid pid_;
+    
     ProfileManager& profiles_;
     SettingManager& settings_;
     
