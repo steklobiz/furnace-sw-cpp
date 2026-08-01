@@ -14,7 +14,10 @@ namespace app::config
         inline constexpr uint8_t count = 10;
         inline constexpr uint8_t max_steps = 10;
     }
-    
+    namespace pid
+    {
+        inline constexpr uint8_t output_max_power = 100;
+    }
 
 inline constexpr uint8_t output_count      = 4;
 
