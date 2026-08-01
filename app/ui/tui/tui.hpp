@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui.hpp"
+#include <iostream> // for cout
 
 namespace app
 {
@@ -76,7 +77,9 @@ private:
         Ui::MonitorField field) noexcept;
                 
     bool buttons_changed(
-        const Ui::MainPage& page) const noexcept;    
+        const Ui::MainPage& page) const noexcept;
+          
+    bool read_key(char& key) noexcept;      
         
 private:
 

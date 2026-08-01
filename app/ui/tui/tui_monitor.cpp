@@ -1,6 +1,6 @@
 #include <cstdint>
-#include <iostream>
 #include <array>
+
 #include "tui.hpp"
 
 
@@ -181,7 +181,10 @@ void Tui::process_monitor_input() noexcept
 {
     char key;
 
-    std::cin >> key;
+    if (!read_key(key)) 
+    {
+        return;
+    } 
 
 
     switch(key)

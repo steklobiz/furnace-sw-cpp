@@ -1,5 +1,6 @@
 #include <cstdint>
-#include <iostream>
+#include <conio.h> // for  _kbhit() and _getch()
+
 
 #include "tui.hpp"
 
@@ -195,6 +196,14 @@ bool Tui::buttons_changed(
     }
 
     return false;
+}
+
+bool Tui::read_key(char& key) noexcept
+{
+    if (!_kbhit())
+        return false;
+    key = static_cast<char>(_getch());
+    return true;
 }
 
 } // namespace app

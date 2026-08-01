@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <iostream>
 
 #include "tui.hpp"
 
@@ -41,9 +40,12 @@ void Tui::process_profile_select_input() noexcept
 {
     char key;
 
-    std::cin >> key;
+    if (!read_key(key)) 
+    {
+        return;
+    } 
 
-
+    
     if (key == 'b' || key == 'B')
     {
         ui_.dispatch(

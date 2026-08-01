@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <iostream>
 #include "tui.hpp"
 
 namespace app
@@ -49,8 +48,10 @@ void Tui::process_main_input() noexcept
 {
     char key;
 
-    std::cin >> key;
-
+    if (!read_key(key)) 
+    {
+        return;
+    } 
 
     if (key < '1' || key > '9')
     {
