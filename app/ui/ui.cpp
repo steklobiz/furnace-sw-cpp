@@ -1,7 +1,6 @@
 #include "ui.hpp"
 #include "profiles.hpp"
 
-#include <iostream>
 
 namespace app
 {    

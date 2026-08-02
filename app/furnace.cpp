@@ -1,5 +1,4 @@
 // furnace.cpp
-#include <iostream>
 
 #include "config.hpp"
 #include "furnace.hpp"
