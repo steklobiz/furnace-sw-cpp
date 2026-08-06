@@ -2,12 +2,13 @@
 
 #include "profiles.hpp"
 #include "furnace.hpp"
+#include "tc_parser.hpp"
 #include "ui.hpp"
 #include "tui.hpp"
 
 #include "scheduler.hpp"
 #include "hal.hpp"
-#include "log.hpp"
+#include "logger.hpp"
 
 namespace app
 {
@@ -16,10 +17,10 @@ namespace app
 namespace
 {
 
-constexpr core::log::Tag tag
+constexpr Tag tag
 {
-    "APP",
-    core::log::Level::Info
+    "App",
+    Level::Info
 };
 
 }
@@ -34,22 +35,16 @@ public:
     
     bool init()
     {
-    core::log::info(
+    Log::info(
         tag,
         "Application initialized");
 
-    core::log::info(
-        tag,
-        "Step=",
-        3,
-        " Temp=",
-        125);
-                /*        
+       
         // Connect objects (dependency injection)
-        furnace_.init(profiles_, settings_);
+        furnace_.init(profiles_, settings_, tc_parser_);
         ui_.init(furnace_, profiles_, settings_);
         tui_.init(ui_);
-
+/*
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
         Profile& p = profiles_.edit();
@@ -107,6 +102,7 @@ private:
     
     SettingManager settings_;
 
+    TC_Parser tc_parser_;
 
     Furnace furnace_;
 

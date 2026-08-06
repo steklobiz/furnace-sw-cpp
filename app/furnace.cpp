@@ -2,18 +2,19 @@
 
 #include "config.hpp"
 #include "furnace.hpp"
+#include "tc_parser.hpp"
 #include "hal.hpp"
-#include "log.hpp"
+#include "logger.hpp"
 
 
 namespace app {
 
 namespace {
 
-constexpr core::log::Tag tag
+constexpr Tag tag
 {
     "FURN",
-    core::log::Level::Warning
+    Level::Info
 };
     
 
@@ -21,14 +22,16 @@ constexpr core::log::Tag tag
     
 
 void 
-Furnace::init(ProfileManager& profiles, SettingManager& settings) noexcept
+Furnace::init(ProfileManager& profiles, SettingManager& settings,
+        TC_Parser& tc_parser) noexcept
 {
     profiles_ = &profiles;
     settings_ = &settings;
+    tc_parser_ = &tc_parser;
     
     fsm_.init(*this, State::Idle, fsm_tables_);
     
-    core::log::info(tag, "Furnace initialized");
+    Log::info(tag, "Furnace initialized");
 }
         
 
@@ -104,7 +107,7 @@ Furnace::idle(const Event& event) noexcept
     {
     case Event::Start:
         
-        core::log::info(tag, "Start rporfile");
+        Log::info(tag, "Start rporfile");
 
         start_profile();
 
@@ -123,7 +126,7 @@ Furnace::running(const Event& event) noexcept
     {
     case Event::Stop:
     
-        core::log::info(tag, "Stop rporfile");
+        Log::info(tag, "Stop rporfile");
     
         hal::reset_outputs();
     
@@ -234,7 +237,7 @@ Furnace::enter_step() noexcept
          
     hal::set_outputs(step.flags);
         
-    core::log::info(tag,
+    Log::info(tag,
         "step: "/*,current_step_,
          " (",  step_type_name(step_type()),")"
         " ; setpoint: ", static_cast<unsigned>(step.setpoint_c),
@@ -261,7 +264,7 @@ Furnace::next_step() noexcept
     {
         // Profile is finished.
 
-        core::log::info(tag, "Profile finished");
+        Log::info(tag, "Profile finished");
 
         // TODO: Do i need to reset outputs?
                 
@@ -294,7 +297,7 @@ Furnace::update_temperature() noexcept
         / step.duration;
 
 
-    core::log::info(tag,
+    Log::info(tag,
         "time: "/*, step_elapsed_s_,
         " ; temp: ", current_temperature_c_*/);
 }

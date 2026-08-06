@@ -5,6 +5,8 @@
 #include "fsm.hpp"
 #include "profiles.hpp"
 #include "settings.hpp"
+#include "tc_parser.hpp"
+
 
 namespace app {
     
@@ -35,7 +37,8 @@ public:
     Furnace() noexcept = default;                          
 
     
-    void init(ProfileManager& profiles, SettingManager& settings) noexcept;
+    void init(ProfileManager& profiles, SettingManager& settings, 
+        TC_Parser& tc_parser) noexcept;
     
     // Should be executed by scheduler once a second
     void process() { fsm_.dispatch(Event::Tick); }
@@ -165,6 +168,7 @@ private:
     
     ProfileManager* profiles_ = nullptr;
     SettingManager* settings_ = nullptr;
+    TC_Parser* tc_parser_ = nullptr;
     
     uint8_t current_step_ = 0;
 
