@@ -134,11 +134,10 @@ public:
         Count
     };
             
-    Ui( 
-        Furnace& furnace,   
-        ProfileManager& profiles,
-        SettingManager& settings) noexcept;
+    Ui() noexcept = default;
 
+    void init(Furnace& furnace, ProfileManager& profiles, SettingManager& settings) noexcept;
+    
     void process() noexcept;
 
     const MainPage& main_page() const noexcept;
@@ -213,10 +212,11 @@ private:
     static const Fsm::EnterTable enters_;
     static const Fsm::Tables tables_;
     
-    Furnace& furnace_;
-
-    ProfileManager& profiles_;
-    SettingManager& settings_;
+    
+    Furnace* furnace_ = nullptr;
+    
+    ProfileManager* profiles_ = nullptr;
+    SettingManager* settings_ = nullptr;
     
     Furnace::State previous_furnace_state_;
     

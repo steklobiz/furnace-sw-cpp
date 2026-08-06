@@ -36,7 +36,7 @@ void Tui::update_main() noexcept
     }
 
 
-    main_cache_ = ui_.main_page();
+    main_cache_ = ui_->main_page();
 
     main_cache_initialized_ = true;
 
@@ -63,7 +63,7 @@ void Tui::process_main_input() noexcept
         static_cast<uint8_t>(key - '1');
 
     const auto& page =
-        ui_.main_page();
+        ui_->main_page();
 
 
     if (index >= page.count)
@@ -79,7 +79,7 @@ void Tui::process_main_input() noexcept
 void Tui::draw_main_field(
     Ui::MainField field) noexcept
 {
-    const auto& page = ui_.main_page();
+    const auto& page = ui_->main_page();
 
     switch (field)
     {
@@ -173,7 +173,7 @@ void Tui::draw_main_field(
 bool Tui::main_field_changed(
     Ui::MainField field) const noexcept
 {
-    const auto& page = ui_.main_page();
+    const auto& page = ui_->main_page();
 
     if (!main_cache_initialized_)
         return true;

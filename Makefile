@@ -1,7 +1,8 @@
 CXX      := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic \
             -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config \
-            -Icore/log -Icore/log/backends -Icore/pid -Icore/scheduler
+            -Icore/log -Icore/log/backends -Icore/pid -Icore/scheduler -Icore/format \
+            -Iplatform
 LDFLAGS := -static
 
 SRCDIR   := app
@@ -15,6 +16,7 @@ LOGDIR   := core/log
 LOGBDIR  := core/log/backends
 PIDDIR   := core/pid
 SCHEDDIR := core/scheduler
+FORMDIR  := core/format
 HALDIR   := platform/pc
 BUILDDIR := build
 TARGET   := $(BUILDDIR)/app.exe
@@ -30,8 +32,9 @@ LOG_SRCS  := $(wildcard $(LOGDIR)/*.cpp)
 LOGB_SRCS := $(wildcard $(LOGBDIR)/*.cpp)
 PID_SRCS  := $(wildcard $(PIDDIR)/*.cpp)
 SCHED_SRCS := $(wildcard $(SCHEDDIR)/*.cpp)
+FORM_SRCS  := $(wildcard $(FORMDIR)/*.cpp)
 HAL_SRCS  := $(wildcard $(HALDIR)/*.cpp)
-SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(PROF_SRCS) $(SET_SRCS) $(CONF_SRCS) $(LOG_SRCS) $(LOGB_SRCS) $(PID_SRCS) $(SCHED_SRCS) $(HAL_SRCS)
+SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(PROF_SRCS) $(SET_SRCS) $(CONF_SRCS) $(LOG_SRCS) $(LOGB_SRCS) $(PID_SRCS) $(SCHED_SRCS) $(FORM_SRCS) $(HAL_SRCS)
 OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
              $(patsubst $(UIDIR)/%.cpp, $(BUILDDIR)/%.o, $(UI_SRCS)) \
              $(patsubst $(TUIDIR)/%.cpp, $(BUILDDIR)/%.o, $(TUI_SRCS)) \
@@ -43,6 +46,7 @@ OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
              $(patsubst $(LOGBDIR)/%.cpp, $(BUILDDIR)/logb_%.o, $(LOGB_SRCS)) \
              $(patsubst $(PIDDIR)/%.cpp, $(BUILDDIR)/pid_%.o, $(PID_SRCS)) \
              $(patsubst $(SCHEDDIR)/%.cpp, $(BUILDDIR)/sched_%.o, $(SCHED_SRCS)) \
+             $(patsubst $(FORMDIR)/%.cpp, $(BUILDDIR)/fmt_%.o, $(FORM_SRCS)) \
              $(patsubst $(HALDIR)/%.cpp, $(BUILDDIR)/%.o, $(HAL_SRCS))
 
 .PHONY: all clean compiledb run
@@ -82,6 +86,9 @@ $(BUILDDIR)/logb_%.o: $(LOGBDIR)/%.cpp | $(BUILDDIR)
 $(BUILDDIR)/pid_%.o: $(PIDDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 $(BUILDDIR)/sched_%.o: $(SCHEDDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
+
+$(BUILDDIR)/fmt_%.o: $(FORMDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/%.o: $(HALDIR)/%.cpp | $(BUILDDIR)

@@ -84,7 +84,7 @@ void Tui::update_monitor() noexcept
         }
     }
 
-    monitor_cache_ = ui_.monitor_page();
+    monitor_cache_ = ui_->monitor_page();
 
     monitor_cache_initialized_ = true;
     
@@ -94,7 +94,7 @@ void Tui::update_monitor() noexcept
 void Tui::draw_monitor_field(
     Ui::MonitorField field) noexcept
 {
-    const auto& page = ui_.monitor_page();
+    const auto& page = ui_->monitor_page();
 
     clear_field(field);
 
@@ -191,7 +191,7 @@ void Tui::process_monitor_input() noexcept
     {
     case '1':
 
-        ui_.dispatch(
+        ui_->dispatch(
         {
             Ui::Event::Id::Back
         });
@@ -201,7 +201,7 @@ void Tui::process_monitor_input() noexcept
 
     case '2':
 
-        ui_.dispatch(
+        ui_->dispatch(
         {
             Ui::Event::Id::Stop
         });
@@ -237,7 +237,7 @@ void Tui::clear_field(
 bool Tui::monitor_field_changed(
     Ui::MonitorField field) const noexcept
 {
-    const auto& page = ui_.monitor_page();
+    const auto& page = ui_->monitor_page();
 
     if (!monitor_cache_initialized_)
         return true;

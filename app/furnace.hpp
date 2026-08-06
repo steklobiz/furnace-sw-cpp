@@ -5,7 +5,6 @@
 #include "fsm.hpp"
 #include "profiles.hpp"
 #include "settings.hpp"
-#include "pid.hpp"
 
 namespace app {
     
@@ -33,7 +32,10 @@ public:
         Cooling
     };        
 
-    Furnace(ProfileManager& profiles, SettingManager& settings) noexcept;
+    Furnace() noexcept = default;                          
+
+    
+    void init(ProfileManager& profiles, SettingManager& settings) noexcept;
     
     // Should be executed by scheduler once a second
     void process() { fsm_.dispatch(Event::Tick); }
@@ -158,17 +160,11 @@ private:
     // Data
     //------------------------------------------------------
 
-    Fsm fsm_
-    {
-        *this,
-        State::Idle,
-        fsm_tables_
-    };
-
-    core::Pid pid_;
     
-    ProfileManager& profiles_;
-    SettingManager& settings_;
+    Fsm fsm_;
+    
+    ProfileManager* profiles_ = nullptr;
+    SettingManager* settings_ = nullptr;
     
     uint8_t current_step_ = 0;
 

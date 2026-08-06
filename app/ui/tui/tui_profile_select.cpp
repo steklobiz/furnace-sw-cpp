@@ -48,7 +48,7 @@ void Tui::process_profile_select_input() noexcept
     
     if (key == 'b' || key == 'B')
     {
-        ui_.dispatch(
+        ui_->dispatch(
         {
             Ui::Event::Id::Back
         });
@@ -65,7 +65,7 @@ void Tui::process_profile_select_input() noexcept
         static_cast<uint16_t>(key - '0');
 
 
-    ui_.dispatch(
+    ui_->dispatch(
     {
         Ui::Event::Id::SelectProfile,
         profile

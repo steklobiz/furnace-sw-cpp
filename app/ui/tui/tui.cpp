@@ -8,13 +8,12 @@ namespace app
 {
 
 //------------------------------------------------------
-// Construction
+// Init
 //------------------------------------------------------
 
-Tui::Tui(Ui& ui)
-    :
-    ui_(ui)
+void Tui::init(Ui& ui) noexcept
 {
+    ui_ = &ui;
 }
 
 //------------------------------------------------------
@@ -30,9 +29,9 @@ void Tui::process() noexcept
 
 void Tui::render() noexcept
 {
-    if (ui_.page_changed())
+    if (ui_->page_changed())
     {
-        switch (ui_.state())
+        switch (ui_->state())
         {
         case Ui::State::Main:
 
@@ -60,10 +59,10 @@ void Tui::render() noexcept
             break;
         }
 
-        ui_.clear_page_changed();
+        ui_->clear_page_changed();
     }
 
-    switch (ui_.state())
+    switch (ui_->state())
     {
     case Ui::State::Main:
 
@@ -90,7 +89,7 @@ void Tui::render() noexcept
 
 void Tui::process_input() noexcept
 {
-    switch (ui_.state())
+    switch (ui_->state())
     {
     case Ui::State::Main:
 
@@ -132,7 +131,7 @@ void Tui::execute_action(
     {
     case Ui::Button::Action::Start:
 
-        ui_.dispatch(
+        ui_->dispatch(
             Ui::Event(
                 Ui::Event::Id::Start));
 
@@ -141,7 +140,7 @@ void Tui::execute_action(
 
     case Ui::Button::Action::Stop:
 
-        ui_.dispatch(
+        ui_->dispatch(
             Ui::Event(
                 Ui::Event::Id::Stop));
 
@@ -150,7 +149,7 @@ void Tui::execute_action(
 
     case Ui::Button::Action::Reset:
 
-        ui_.dispatch(
+        ui_->dispatch(
             Ui::Event(
                 Ui::Event::Id::Reset));
 
@@ -159,7 +158,7 @@ void Tui::execute_action(
         
     case Ui::Button::Action::SelectProfile:
 
-        ui_.dispatch(
+        ui_->dispatch(
             Ui::Event(
                 Ui::Event::Id::SelectProfile));
 
@@ -167,7 +166,7 @@ void Tui::execute_action(
                 
     case Ui::Button::Action::Monitor:
 
-        ui_.dispatch(
+        ui_->dispatch(
             Ui::Event(
                 Ui::Event::Id::OpenMonitor));
 

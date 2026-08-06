@@ -3,29 +3,34 @@
 #include "config.hpp"
 #include "furnace.hpp"
 #include "hal.hpp"
-#include "logger.hpp"
+#include "log.hpp"
 
 
 namespace app {
 
 namespace {
-    
-constexpr Tag tag{
-    "FURN", 
-    Level::Info
+
+constexpr core::log::Tag tag
+{
+    "FURN",
+    core::log::Level::Warning
 };
     
-} // anonymus namespace
-    
-        
-Furnace::Furnace(ProfileManager& profiles, SettingManager& settings) noexcept 
-    :
-    pid_(core::Pid::Config{1000, 100, 0, 0}),
-    profiles_(profiles),
-    settings_(settings)
-{
-    Log::info(tag, "Furnace initialied");
+
 }
+    
+
+void 
+Furnace::init(ProfileManager& profiles, SettingManager& settings) noexcept
+{
+    profiles_ = &profiles;
+    settings_ = &settings;
+    
+    fsm_.init(*this, State::Idle, fsm_tables_);
+    
+    core::log::info(tag, "Furnace initialized");
+}
+        
 
 const char* 
 Furnace::state_name(State state) noexcept
@@ -99,7 +104,7 @@ Furnace::idle(const Event& event) noexcept
     {
     case Event::Start:
         
-        Log::info(tag, "Start rporfile");
+        core::log::info(tag, "Start rporfile");
 
         start_profile();
 
@@ -118,7 +123,7 @@ Furnace::running(const Event& event) noexcept
     {
     case Event::Stop:
     
-        Log::info(tag, "Stop rporfile");
+        core::log::info(tag, "Stop rporfile");
     
         hal::reset_outputs();
     
@@ -225,17 +230,17 @@ void
 Furnace::enter_step() noexcept
 {   
     const auto& step =
-        profiles_.view().steps[current_step_];
+        profiles_->view().steps[current_step_];
          
     hal::set_outputs(step.flags);
         
-    Log::info(tag,
-        "step: ",current_step_,
+    core::log::info(tag,
+        "step: "/*,current_step_,
          " (",  step_type_name(step_type()),")"
         " ; setpoint: ", static_cast<unsigned>(step.setpoint_c),
         " ; duration: ", static_cast<unsigned>(step.duration),
         " ; flags: ", static_cast<unsigned>(step.flags)
-    );
+   */ );
 };
 
 // Step's end. Switching from current step to next one
@@ -247,7 +252,7 @@ Furnace::next_step() noexcept
     ++current_step_;
 
     const Step& step =
-        profiles_.view().steps[current_step_];
+        profiles_->view().steps[current_step_];
         
     // Case 1: We reached the maximum number of steps.
     if ((current_step_ >= app::config::profiles::max_steps) ||
@@ -256,7 +261,7 @@ Furnace::next_step() noexcept
     {
         // Profile is finished.
 
-        Log::info(tag, "Profile finished");
+        core::log::info(tag, "Profile finished");
 
         // TODO: Do i need to reset outputs?
                 
@@ -266,7 +271,7 @@ Furnace::next_step() noexcept
 
     // New step starts from the previous step target.
     step_start_temperature_c_ =
-        profiles_.view().steps[current_step_ - 1].setpoint_c;
+        profiles_->view().steps[current_step_ - 1].setpoint_c;
     
     step_elapsed_s_ = 0;    
         
@@ -280,7 +285,7 @@ void
 Furnace::update_temperature() noexcept
 {
     const Step& step =
-        profiles_.view().steps[current_step_];
+        profiles_->view().steps[current_step_];
     
     current_temperature_c_ =
         step_start_temperature_c_
@@ -289,9 +294,9 @@ Furnace::update_temperature() noexcept
         / step.duration;
 
 
-    Log::info(tag,
-        "time: ", step_elapsed_s_,
-        " ; temp: ", current_temperature_c_);
+    core::log::info(tag,
+        "time: "/*, step_elapsed_s_,
+        " ; temp: ", current_temperature_c_*/);
 }
 
 // Chacks if current step finished
@@ -299,7 +304,7 @@ bool
 Furnace::is_step_finished() const noexcept
 {
     const Step& step =
-        profiles_.view().steps[current_step_];
+        profiles_->view().steps[current_step_];
 
     return step_elapsed_s_ >= step.duration;
 }
@@ -317,7 +322,7 @@ Furnace::StepType
 Furnace::step_type() const noexcept
 {
     const Step& step =
-        profiles_.view().steps[current_step_];
+        profiles_->view().steps[current_step_];
 
     if (step.setpoint_c > step_start_temperature_c_)
         return StepType::Heating;
@@ -343,7 +348,7 @@ Furnace::current_step() const noexcept
 uint16_t 
 Furnace::setpoint() const noexcept
 {
-    return profiles_.view().steps[current_step_].setpoint_c;
+    return profiles_->view().steps[current_step_].setpoint_c;
 };
     
 uint32_t 
@@ -361,7 +366,7 @@ Furnace::step_elapsed() const noexcept
 uint8_t 
 Furnace::outputs() const noexcept
 {
-    return profiles_.view().steps[current_step_].flags;
+    return profiles_->view().steps[current_step_].flags;
 };
 
 

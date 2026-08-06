@@ -28,23 +28,18 @@ const Ui::Fsm::Tables Ui::tables_
 };
 
 //------------------------------------------------------
-// Construction
+// Init
 //------------------------------------------------------
 
-Ui::Ui(
-    Furnace& furnace, 
-    ProfileManager& profiles,
-    SettingManager& settings) noexcept
-    :
-    furnace_(furnace),
-    profiles_(profiles),
-    settings_(settings),    
-    previous_furnace_state_(furnace.state()),
-    fsm_(
-    *this,
-    State::Main,
-    tables_)
+void Ui::init(Furnace& furnace, ProfileManager& profiles, SettingManager& settings) noexcept
 {
+    furnace_ = &furnace;
+    profiles_ = &profiles;
+    settings_ = &settings;
+
+    previous_furnace_state_ = furnace.state();
+
+    fsm_.init(*this, State::Main, tables_);
 }
 
 //------------------------------------------------------
@@ -78,19 +73,19 @@ Ui::State Ui::main(const Event& event) noexcept
     {
     case Event::Id::Start:
     
-        furnace_.start();
+        furnace_->start();
     
         return State::Monitor;        
 
     case Event::Id::Stop:
 
-        furnace_.stop();
+        furnace_->stop();
     
         return State::Main;    
         
     case Event::Id::Reset:
 
-        furnace_.reset();
+        furnace_->reset();
     
         return State::Main;    
         
@@ -119,7 +114,7 @@ Ui::State Ui::monitor(const Event& event) noexcept
 
     case Event::Id::Stop:
 
-        furnace_.stop();
+        furnace_->stop();
 
         return State::Main;
 
@@ -137,9 +132,9 @@ Ui::State Ui::profile_select(
     {
     case Event::Id::SelectProfile:
 
-        profiles_.open(event.data);
+        profiles_->open(event.data);
  
-//        furnace_.start();
+//        furnace_->start();
 
         return State::Main;// State::Monitor;
 
@@ -204,17 +199,17 @@ void Ui::update_main() noexcept
 {
     
     main_page_.profile_id =
-        profiles_.selected_id();
+        profiles_->selected_id();
 
     main_page_.state =
-        furnace_.state();
+        furnace_->state();
 
     main_page_.temperature =
-        furnace_.current_temp();
+        furnace_->current_temp();
         
     main_page_.count = 0;
 
-    switch (furnace_.state())
+    switch (furnace_->state())
     {
     case Furnace::State::Idle:
 
@@ -292,33 +287,33 @@ void Ui::update_main() noexcept
 void Ui::update_monitor() noexcept
 {
     monitor_page_.state =
-        furnace_.state();
+        furnace_->state();
 
     monitor_page_.step_type =
-        furnace_.step_type();
+        furnace_->step_type();
 
     monitor_page_.step =
-        furnace_.current_step();
+        furnace_->current_step();
 
     monitor_page_.temperature =
-        furnace_.current_temp();
+        furnace_->current_temp();
 
     monitor_page_.setpoint =
-        furnace_.setpoint();
+        furnace_->setpoint();
 
     monitor_page_.profile_elapsed =
-        furnace_.profile_elapsed();
+        furnace_->profile_elapsed();
 
     monitor_page_.step_elapsed =
-        furnace_.step_elapsed();
+        furnace_->step_elapsed();
 
     monitor_page_.outputs =
-        furnace_.outputs();
+        furnace_->outputs();
 }
 
 void Ui::check_furnace_state() noexcept
 {
-    const auto state = furnace_.state();
+    const auto state = furnace_->state();
 
     if (state != previous_furnace_state_)
     {

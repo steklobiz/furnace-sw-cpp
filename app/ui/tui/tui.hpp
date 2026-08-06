@@ -10,8 +10,10 @@ class Tui
 {
 public:
 
-    explicit Tui(Ui& ui);
+    Tui() noexcept = default;
 
+    void init(Ui& ui) noexcept;
+        
     void process() noexcept;
     
 private:
@@ -116,7 +118,7 @@ private:
     Ui::MonitorPage monitor_cache_;
     bool monitor_cache_initialized_ = false;
     
-    Ui& ui_;
+    Ui* ui_ = nullptr;
     
 };
 

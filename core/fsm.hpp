@@ -47,38 +47,39 @@ public:
         const ExitTable* exits = nullptr;
     };
         
-    constexpr Fsm(
+    // init() replaces the constructor
+    constexpr void init(
         Owner& owner,
         State initial,
         const Tables& tables) noexcept
-        :
-        owner_(owner),
-        state_(initial),
-        handlers_(tables.handlers),
-        enters_(tables.enters),
-        exits_(tables.exits)
     {
+        owner_ = &owner;
+        state_ = initial;
+        handlers_ = &tables.handlers;
+        enters_ = tables.enters;
+        exits_ = tables.exits;
+        
         // Execute enter callback of initial state
         if (enters_)
         {
             if (const auto enter = (*enters_)[index(state_)])
-                (owner_.*enter)();
+                (owner_->*enter)();
         }
     }
-    
+        
     State state() const noexcept
     {
         return state_;
     }
 
-    void 
+void 
     dispatch(const Event& event) noexcept
     {
-                
+                 
         const auto handler =
-            handlers_[index(state_)];
+            handlers_->operator[](index(state_));
 
-        transition((owner_.*handler)(event));
+        transition((owner_->*handler)(event));
     }
 
     /* Remove comments if need direct state changes
@@ -106,7 +107,7 @@ private:
         if (exits_)
         {
             if (const auto exit = (*exits_)[index(state_)])
-                (owner_.*exit)();
+                (owner_->*exit)();
         }
 
         state_ = next;
@@ -115,19 +116,19 @@ private:
         if (enters_)
         {
             if (const auto enter = (*enters_)[index(state_)])
-                (owner_.*enter)();
+                (owner_->*enter)();
         }
     }
     
-    Owner& owner_;
+    Owner* owner_ = nullptr;
 
     State state_;
 
-    const StateTable& handlers_;
+    const StateTable* handlers_ = nullptr;
 
-    const EnterTable* enters_;
+    const EnterTable* enters_ = nullptr;
 
-    const ExitTable* exits_; 
+    const ExitTable* exits_ = nullptr; 
 };
 
 } // namespace core

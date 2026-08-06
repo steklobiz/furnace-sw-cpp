@@ -7,26 +7,49 @@
 
 #include "scheduler.hpp"
 #include "hal.hpp"
-
+#include "log.hpp"
 
 namespace app
 {
 
+// Define tag
+namespace
+{
+
+constexpr core::log::Tag tag
+{
+    "APP",
+    core::log::Level::Info
+};
+
+}
+    
+    
 class App
 {
 public:
 
 
-    App()
-        :
-        furnace_(profiles_, settings_),
-        ui_(furnace_, profiles_, settings_),
-        tui_(ui_)
-    {
-    }
+    App() = default;
     
     bool init()
     {
+    core::log::info(
+        tag,
+        "Application initialized");
+
+    core::log::info(
+        tag,
+        "Step=",
+        3,
+        " Temp=",
+        125);
+                /*        
+        // Connect objects (dependency injection)
+        furnace_.init(profiles_, settings_);
+        ui_.init(furnace_, profiles_, settings_);
+        tui_.init(ui_);
+
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
         Profile& p = profiles_.edit();
@@ -56,7 +79,7 @@ public:
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-    
+*/    
         return true; // replace with false if anything fails    
     }
     
@@ -80,7 +103,7 @@ private:
 
 private:
 
-    ProfileManager profiles_;
+    ProfileManager profiles_ ;
     
     SettingManager settings_;
 
