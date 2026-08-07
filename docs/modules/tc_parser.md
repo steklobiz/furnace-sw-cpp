@@ -1,7 +1,57 @@
 # TC_Parser module
 
 ## Purpose
+
+Acquire and provide temperature information from the furnace thermocouples.
+
 ## Responsibilities
+
+- Acquire temperature measurements from all configured thermocouples.
+- Validate measurements and determine sensor status.
+- Provide individual thermocouple values.
+- Provide an aggregate temperature value when requested.
+- Provide sensor status to consumers.
+
+## Data model
+
+
+The parser manages temperature information for all configured thermocouples.
+
+For each thermocouple:
+
+- temperature measurement
+- sensor status
+
+A thermocouple is identified by its logical ID.
+
+The parser can also provide an aggregate temperature calculated from
+the available thermocouple measurements.
+
+Temperature and sensor status are separate pieces of information.
+Consumers may request either independently.
+
+## Inputs
+
+- Scheduler tick (4 Hz)
+- MAX6675 driver
+- Configuration (number of thermocouples, temperature limits, sensor configuration)
+
+## Outputs
+
+- temperature value of specific TC
+- calculated temperature value
+- TC status information
+
+## Public Interface
+
+init()
+update()
+temperature(id)
+average_temperature()
+status(id)
+
+
+
 ## Data types
 
 enum class SensorStatus : uint8_t {
@@ -14,7 +64,7 @@ enum class SensorStatus : uint8_t {
 
 struct Sample {
     uint_16_t  value_c_scaled; // Temperature in °C x 4
-    uint32_t   timestamp_ms; // Time when sample was taken
+    uint32_t   timestamp_ms; // Time when sample was taken. do we need it ???
     SensorStatus status;     // Current sensor health
     uint8_t    sensor_id;    // Which sensor (if multiple)
 };

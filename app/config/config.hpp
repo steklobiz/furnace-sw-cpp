@@ -19,6 +19,8 @@ namespace app::config
         inline constexpr uint8_t output_max_power = 100;
     }
 
+inline constexpr uint8_t tc_count      = 2;
+
 inline constexpr uint8_t output_count      = 4;
 
 inline constexpr uint32_t ui_buffer_size  = 1024;
