@@ -17,12 +17,12 @@ public:
 
     enum class State : uint8_t
     {
-        Idle = 0,
+        Idle = 0,   // nothing is running; normal initial/ready state.
         Running,
         Waiting,
-        Finished,
-        Stopped,
-        Error,
+        Finished,   // a process completed normally.
+        Stopped,    // a process was explicitly stopped.
+        Error,      // a process was interrupted by an error.
 
         Count
     };
@@ -45,6 +45,7 @@ public:
 
     void start()   { fsm_.dispatch(Event::Start); }
     void stop()    { fsm_.dispatch(Event::Stop);  }
+    void error()   { fsm_.dispatch(Event::Error);  }    
     void reset()   { fsm_.dispatch(Event::Reset); }
     
     static const char* state_name(State state) noexcept; // only for TUI
@@ -70,6 +71,7 @@ private:
         Tick,
         Start,
         Stop,
+        Error,
         Reset
     };        
 

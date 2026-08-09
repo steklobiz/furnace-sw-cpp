@@ -112,6 +112,15 @@ Furnace::idle(const Event& event) noexcept
         start_profile();
 
         return State::Running;
+        
+    case Event::Error:
+    
+        Log::info(tag, "Error occured");
+
+        hal::reset_outputs(); // do i need to reset heaters?
+            
+        return State::Error;
+        
 
     default:
 
@@ -128,9 +137,17 @@ Furnace::running(const Event& event) noexcept
     
         Log::info(tag, "Stop rporfile");
     
-        hal::reset_outputs();
+        hal::reset_outputs(); // do i need to reset heaters?
     
         return State::Stopped;
+    
+    case Event::Error:
+    
+        Log::info(tag, "Error occured");
+
+        hal::reset_outputs(); // do i need to reset heaters?
+            
+        return State::Error;
         
     default:
         
@@ -154,7 +171,19 @@ Furnace::waiting(const Event& event) noexcept
     {
     case Event::Stop:
     
+        Log::info(tag, "Stop rporfile");
+    
+        hal::reset_outputs(); // do i need to reset heaters?
+    
         return State::Stopped;
+                
+    case Event::Error:
+    
+        Log::info(tag, "Error occured");
+
+        hal::reset_outputs(); // do i need to reset heaters?
+            
+        return State::Error;
         
     case Event::Start:
 
@@ -174,9 +203,20 @@ Furnace::finished(const Event& event) noexcept
 {
     switch (event)
     {
+    case Event::Error:
+    
+        Log::info(tag, "Error occured");
+
+        hal::reset_outputs(); // do i need to reset heaters?
+            
+        return State::Error;
+
     case Event::Reset:
+
         return State::Idle;
+
     default:
+
         return State::Finished;
     }
 }
@@ -186,6 +226,14 @@ Furnace::stopped(const Event& event) noexcept
 {
     switch (event)
     {
+    case Event::Error:
+    
+        Log::info(tag, "Error occured");
+
+        hal::reset_outputs(); // do i need to reset heaters?
+            
+        return State::Error;
+        
     case Event::Reset:
         return State::Idle;
     default:
@@ -199,9 +247,13 @@ Furnace::error(const Event& event) noexcept
     switch (event)
     {
     case Event::Reset:
+
         return State::Idle;
+
     default:
+
         return State::Error;
+        
     }        
 };
 
@@ -313,7 +365,9 @@ Furnace::is_step_finished() const noexcept
 }
 
 
+//------------------------------------------------------
 // Getters for UI output
+//------------------------------------------------------
 
 Furnace::State 
 Furnace::state() const noexcept
