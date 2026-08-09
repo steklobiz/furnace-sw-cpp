@@ -1,6 +1,5 @@
 # Alarm Dispatcher
 
-
 ## Purpose
 
 *Why does this module exist?*
@@ -14,36 +13,32 @@ Its primary purpose is to provide one consistent alarm mechanism for the applica
 
 *Things this module MUST do.*
 
-Example:
-
-- Acquire temperature measurements from all configured thermocouples.
-- Validate measurements and determine sensor status.
-- Provide individual thermocouple values.
-- Provide an aggregate temperature value when requested.
-- Provide sensor status to consumers.
+- Query alarm providers for their current state.
+- Determine which alarm conditions are active.
+- Maintain the internal state of each alarm.
+- When an alarm requires a furnace safety reaction, call: furnace.error();
+- Provide alarm information to consumers such as the UI.
 
 ## Non-Responsibilities
 
-This prevents future feature creep. TC_Parser does not:
+AlarmDispatcher will not:
 
-- control the heater;
-- determine how temperature measurements are used
-- store temperature history;
-- decide alarms;
-- update UI.
+- detect physical conditions itself;
+- read thermocouples or other hardware;
+- control heaters or other outputs;
+- display alarms;
+- generate sounds/buzzer signals;
+- store alarms permanently in EEPROM/Flash;
+- perform application-specific recovery actions.
 
 ## Inputs
-
+    
 *Everything entering the module.*
 
-What does TC_Parser need from outside to do its job
-
-Example:
-
-- Scheduler tick (4 Hz)
-- MAX6675 driver
-- Configuration (number of thermocouples, temperature limits, sensor configuration)
-
+AlarmDispatcher receives information from alarm providers and external inputs:
+- State-based inputs
+- Event-based inputs
+- External stimuli
 
 ## Outputs
 
@@ -56,134 +51,149 @@ SensorStatus
 
 ## Information model
 
-*Data Types* (One of the most important section)
-
-Sample:
-- temperature
-- status
-- timestamp
-
-SensorStatus
-
-- Valid
-- Disconnected
-- ShortCircuit
-- Fault
+AlarmDispatcher provides alarm information and performs required safety actions:
+- Alarm information
+= Furnace safety action
+= UI relationship
 
 ## Dependencies
 
 *External modules.*
 
-Example:
+- Furnace (furnace.error();)
+- Alarm providers (TcParser)
+- External input providers
 
-MAX6675 driver
-
+Providers ──> AlarmDispatcher ──> Furnace
+                    ^
+                    |
+                    UI
 
 ## Public Interface
 
 Only conceptual.
 
-Example:
-
-init()
-update()
-get_last_sample()
-status()
+AlarmDispatcher(
+    TcParser& tc_parser,
+    Furnace& furnace);
+process()
+    |
+    +--> tc_parser.state()
+    |
+    +--> update TC alarms
+    |
+    +--> if safety alarm
+             |
+             +--> furnace.error()    
+bool is_active(AlarmId id) const noexcept;  // Query alarm state
+bool has_active() const noexcept; //Check whether any alarm is active
+const char* get_message(); // Get active alarm information
+void raise(AlarmId id) noexcept; // External alarm/event input
 
 
 ## Internal State
 
 *What the module remembers.*
 
-Example:
-
-latest_sample
-
-sensor_status
-
-has_valid_sample
-
+AlarmDispatcher
+       |
+       +-- Alarm A       Inactive
+       +-- Alarm B       Inactive
+       +-- Alarm C       Inactive
+       +-- ...
 
 ## Processing Flow
 
-Add diagram.
-
-update()
-↓
-read sensor
-↓
-parse
-↓
-validate
-↓
-store latest sample
-↓
-update status
-
+AlarmDispatcher::process()
+            |
+            v
+   Query alarm providers
+            |
+            v
+    Evaluate conditions
+            |
+            v
+    Update alarm states
+            |
+            v
+   Safety alarm active?
+        /          \
+      no            yes
+      |              |
+      |              v
+      |       furnace.error()
+      |              |
+      +--------------+
+            |
+            v
+          return
 
 ## Timing
 
-Example:
-
-update()
-
-called every 250 ms
-
-maximum latency:
-250 ms
-
-Execution time:
-<100 µs
-
+AlarmDispatcher::process()
+    every 100 ms
 
 ## Error Handling
 
-Example:
+AlarmDispatcher fails safe: an uncertain or invalid condition shall never be interpreted as a normal condition when determining a safety action.
 
-Disconnected sensor
-↓
-status = Disconnected
-↓
-sample becomes invalid
-
+AlarmDispatcher does not attempt to recover failed providers. It records the corresponding alarm and initiates the required safety action.
 
 ## Configuration
 
 *Things that can change.*
 
-Example:
-
-- sampling frequency
-- sensor type
-- validation limits
-
+AlarmDispatcher has no runtime configuration.
 
 ## Interactions with Other Modules
 
-Example:
+TcParser — AlarmDispatcher queries the current thermocouple state and maps relevant states to corresponding alarms. TcParser is responsible for interpreting thermocouple data and detecting thermocouple-related conditions.
 
-Providers:
-- MAX6675
+Furnace — AlarmDispatcher calls Furnace::error() when an active alarm requires the furnace to enter the Error state. AlarmDispatcher does not control furnace outputs directly and does not use the Furnace FSM state to detect alarms.
 
-Consumers:
-- Furnace
-- UI
-- TemperatureHistory
+External input modules — AlarmDispatcher receives states or events from application-level abstractions for external safety inputs, such as an emergency switch. It does not access GPIO or other hardware interfaces directly.
 
+UI — The UI queries AlarmDispatcher for alarm information. The UI obtains the Furnace operational state separately from Furnace::state().
+
+Scheduler — The application scheduler periodically invokes AlarmDispatcher::process(). AlarmDispatcher does not depend directly on the Scheduler implementation.
+
+AlarmDispatcher does not depend on the UI, platform, HAL, or hardware implementation.
 
 ## Design Notes
 
-*Interesting decisions.*
+AlarmDispatcher is an application-level module owned by the application root.
 
-Example:
-- Stores only the latest sample.
-- History belongs elsewhere.
+AlarmDispatcher manages alarm conditions and alarm states; it does not own or duplicate the state of other modules.
 
+Alarm conditions are obtained from dedicated providers. The provider is responsible for interpreting its own data and exposing the relevant state. AlarmDispatcher does not duplicate provider-specific logic.
+
+AlarmDispatcher is an active module. When an alarm requires a furnace safety reaction, it calls Furnace::error().
+
+Furnace owns the behavior of error(). Entering the Error state switches all furnace outputs and the heater off.
+
+Clearing an alarm does not automatically recover the Furnace from the Error state. Furnace recovery requires an explicit reset() operation.
+
+The UI obtains the Furnace operational state from Furnace::state() and alarm information from AlarmDispatcher. The dispatcher does not duplicate the Furnace FSM state.
+
+AlarmDispatcher does not access hardware directly. Hardware-related conditions are provided through appropriate application/device abstractions.
+
+AlarmDispatcher does not own timing. Its process() method is invoked periodically by the application scheduler.
+
+The module uses fixed-size, statically allocated storage and does not use dynamic memory, exceptions, RTTI, or virtual functions.
+
+Configuration is intentionally absent from the module. Alarm definitions and safety actions are compile-time behavior; execution period is configured by the application scheduler.
 
 ## Open Questions
 
 *Things intentionally undecided.*
 
+- Which alarms actually exist?
+- What exact TcParser states map to alarms?
+- Which alarms require furnace.error()
+- Do we need event-based alarms at all?
+- How should multiple active alarms be exposed to the UI?
+- Do we actually need alarm severity/priority?
+- Emergency switch behavior
 
 ## Future Extensions
 

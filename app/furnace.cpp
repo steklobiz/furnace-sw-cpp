@@ -23,7 +23,7 @@ constexpr Tag tag
 
 void 
 Furnace::init(ProfileManager& profiles, SettingManager& settings,
-        TC_Parser& tc_parser) noexcept
+        TcParser& tc_parser) noexcept
 {
     profiles_ = &profiles;
     settings_ = &settings;

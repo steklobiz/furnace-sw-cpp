@@ -6,7 +6,7 @@
 namespace app
 {
 
-class TC_Parser
+class TcParser
 {
 public:
     using Sample = uint16_t;

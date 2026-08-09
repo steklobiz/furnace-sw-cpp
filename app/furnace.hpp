@@ -38,7 +38,7 @@ public:
 
     
     void init(ProfileManager& profiles, SettingManager& settings, 
-        TC_Parser& tc_parser) noexcept;
+        TcParser& tc_parser) noexcept;
     
     // Should be executed by scheduler once a second
     void process() { fsm_.dispatch(Event::Tick); }
@@ -170,7 +170,7 @@ private:
     
     ProfileManager* profiles_ = nullptr;
     SettingManager* settings_ = nullptr;
-    TC_Parser* tc_parser_ = nullptr;
+    TcParser* tc_parser_ = nullptr;
     
     uint8_t current_step_ = 0;
 

@@ -102,7 +102,7 @@ private:
     
     SettingManager settings_;
 
-    TC_Parser tc_parser_;
+    TcParser tc_parser_;
 
     Furnace furnace_;
 

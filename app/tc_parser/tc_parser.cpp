@@ -13,41 +13,41 @@ constexpr std::size_t sensor_count = 1;
 } // anonymous namespace
 
 
-void TC_Parser::init()
+void TcParser::init()
 {
 }
 
 
-void TC_Parser::update()
+void TcParser::update()
 {
 }
 
 
-std::size_t TC_Parser::count() const noexcept
+std::size_t TcParser::count() const noexcept
 {
     return app::config::tc_count;
 }
 
 
-TC_Parser::Sample TC_Parser::sample(uint8_t id) const noexcept
+TcParser::Sample TcParser::sample(uint8_t id) const noexcept
 {
     return 0;
 }
 
 
-TC_Parser::Sample TC_Parser::average() const noexcept
+TcParser::Sample TcParser::average() const noexcept
 {
     return 0;
 }
 
 
-TC_Parser::SensorStatus TC_Parser::status(uint8_t id) const noexcept
+TcParser::SensorStatus TcParser::status(uint8_t id) const noexcept
 {
     return SensorStatus::Fault;
 }
 
 
-bool TC_Parser::is_overheated(uint8_t id) const noexcept
+bool TcParser::is_overheated(uint8_t id) const noexcept
 {
     return false;
 }

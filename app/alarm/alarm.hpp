@@ -1,0 +1,48 @@
+// alarm.hpp
+#pragma once
+
+#include <cstdint>
+#include <array>
+#include "tc_parser.hpp"
+
+namespace app
+{
+
+class TC_Parser;
+class Furnace;
+
+enum class AlarmId : uint8_t
+{
+    TcError,
+    OverTemperature,
+    EmergencyStop,
+
+    Count
+};
+
+class AlarmDispatcher
+{
+public:
+    AlarmDispatcher(
+        TcParser& tc_parser,
+        Furnace& furnace);
+
+    void process();
+
+    // Returns true if the specified alarm is currently active.
+    bool is_active(AlarmId id) const noexcept;
+    
+    // Returns true if at least one alarm is currently active.
+    bool has_active() const noexcept;
+    
+    // Activates the specified alarm.
+    void raise(AlarmId id) noexcept;
+
+private:
+    TcParser& tc_parser_;
+    Furnace& furnace_;
+
+    std::array<bool, static_cast<std::size_t>(AlarmId::Count)> active_{};
+};
+
+} // namespace app
