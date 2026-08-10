@@ -5,6 +5,7 @@
 #include "tc_parser.hpp"
 #include "ui.hpp"
 #include "tui.hpp"
+#include "alarm.hpp"
 
 #include "scheduler.hpp"
 #include "hal.hpp"
@@ -42,8 +43,10 @@ public:
        
         // Connect objects (dependency injection)
         furnace_.init(profiles_, settings_, tc_parser_);
+        alarms_.init(tc_parser_, furnace_);
         ui_.init(furnace_, profiles_, settings_);
         tui_.init(ui_);
+        
 /*
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
@@ -104,6 +107,8 @@ private:
 
     TcParser tc_parser_;
 
+    AlarmDispatcher alarms_;
+        
     Furnace furnace_;
 
     Ui ui_;
