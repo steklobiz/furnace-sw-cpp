@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-
+// Application level config constants
 namespace app::config
 {
     namespace profiles
