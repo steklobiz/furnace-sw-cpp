@@ -20,12 +20,16 @@ enum class AlarmId : uint8_t
     Count
 };
 
+enum class AlarmState : uint8_t
+{
+    Inactive,
+    Active
+};
+
 class AlarmDispatcher
 {
 public:
-    AlarmDispatcher(
-        TcParser& tc_parser,
-        Furnace& furnace);
+    void init(TcParser& tc_parser, Furnace& furnace);
 
     void process();
 
@@ -39,10 +43,11 @@ public:
     void raise(AlarmId id) noexcept;
 
 private:
-    TcParser& tc_parser_;
-    Furnace& furnace_;
-
-    std::array<bool, static_cast<std::size_t>(AlarmId::Count)> active_{};
+    TcParser* tc_parser_{nullptr};
+    Furnace* furnace_{nullptr};
+    
+    std::array<bool,
+               static_cast<std::size_t>(AlarmId::Count)> alarms_{};    
 };
 
 } // namespace app
