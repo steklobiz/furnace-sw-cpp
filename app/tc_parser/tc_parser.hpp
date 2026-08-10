@@ -1,7 +1,10 @@
+// tc_parser.hpp
 #pragma once
 
 #include <cstddef>
 #include <cstdint>
+#include <array>
+#include "config.hpp"
 
 namespace app
 {
@@ -22,7 +25,8 @@ public:
     // Initializes the temperature parser.
     void init();
 
-    // Acquires and processes the latest samples.
+    // Acquires and processes the latest samples. 
+    // Don't rename it to process(). This method updates internal data
     void update();
 
     // Returns the number of configured thermocouples.
@@ -41,6 +45,12 @@ public:
     // Returns true when the specified thermocouple reports
     // a temperature above its configured limit.
     bool is_overheated(uint8_t id) const noexcept;
+
+private:
+
+    std::array<Sample, app::config::tc_count> samples_{};
+    std::array<SensorStatus, app::config::tc_count> statuses_{};
+    std::array<bool, app::config::tc_count> overheated_{};
 };
 
 } // namespace app
