@@ -205,7 +205,7 @@ void Ui::update_main() noexcept
         furnace_->state();
 
     main_page_.temperature =
-        furnace_->current_temp();
+        furnace_->current_temperature();
         
     main_page_.count = 0;
 
@@ -296,7 +296,7 @@ void Ui::update_monitor() noexcept
         furnace_->current_step();
 
     monitor_page_.temperature =
-        furnace_->current_temp();
+        furnace_->current_temperature();
 
     monitor_page_.setpoint =
         furnace_->setpoint();
