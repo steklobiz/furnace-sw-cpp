@@ -5,11 +5,12 @@
 #include "tc_parser.hpp"
 #include "ui.hpp"
 #include "tui.hpp"
-#include "alarm.hpp"
-
 #include "scheduler.hpp"
 #include "hal.hpp"
 #include "logger.hpp"
+#include "history.hpp"
+#include "alarm.hpp"
+#include "pid.hpp"
 
 namespace app
 {
@@ -25,7 +26,7 @@ constexpr Tag tag
 };
 
 }
-    
+
     
 class App
 {
@@ -36,18 +37,39 @@ public:
     
     bool init()
     {
-    Log::info(
-        tag,
-        "Application initialized");
-
+        Log::info(
+            tag,
+            "Application initialized");
        
+        const Settings& settings = settings_.view();
+
+        pid_.init({
+            settings.pid_kp,
+            settings.pid_ki,
+            settings.pid_kd
+        });    
+            
+            
         // Connect objects (dependency injection)
-        furnace_.init(profiles_, settings_, tc_parser_);
-        alarms_.init(tc_parser_, furnace_);
-        ui_.init(furnace_, profiles_, settings_);
-        tui_.init(ui_);
+        furnace_.init(
+            profiles_, 
+            settings_, 
+            tc_parser_, 
+            history_,
+            pid_);
         
-/*
+        alarm_.init(
+            tc_parser_,
+            furnace_    
+        ); 
+                
+        ui_.init(
+            furnace_, 
+            profiles_, 
+            settings_);
+            
+        tui_.init(ui_);
+
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
         Profile& p = profiles_.edit();
@@ -65,36 +87,32 @@ public:
         //     generated callback function
         // No wrappers are required.
 
-        // furnace_.process()
         scheduler_.every<Furnace, &Furnace::process>(
             1000,
             furnace_);
-        // ui_.process()        
+        
         scheduler_.every<Ui, &Ui::process>(
             100,
             ui_);
-        // tui_.process()        
+        
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-*/    
+    
         return true; // replace with false if anything fails    
     }
-    
 
+    
     void run() noexcept
     {
-        while(true)
+        while (true)
         {
-            // Execute ready scheduler tasks.
             scheduler_.run();
-
-            // Small delay to avoid a busy loop.
-            // Scheduler precision depends on this value.
+    
             hal::delay_ms(loop_delay_ms);
         }
     }
-
+    
 private:
 
     static constexpr uint32_t loop_delay_ms = 5;
@@ -106,18 +124,21 @@ private:
     SettingManager settings_;
 
     TcParser tc_parser_;
-
-    AlarmDispatcher alarms_;
-        
+    
+    History history_;
+    
     Furnace furnace_;
+    
+    AlarmDispatcher alarm_;
 
     Ui ui_;
 
     Tui tui_;
 
-
     core::Scheduler scheduler_;
-
+    
+    core::Pid pid_;
+    
 };
 
 } // namespace app

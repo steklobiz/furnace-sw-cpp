@@ -23,6 +23,10 @@ void AlarmDispatcher::process()
         if (tc_parser_->is_overheated(id))
             raise(AlarmId::OverTemperature);
     }
+
+    if (has_active())
+        furnace_->error();
+
 }
 
 

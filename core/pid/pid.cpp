@@ -1,5 +1,6 @@
+// pid.cpp
 #include "pid.hpp"
-
+#include "config.hpp"
 
 namespace core
 {
@@ -7,18 +8,15 @@ namespace core
 namespace
 {
 
-// Upper output limit (heater duty range 0..255).
-constexpr int32_t output_max = 255;
 
 } // anonymous namespace
 
 
-Pid::Pid(const Config& config) noexcept
-    :
-    config_(config)
+void Pid::init(const Config& config) noexcept
 {
+    config_ = config;
+    reset();
 }
-
 
 void Pid::reset() noexcept
 {
@@ -78,21 +76,29 @@ int32_t Pid::update(
     //
     // Output limiting
     //
-    if (output > output_max)
+    if (output > app::config::pid::output_max_power)
     {
-        output = output_max;
+        output = app::config::pid::output_max_power;
 
         // anti windup
         integral_ = output - p - d;
     }
-    else if (output < config_.output_min)
+    else if (output < app::config::pid::output_min_power)
     {
-        output = config_.output_min;
+        output = app::config::pid::output_min_power;
 
         // anti windup
         integral_ = output - p - d;
     }
 
+#ifdef PLATFORM_PC
+    debug_.error = error;
+    debug_.p = p;
+    debug_.i = integral_;
+    debug_.d = d;
+    debug_.output = output;
+#endif
+    
 
     return output;
 }

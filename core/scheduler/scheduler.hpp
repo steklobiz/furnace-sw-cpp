@@ -58,6 +58,20 @@ public:
         uint32_t period_ms,
         Callback callback);
 
+    // Register a member function as a one-shot task.
+    template<typename T, void (T::*Method)()>
+    TaskHandle once(
+        uint32_t delay_ms,
+        T& object)
+    {
+        return add_task(
+            delay_ms,
+            &object,
+            trampoline<T, Method>,
+            false);
+    }        
+        
+        
     // Register a normal function as a one-shot task.
     TaskHandle once(
         uint32_t delay_ms,

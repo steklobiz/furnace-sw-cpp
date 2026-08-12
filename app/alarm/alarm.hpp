@@ -20,12 +20,6 @@ enum class AlarmId : uint8_t
     Count
 };
 
-enum class AlarmState : uint8_t
-{
-    Inactive,
-    Active
-};
-
 class AlarmDispatcher
 {
 public:

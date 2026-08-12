@@ -11,7 +11,7 @@ public:
 
     struct Config
     {
-        // Coefficients are stored with PID_SCALE factor.
+        // Coefficients are stored with config::pid::scale factor.
         //
         // Example:
         // Kp = 2.5  -> 2500
@@ -19,18 +19,33 @@ public:
         int32_t kp;
         int32_t ki;
         int32_t kd;
-
-        int32_t output_min; // should be 0
-//        int32_t output_max;
     };
 
+#ifdef PLATFORM_PC
+
+    struct DebugState
+    {
+        int32_t error;
+        int32_t p;
+        int32_t i;
+        int32_t d;
+        int32_t output;
+    };
+
+    const DebugState& debug() const noexcept
+    {
+        return debug_;
+    }
+    
+#endif
 
     static constexpr int32_t SCALE = 1000;
 
 
-    explicit Pid(const Config& config) noexcept;
+    Pid() noexcept = default;
 
-
+    void init(const Config& config) noexcept;
+ 
     void reset() noexcept;
 
 
@@ -48,6 +63,13 @@ private:
     int32_t previous_error_{0};
 
     bool first_update_{true};
+    
+#ifdef PLATFORM_PC
+
+    DebugState debug_{};
+
+#endif
+    
 };
 
 }
