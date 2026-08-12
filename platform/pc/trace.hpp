@@ -1,4 +1,4 @@
-// trace.cpp
+// trace.hpp
 #pragma once
 
 #include <cstddef>

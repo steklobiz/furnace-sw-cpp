@@ -29,7 +29,11 @@ namespace app::config
         inline constexpr uint8_t sample_capacity = 60;
         inline constexpr uint32_t sample_period_s = 1; 
     }
-    
+    namespace app::config::trace
+    {
+        inline constexpr std::size_t furnace_capacity = 100;
+        inline constexpr std::size_t pid_capacity = 100;
+    }
     
 inline constexpr uint8_t tc_count      = 2;
 

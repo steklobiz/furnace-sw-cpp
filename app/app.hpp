@@ -11,7 +11,10 @@
 #include "history.hpp"
 #include "alarm.hpp"
 #include "pid.hpp"
+
+#ifdef PLATFORM_PC
 #include "trace.hpp"
+#endif
 
 namespace app
 {
@@ -93,6 +96,10 @@ public:
         scheduler_.every<Furnace, &Furnace::process>(
             1000,
             furnace_);
+            
+        scheduler_.every<App, &App::update_simulation>(
+            1000,
+            *this);    
         
         scheduler_.every<Ui, &Ui::process>(
             100,
@@ -101,7 +108,7 @@ public:
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-    
+            
         return true; // replace with false if anything fails    
     }
 
@@ -122,6 +129,11 @@ private:
 
     static constexpr uint32_t loop_delay_ms = 5;
 
+    void update_simulation() noexcept
+    {
+        hal::update();
+    }
+    
 private:
 
     ProfileManager profiles_ ;
