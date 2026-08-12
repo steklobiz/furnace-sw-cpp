@@ -1,5 +1,28 @@
 # Furnace tasks list
 
+## Milestones
+
+- [ ] - M1: Architecture complete
+- [ ] - M2: Complete PC furnace simulation
+- [ ] - M3: Functional STM32 version
+    - [ ] - M3.1  MCU boots    
+    - [ ] - M3.2  GPIO works
+    - [ ] - M3.3  timer works
+    - [ ] - M3.4  UART works
+    - [ ] - M3.5  SPI works
+    - [ ] - M3.6  MAX6675 works
+    - [ ] - M3.7  heater output works
+    - [ ] - M3.8  scheduler works
+    - [ ] - M3.9  application runs
+    - [ ] - M3.10 complete thermal loop
+- [ ] - M4: Real furnace validation
+- [ ] - M5: Production validation
+- [ ] - M6: Production-ready release
+
+### Current milestone
+
+M2 — Complete PC furnace simulation
+
 > Status:
 > - `[x]` implemented
 > - `[~]` partially implemented / architecture decided but incomplete
@@ -58,17 +81,23 @@
 
 ## UI
 
-- [x] - UI FSM architecture
-- [x] - Main page/state
-- [x] - Monitor page/state
-- [x] - Profile selection state
-- [x] - UI state/event API
-- [x] - Profile loading
-- [x] - Furnace monitor data getters
+- [~] - UI FSM — current implementation
+- [ ] - Rewrite UI FSM using transition table
+- [ ] - Define UI states
+- [ ] - Define UI events
+- [ ] - Define UI transition table
+- [ ] - UI state handlers
+- [ ] - UI enter/exit handlers
+- [~] - Main page/state
+- [~] - Monitor page/state
+- [~] - Profile selection state
+- [~] - UI state/event API
+- [~] - Profile loading
+- [~] - Furnace monitor data getters
 - [~] - UI command handling
 - [~] - UI ↔ Furnace interaction
-- [~] - Alarm presentation
-- [~] - Event presentation
+- [ ] - Alarm presentation
+- [ ] - Event presentation
 - [ ] - Complete UI
 
 ## TUI
@@ -205,6 +234,16 @@
 - [~] - AlarmDispatcher ↔ Furnace integration
 - [~] - Scheduler ↔ Application integration
 - [ ] - Complete system integration
+
+## Resource usage
+
+- [ ] - Measure Flash usage
+- [ ] - Measure RAM usage
+- [ ] - Review linker map
+- [ ] - Identify largest Flash consumers
+- [ ] - Identify largest RAM consumers
+- [ ] - Define Flash/RAM safety margins
+- [ ] - Verify release build fits STM32G030F6P6
 
 ## Finalization
 
