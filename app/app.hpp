@@ -11,6 +11,7 @@
 #include "history.hpp"
 #include "alarm.hpp"
 #include "pid.hpp"
+#include "trace.hpp"
 
 namespace app
 {
@@ -70,6 +71,8 @@ public:
             
         tui_.init(ui_);
 
+        platform::trace::Trace<1000, 1000> trace_;
+        
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
         Profile& p = profiles_.edit();
@@ -108,7 +111,9 @@ public:
         while (true)
         {
             scheduler_.run();
-    
+   
+            hal::update();
+             
             hal::delay_ms(loop_delay_ms);
         }
     }

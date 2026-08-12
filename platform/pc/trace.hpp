@@ -1,4 +1,4 @@
-```cpp
+// trace.cpp
 #pragma once
 
 #include <cstddef>
@@ -72,4 +72,3 @@ private:
 };
 
 } // namespace platform::trace
-```

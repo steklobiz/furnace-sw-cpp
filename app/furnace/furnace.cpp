@@ -43,13 +43,16 @@ Furnace::init(
 void Furnace::process()
 {
     fsm_.dispatch(Event::Tick);
-
-    const uint8_t output = 0; // pid_.output();
     
+    const int32_t output = update_pid();
+    
+    hal::set_heater_power(
+        static_cast<uint8_t>(output));
+            
     history_->process(
         profile_elapsed_s_,
-        current_temperature(),
-        output);
+        hal::get_temperature(),
+        static_cast<uint8_t>(output));
     
 }
 
@@ -171,10 +174,7 @@ Furnace::running(const Event& event) noexcept
         
         ++profile_elapsed_s_;
         ++step_elapsed_s_;
-        
-        // Calculate the current target temperature for the active step.
-        update_temperature();
-                
+                        
         if (is_step_finished())
             return next_step();
     
@@ -388,6 +388,14 @@ Furnace::is_step_finished() const noexcept
     return step_elapsed_s_ >= step.duration;
 }
 
+
+int32_t Furnace::update_pid() noexcept
+{
+    return pid_->update(
+        setpoint(),
+        current_temperature_c_,
+        1000);
+}
 
 //------------------------------------------------------
 // Getters for UI output and History

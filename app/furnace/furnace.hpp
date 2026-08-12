@@ -142,6 +142,7 @@ private:
     // according to the recipe execution rules.
     bool is_step_finished() const noexcept;
 
+    int32_t update_pid() noexcept;
     
     //------------------------------------------------------
     // FSM tables
