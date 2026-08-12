@@ -5,7 +5,7 @@
 #include "tc_parser.hpp"
 #include "hal.hpp"
 #include "logger.hpp"
-
+#include "pid.hpp"
 
 namespace app {
 
@@ -20,20 +20,38 @@ constexpr Tag tag
 
 }
     
-
 void 
-Furnace::init(ProfileManager& profiles, SettingManager& settings,
-        TcParser& tc_parser) noexcept
+Furnace::init(
+    ProfileManager& profiles, 
+    SettingManager& settings, 
+    TcParser& tc_parser,  
+    History& history,
+    core::Pid& pid) noexcept
 {
     profiles_ = &profiles;
     settings_ = &settings;
     tc_parser_ = &tc_parser;
+    history_ = &history;
+    pid_ = &pid;
     
     fsm_.init(*this, State::Idle, fsm_tables_);
     
     Log::info(tag, "Furnace initialized");
 }
         
+
+void Furnace::process()
+{
+    fsm_.dispatch(Event::Tick);
+
+    const uint8_t output = 0; // pid_.output();
+    
+    history_->process(
+        profile_elapsed_s_,
+        current_temperature(),
+        output);
+    
+}
 
 const char* 
 Furnace::state_name(State state) noexcept
@@ -274,6 +292,13 @@ Furnace::start_profile() noexcept
 
     step_start_temperature_c_ = ambient_temperature_c_;
     
+    history_->clear();
+
+    history_->add_event(
+        profile_elapsed_s_,
+        EventId::ProfileStarted,
+        current_step_);
+    
     enter_step();
 };
 
@@ -289,13 +314,12 @@ Furnace::enter_step() noexcept
          
     hal::set_outputs(step.flags);
         
-    Log::info(tag,
-        "step: "/*,current_step_,
-         " (",  step_type_name(step_type()),")"
-        " ; setpoint: ", static_cast<unsigned>(step.setpoint_c),
-        " ; duration: ", static_cast<unsigned>(step.duration),
-        " ; flags: ", static_cast<unsigned>(step.flags)
-   */ );
+    history_->add_event(
+        profile_elapsed_s_,
+        EventId::StepStarted,
+        current_step_);
+
+    Log::info(tag, "Step started");
 };
 
 // Step's end. Switching from current step to next one
@@ -320,6 +344,10 @@ Furnace::next_step() noexcept
 
         // TODO: Do i need to reset outputs?
                 
+        history_->add_event(
+            profile_elapsed_s_,
+            EventId::ProfileFinished);
+        
         return State::Finished;
     }
 
@@ -348,10 +376,6 @@ Furnace::update_temperature() noexcept
         * static_cast<int32_t>(step_elapsed_s_)
         / step.duration;
 
-
-    Log::info(tag,
-        "time: "/*, step_elapsed_s_,
-        " ; temp: ", current_temperature_c_*/);
 }
 
 // Chacks if current step finished
@@ -366,7 +390,7 @@ Furnace::is_step_finished() const noexcept
 
 
 //------------------------------------------------------
-// Getters for UI output
+// Getters for UI output and History
 //------------------------------------------------------
 
 Furnace::State 
@@ -391,7 +415,7 @@ Furnace::step_type() const noexcept
 }
 
 uint16_t 
-Furnace::current_temp() const noexcept
+Furnace::current_temperature() const noexcept
 {
     return current_temperature_c_;
 };

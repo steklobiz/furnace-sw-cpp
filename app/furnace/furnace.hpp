@@ -6,7 +6,8 @@
 #include "profiles.hpp"
 #include "settings.hpp"
 #include "tc_parser.hpp"
-
+#include "history.hpp"
+#include "pid.hpp"
 
 namespace app {
     
@@ -37,11 +38,15 @@ public:
     Furnace() noexcept = default;                          
 
     
-    void init(ProfileManager& profiles, SettingManager& settings, 
-        TcParser& tc_parser) noexcept;
+    void init(
+        ProfileManager& profiles, 
+        SettingManager& settings, 
+        TcParser& tc_parser,  
+        History& history,
+        core::Pid& pid) noexcept;
     
     // Should be executed by scheduler once a second
-    void process() { fsm_.dispatch(Event::Tick); }
+    void process();
 
     void start()   { fsm_.dispatch(Event::Start); }
     void stop()    { fsm_.dispatch(Event::Stop);  }
@@ -54,7 +59,7 @@ public:
     // UI getters 
     State state() const noexcept;
     StepType step_type() const noexcept;
-    uint16_t current_temp() const noexcept;
+    uint16_t current_temperature() const noexcept;
     uint16_t current_step() const noexcept;
     uint16_t setpoint() const noexcept;
     uint32_t profile_elapsed() const noexcept;
@@ -171,6 +176,9 @@ private:
     ProfileManager* profiles_ = nullptr;
     SettingManager* settings_ = nullptr;
     TcParser* tc_parser_ = nullptr;
+    History* history_ = nullptr;
+    core::Pid* pid_ = nullptr;
+    
     
     uint8_t current_step_ = 0;
 
