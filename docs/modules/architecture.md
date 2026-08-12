@@ -53,6 +53,7 @@ The system is deterministic and does not use:
                       │
                 MCU Drivers
                 
+                
 ```
 ## 3. Layers
 
@@ -324,49 +325,3 @@ MCU provides the real hardware implementation.
 12. Stabilize interfaces before building many dependencies on them.
 13. Test stable behavioral modules on PC.
 14. Prefer deterministic, non-blocking processing.
-
-## 14. C++ Usage Policy
-
-The project uses C++17, but intentionally uses a restricted
-embedded-oriented subset of C++.
-
-The code should remain understandable to an experienced
-embedded C developer.
-
-### Preferred
-
-- classes
-- namespaces
-- `enum class`
-- references
-- `constexpr`
-- templates where they provide simple static generic code
-- fixed-size containers
-- compile-time tables
-- strong types
-- RAII where useful and deterministic
-
-### Avoid
-
-- dynamic allocation
-- exceptions
-- RTTI
-- virtual functions
-- inheritance unless clearly justified
-- `std::string`
-- `std::vector`
-- `std::function`
-- iostreams
-- complex template metaprogramming
-- unnecessary operator overloading
-- hidden global state
-
-### Goal
-
-C++ should provide better type safety, encapsulation and
-compile-time facilities without making the code dependent
-on advanced C++ knowledge.
-
-A future developer experienced in embedded C should be able
-to understand and maintain the project without becoming a
-C++ language expert.
