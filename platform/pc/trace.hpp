@@ -1,6 +1,15 @@
+```cpp
+#pragma once
 
-/*
-struct FurnaceTraceSample
+#include <cstddef>
+#include <cstdint>
+
+#include "ring_buffer.hpp"
+
+namespace platform::trace
+{
+
+struct FurnaceSample
 {
     uint32_t time_s;
     int32_t temperature;
@@ -8,7 +17,7 @@ struct FurnaceTraceSample
     uint8_t output;
 };
 
-struct PidTraceSample
+struct PidSample
 {
     uint32_t time_s;
     int32_t setpoint;
@@ -21,11 +30,46 @@ struct PidTraceSample
 };
 
 
-void add_furnace(...);
-void add_pid(...);
+template<
+    std::size_t FurnaceCapacity,
+    std::size_t PidCapacity>
+class Trace
+{
+public:
 
-const auto& furnace() const noexcept;
-const auto& pid() const noexcept;
+    void add_furnace(
+        const FurnaceSample& sample) noexcept
+    {
+        furnace_.push_overwrite(sample);
+    }
 
-void clear() noexcept;
-*/
+    void add_pid(
+        const PidSample& sample) noexcept
+    {
+        pid_.push_overwrite(sample);
+    }
+
+    const auto& furnace() const noexcept
+    {
+        return furnace_;
+    }
+
+    const auto& pid() const noexcept
+    {
+        return pid_;
+    }
+
+    void clear() noexcept
+    {
+        furnace_.clear();
+        pid_.clear();
+    }
+
+private:
+
+    core::RingBuffer<FurnaceSample, FurnaceCapacity> furnace_;
+    core::RingBuffer<PidSample, PidCapacity> pid_;
+};
+
+} // namespace platform::trace
+```
