@@ -20,7 +20,7 @@ namespace app::config
         inline constexpr int32_t scale = 1000;
         
         // Uutput limits (heater duty range 0..100).
-        inline constexpr int32_t output_min_power = 100;
+        inline constexpr int32_t output_min_power = 0;
         inline constexpr int32_t output_max_power = 100;
     }
     namespace history

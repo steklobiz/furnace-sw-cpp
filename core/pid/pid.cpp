@@ -33,75 +33,88 @@ int32_t Pid::update(
 {
     const int32_t error = setpoint - measurement;
 
+    //----------------------------------------------------------
+    // P term
+    //----------------------------------------------------------
 
-    //
-    // Proportional term
-    //
     const int32_t p =
-        (error * config_.kp) / SCALE;
+        error * config_.kp;
 
+    //----------------------------------------------------------
+    // I term
+    //
+    // integral_ is stored with scale precision.
+    //----------------------------------------------------------
 
-    //
-    // Integral term
-    //
     integral_ +=
-        (error * config_.ki * static_cast<int32_t>(dt_ms))
-        / (SCALE * 1000);
+        error *
+        config_.ki *
+        static_cast<int32_t>(dt_ms) /
+        1000;
 
+    const int32_t i = integral_;
 
+    //----------------------------------------------------------
+    // D term
     //
-    // Derivative term
-    //
+    // d is stored with scale precision.
+    //----------------------------------------------------------
+
     int32_t d = 0;
 
     if (!first_update_)
     {
-        const int32_t delta =
-            error - previous_error_;
-
         d =
-            (delta * config_.kd * 1000)
-            / (SCALE * static_cast<int32_t>(dt_ms));
+            (error - previous_error_) *
+            config_.kd *
+            1000 /
+            static_cast<int32_t>(dt_ms);
     }
 
-
-    first_update_ = false;
-    previous_error_ = error;
-
+    //----------------------------------------------------------
+    // Convert the total PID result to output units.
+    //----------------------------------------------------------
 
     int32_t output =
-        p + integral_ + d;
+        (p + i + d) /
+        app::config::pid::scale;
 
+    //----------------------------------------------------------
+    // Output limiting + anti-windup.
+    //----------------------------------------------------------
 
-    //
-    // Output limiting
-    //
     if (output > app::config::pid::output_max_power)
     {
         output = app::config::pid::output_max_power;
 
-        // anti windup
-        integral_ = output - p - d;
+        integral_ =
+            output * app::config::pid::scale - p - d;
     }
     else if (output < app::config::pid::output_min_power)
     {
         output = app::config::pid::output_min_power;
 
-        // anti windup
-        integral_ = output - p - d;
+        integral_ =
+            output * app::config::pid::scale - p - d;
     }
 
+    previous_error_ = error;
+    first_update_ = false;
+
 #ifdef PLATFORM_PC
-    debug_.error = error;
-    debug_.p = p;
-    debug_.i = integral_;
-    debug_.d = d;
-    debug_.output = output;
+
+    debug_ =
+    {
+        error,
+        p,
+        i,
+        d,
+        output
+    };
+
 #endif
-    
 
     return output;
 }
-
 
 }

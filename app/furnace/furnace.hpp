@@ -65,7 +65,14 @@ public:
     uint32_t profile_elapsed() const noexcept;
     uint32_t step_elapsed() const noexcept;
     uint8_t outputs() const noexcept;
-        
+    uint8_t pid_output() const noexcept;
+    
+    // PID getter        
+#ifdef PLATFORM_PC
+    const core::Pid& pid() const noexcept;
+#endif
+    
+    
 private:
 
     static constexpr uint8_t MAX_RPOFILE_STEPS = 5;      // temporary
@@ -132,7 +139,6 @@ private:
     // or finish the profile.
     State next_step() noexcept;
 
-    
     // Calculates the current temperature setpoint according to
     // the active step and updates heaters/fans through the
     // temperature controller.
@@ -142,7 +148,7 @@ private:
     // according to the recipe execution rules.
     bool is_step_finished() const noexcept;
 
-    int32_t update_pid() noexcept;
+    int32_t update_pid(int32_t temperature) noexcept;
     
     //------------------------------------------------------
     // FSM tables
@@ -180,7 +186,6 @@ private:
     History* history_ = nullptr;
     core::Pid* pid_ = nullptr;
     
-    
     uint8_t current_step_ = 0;
 
     // Elapsed time 
@@ -192,6 +197,9 @@ private:
     
     // Current calculated temperature (update each tick). will be used as a target fo PID later
     int16_t current_temperature_c_; 
+
+    uint8_t pid_output_ = 0;
+
 };
 
 } // namespace app 

@@ -1,3 +1,4 @@
+// pid.hpp
 #pragma once
 
 #include <cstdint>
@@ -38,8 +39,6 @@ public:
     }
     
 #endif
-
-    static constexpr int32_t SCALE = 1000;
 
 
     Pid() noexcept = default;

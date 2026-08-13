@@ -44,16 +44,19 @@ void Furnace::process()
 {
     fsm_.dispatch(Event::Tick);
     
-    const int32_t output = update_pid();
+    const int32_t temperature = hal::get_temperature();
+
+    current_temperature_c_ =
+        static_cast<int16_t>(temperature);
     
-    hal::set_heater_power(
-        static_cast<uint8_t>(output));
-            
+    pid_output_ = static_cast<uint8_t>(update_pid(temperature));
+    
+    hal::set_heater_power(pid_output_);
+    
     history_->process(
         profile_elapsed_s_,
         hal::get_temperature(),
-        static_cast<uint8_t>(output));
-    
+        pid_output_);    
 }
 
 const char* 
@@ -389,11 +392,11 @@ Furnace::is_step_finished() const noexcept
 }
 
 
-int32_t Furnace::update_pid() noexcept
+int32_t Furnace::update_pid(int32_t temperature) noexcept
 {
     return pid_->update(
         setpoint(),
-        current_temperature_c_,
+        temperature,
         1000);
 }
 
@@ -458,5 +461,19 @@ Furnace::outputs() const noexcept
     return profiles_->view().steps[current_step_].flags;
 };
 
+uint8_t 
+Furnace::pid_output() const noexcept
+{
+    return pid_output_;
+}
+
+#ifdef PLATFORM_PC
+
+const core::Pid& Furnace::pid() const noexcept
+{
+    return *pid_;
+}
+
+#endif
 
 } // namespace app

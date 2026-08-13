@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "profiles.hpp"
 #include "furnace.hpp"
 #include "tc_parser.hpp"
@@ -35,7 +37,6 @@ constexpr Tag tag
 class App
 {
 public:
-
 
     App() = default;
     
@@ -74,7 +75,6 @@ public:
             
         tui_.init(ui_);
 
-        platform::trace::Trace<1000, 1000> trace_;
         
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
@@ -97,10 +97,26 @@ public:
             1000,
             furnace_);
             
+#ifdef PLATFORM_PC
+
         scheduler_.every<App, &App::update_simulation>(
             1000,
             *this);    
+
+        scheduler_.every<App, &App::trace_pid>(
+            1000,
+            *this);
         
+        scheduler_.every<App, &App::trace_furnace>(
+            1000,
+            *this);
+    
+        scheduler_.once<App, &App::debug_dump_trace>(
+            30000,
+            *this);
+                        
+#endif    
+                    
         scheduler_.every<Ui, &Ui::process>(
             100,
             ui_);
@@ -128,11 +144,87 @@ public:
 private:
 
     static constexpr uint32_t loop_delay_ms = 5;
+    
+#ifdef PLATFORM_PC
 
     void update_simulation() noexcept
     {
         hal::update();
     }
+
+    void trace_pid() noexcept
+    {
+        const auto& debug = furnace_.pid().debug();
+    
+        trace_.add_pid({
+            hal::tick_s(),
+            furnace_.setpoint(),
+            furnace_.current_temperature(),
+            debug.error,
+            debug.p,
+            debug.i,
+            debug.d,
+            debug.output
+        });
+    }
+
+    void trace_furnace() noexcept
+    {
+        trace_.add_furnace({
+            hal::tick_s(),
+            furnace_.current_temperature(),
+            furnace_.setpoint(),
+            furnace_.pid_output()
+        });
+    }
+    
+    void debug_dump_trace() noexcept
+    {
+        Log::info(tag, "----- PID TRACE -----");
+    
+        const auto& pid_trace = trace_.pid();
+    
+        for (std::size_t i = 0; i < pid_trace.size(); ++i)
+        {
+            const auto& sample = pid_trace.from_newest(i);
+    
+            Log::info(
+                tag,
+                "time=", sample.time_s,
+                " sp=", sample.setpoint,
+                " meas=", sample.measurement,
+                " err=", sample.error,
+                " p=", sample.p,
+                " i=", sample.i,
+                " d=", sample.d,
+                " out=", sample.output);
+        }
+        
+        debug_dump_furnace_trace();
+    }
+    
+    void debug_dump_furnace_trace() noexcept
+    {
+        Log::info(tag, "----- FURNACE TRACE -----");
+    
+        const auto& furnace_trace = trace_.furnace();
+    
+        for (std::size_t i = 0; i < furnace_trace.size(); ++i)
+        {
+            const auto& sample = furnace_trace.from_newest(i);
+    
+            Log::info(
+                tag,
+                "time=", sample.time_s,
+                " temp=", sample.temperature,
+                " sp=", sample.setpoint,
+                " out=", sample.output);
+        }
+    }
+        
+#endif
+    
+    using Trace = platform::trace::Trace<100, 100>;
     
 private:
 
@@ -155,6 +247,10 @@ private:
     core::Scheduler scheduler_;
     
     core::Pid pid_;
+
+#ifdef PLATFORM_PC
+    Trace trace_;
+#endif
     
 };
 
