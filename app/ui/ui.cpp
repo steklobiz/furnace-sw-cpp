@@ -13,7 +13,8 @@ const Ui::Fsm::EnterTable Ui::enters_
 {
     &Ui::enter_main,
     &Ui::enter_monitor,
-    &Ui::enter_profile_select
+    &Ui::enter_profile_select,
+    &Ui::enter_result
 };
 
 const Ui::Fsm::Tables Ui::tables_
@@ -21,7 +22,8 @@ const Ui::Fsm::Tables Ui::tables_
     {
         &Ui::main,
         &Ui::monitor,
-        &Ui::profile_select
+        &Ui::profile_select,
+        &Ui::result
     },
 
     &enters_
@@ -88,14 +90,17 @@ Ui::State Ui::main(const Event& event) noexcept
         furnace_->reset();
     
         return State::Main;    
-        
-        
+                
     case Event::Id::SelectProfile:
         return State::ProfileSelect;
 
         
     case Event::Id::OpenMonitor:
         return State::Monitor;    
+        
+    case Event::Id::ShowResult:
+        
+            return State::Result;        
         
     default:
         return State::Main;
@@ -148,6 +153,20 @@ Ui::State Ui::profile_select(
     }
 }
 
+Ui::State Ui::result(const Event& event) noexcept
+{
+    switch (event.id)
+    {
+    case Event::Id::Reset:
+
+        return State::Main;
+
+    default:
+
+        return State::Result;
+    }
+}
+
 //------------------------------------------------------
 // Enter callbacks
 //------------------------------------------------------
@@ -165,6 +184,11 @@ void Ui::enter_monitor() noexcept
 }
 
 void Ui::enter_profile_select() noexcept
+{
+    page_changed_ = true;
+}
+
+void Ui::enter_result() noexcept
 {
     page_changed_ = true;
 }
@@ -322,7 +346,14 @@ void Ui::check_furnace_state() noexcept
     {
         previous_furnace_state_ = state;
 
-        page_changed_ = true;
+        if (state == Furnace::State::Finished)
+        {
+            fsm_.dispatch(Event::Id::ShowResult);
+        }
+        else
+        {
+            page_changed_ = true;
+        }
     }
 }
 

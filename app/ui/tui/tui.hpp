@@ -152,6 +152,16 @@ private:
         static constexpr uint8_t PidRows = 10;
     };
 
+    struct ResultLayout
+    {
+        static constexpr uint8_t ValueColumn = 18;
+    
+        static constexpr uint8_t StateRow       = 5;
+        static constexpr uint8_t DurationRow    = 6;
+        static constexpr uint8_t TemperatureRow = 7;
+        static constexpr uint8_t AlarmIdRow     = 8;
+    };
+    
     struct ProfileSelectLayout{}; // ???
     
     Ui::MainPage main_cache_;

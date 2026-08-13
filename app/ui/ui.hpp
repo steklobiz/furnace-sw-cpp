@@ -36,9 +36,9 @@ public:
             Reset,
 
             SelectProfile,
-
             OpenMonitor,
-                        
+            ShowResult,
+            
             Back
         };
 
@@ -198,6 +198,8 @@ private:
 
     State profile_select(const Event& event) noexcept;
     
+    State result(const Event& event) noexcept;
+    
     //--------------------------------------------------
     // Enter callbacks
     //--------------------------------------------------
@@ -207,6 +209,8 @@ private:
     void enter_monitor() noexcept;
 
     void enter_profile_select() noexcept;
+    
+    void enter_result() noexcept;
 
     //------------------------------------------------------
     // Helper functions
