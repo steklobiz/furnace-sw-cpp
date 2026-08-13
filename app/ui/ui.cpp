@@ -65,6 +65,11 @@ const Ui::MonitorPage& Ui::monitor_page() const noexcept
     return monitor_page_;
 }
 
+const Ui::ResultPage& Ui::result_page() const noexcept
+{
+    return result_page_;
+}
+
 //------------------------------------------------------
 // State handlers
 //------------------------------------------------------
@@ -116,8 +121,8 @@ Ui::State Ui::monitor(const Event& event) noexcept
 
         furnace_->stop();
 
-        return State::Main;
-    
+        return State::Monitor;
+
     default:
 
         return State::Monitor;
@@ -184,6 +189,17 @@ void Ui::enter_profile_select() noexcept
 
 void Ui::enter_result() noexcept
 {
+    result_page_.state =
+        furnace_->state();
+
+    result_page_.duration =
+        furnace_->profile_elapsed();
+
+    result_page_.temperature =
+        furnace_->current_temperature();
+
+    result_page_.alarm_id = 0;
+
     page_changed_ = true;
 }
 
@@ -340,7 +356,9 @@ void Ui::check_furnace_state() noexcept
     {
         previous_furnace_state_ = state;
 
-        if (state == Furnace::State::Finished)
+        if (state == Furnace::State::Finished ||
+            state == Furnace::State::Stopped)
+            
         {
             show_result();
         }

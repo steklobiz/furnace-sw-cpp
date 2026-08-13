@@ -9,15 +9,30 @@ void Tui::draw_result() noexcept
 {
     clear_screen();
 
+    const auto& page = ui_->result_page();
+
     std::cout
         << "========================\n"
         << "        RESULT\n"
         << "========================\n\n"
 
-        << "State:\n"
-        << "Duration:\n"
-        << "Temperature:\n"
-        << "Alarm ID:\n\n"
+        << "State:        ";
+
+    // Render state here
+
+    std::cout
+        << "\n"
+        << "Duration:     "
+        << page.duration
+        << " s\n"
+
+        << "Temperature:  "
+        << page.temperature
+        << " C\n"
+
+        << "Alarm ID:     "
+        << static_cast<unsigned>(page.alarm_id)
+        << "\n\n"
 
         << "1. Reset\n";
 }
