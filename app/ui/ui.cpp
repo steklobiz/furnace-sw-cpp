@@ -158,6 +158,8 @@ Ui::State Ui::result(const Event& event) noexcept
     {
     case Event::Id::Reset:
 
+        furnace_->reset();
+
         return State::Main;
 
     default:

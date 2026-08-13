@@ -16,11 +16,10 @@ void Tui::draw_result() noexcept
         << "        RESULT\n"
         << "========================\n\n"
 
-        << "State:        ";
+        << "State:        "
+        << Furnace::state_name(page.state)
+        << "\n"
 
-    // Render state here
-
-    std::cout
         << "\n"
         << "Duration:     "
         << page.duration

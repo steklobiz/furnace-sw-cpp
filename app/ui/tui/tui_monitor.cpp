@@ -49,6 +49,8 @@ constexpr auto const& layout(
 void Tui::draw_monitor() noexcept
 {
     clear_screen();
+    
+    monitor_cache_initialized_ = false;
 
     std::cout
         << "========================\n"
