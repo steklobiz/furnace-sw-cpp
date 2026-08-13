@@ -216,22 +216,29 @@ private:
     // Helper functions
     //------------------------------------------------------
 
+    // Updates the UI state and page data.
     void update() noexcept;
-        
+    
+    // Updates values displayed on the main page.
     void update_main() noexcept;
+
+    // Updates values displayed on the monitor page.
     void update_monitor() noexcept;
 
+    // Detects furnace state changes and handles terminal states.
     void check_furnace_state() noexcept;
+
+    // Switches the UI to the result page.
     void show_result() noexcept;
     
+    // Returns a main-page button by its index.
     const Button& main_button(
-        uint8_t index) const noexcept;    
-    
+        uint8_t index) const noexcept;
+            
 private:
 
     static const Fsm::EnterTable enters_;
     static const Fsm::Tables tables_;
-    
     
     Furnace* furnace_ = nullptr;
     
