@@ -1,3 +1,4 @@
+// tui.cpp
 #include <cstdint>
 #include <conio.h> // for  _kbhit() and _getch()
 
@@ -11,9 +12,12 @@ namespace app
 // Init
 //------------------------------------------------------
 
-void Tui::init(Ui& ui) noexcept
+void Tui::init(
+    Ui& ui,
+    Trace& trace) noexcept
 {
     ui_ = &ui;
+    trace_ = &trace;
 }
 
 //------------------------------------------------------
@@ -22,13 +26,26 @@ void Tui::init(Ui& ui) noexcept
 
 void Tui::process() noexcept
 {
-    render();
+    if (debug_page_ == DebugPage::Trace)
+    {
+        render();
+        process_trace_input();
+        return;
+    }
 
+    render();
     process_input();
 }
 
 void Tui::render() noexcept
 {
+    
+    if (debug_page_ == DebugPage::Trace)
+    {
+        update_trace();
+        return;
+    }
+    
     if (ui_->page_changed())
     {
         switch (ui_->state())
@@ -54,7 +71,13 @@ void Tui::render() noexcept
             draw_profile_select();
 
             break;
-
+            
+        case Ui::State::Result:
+        
+            draw_result();
+        
+            break;    
+            
         default:
             break;
         }
@@ -88,29 +111,32 @@ void Tui::render() noexcept
 }
 
 void Tui::process_input() noexcept
-{
+{   
+    if (debug_page_ == DebugPage::Trace)
+    {
+        process_trace_input();
+        return;
+    }
+
     switch (ui_->state())
     {
     case Ui::State::Main:
-
         process_main_input();
-
         break;
 
 
     case Ui::State::Monitor:
-
         process_monitor_input();
-
         break;
 
 
     case Ui::State::ProfileSelect:
-
         process_profile_select_input();
-
         break;
 
+    case Ui::State::Result:
+        process_result_input();
+        break;
 
     default:
 
@@ -204,5 +230,6 @@ bool Tui::read_key(char& key) noexcept
     key = static_cast<char>(_getch());
     return true;
 }
+
 
 } // namespace app

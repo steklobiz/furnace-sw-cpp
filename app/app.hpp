@@ -73,8 +73,9 @@ public:
             profiles_, 
             settings_);
             
-        tui_.init(ui_);
-
+        tui_.init(
+            ui_,
+            trace_);
         
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
@@ -99,10 +100,6 @@ public:
             
 #ifdef PLATFORM_PC
 
-        scheduler_.every<App, &App::update_simulation>(
-            1000,
-            *this);    
-
         scheduler_.every<App, &App::trace_pid>(
             1000,
             *this);
@@ -110,11 +107,7 @@ public:
         scheduler_.every<App, &App::trace_furnace>(
             1000,
             *this);
-    
-        scheduler_.once<App, &App::debug_dump_trace>(
-            30000,
-            *this);
-                        
+                            
 #endif    
                     
         scheduler_.every<Ui, &Ui::process>(
@@ -147,15 +140,12 @@ private:
     
 #ifdef PLATFORM_PC
 
-    void update_simulation() noexcept
-    {
-        hal::update();
-    }
 
+    // Records the current PID state in the PID trace buffer.
     void trace_pid() noexcept
     {
         const auto& debug = furnace_.pid().debug();
-    
+        
         trace_.add_pid({
             hal::tick_s(),
             furnace_.setpoint(),
@@ -168,6 +158,7 @@ private:
         });
     }
 
+    // Records the current furnace state in the furnace trace buffer.
     void trace_furnace() noexcept
     {
         trace_.add_furnace({
@@ -178,49 +169,6 @@ private:
         });
     }
     
-    void debug_dump_trace() noexcept
-    {
-        Log::info(tag, "----- PID TRACE -----");
-    
-        const auto& pid_trace = trace_.pid();
-    
-        for (std::size_t i = 0; i < pid_trace.size(); ++i)
-        {
-            const auto& sample = pid_trace.from_newest(i);
-    
-            Log::info(
-                tag,
-                "time=", sample.time_s,
-                " sp=", sample.setpoint,
-                " meas=", sample.measurement,
-                " err=", sample.error,
-                " p=", sample.p,
-                " i=", sample.i,
-                " d=", sample.d,
-                " out=", sample.output);
-        }
-        
-        debug_dump_furnace_trace();
-    }
-    
-    void debug_dump_furnace_trace() noexcept
-    {
-        Log::info(tag, "----- FURNACE TRACE -----");
-    
-        const auto& furnace_trace = trace_.furnace();
-    
-        for (std::size_t i = 0; i < furnace_trace.size(); ++i)
-        {
-            const auto& sample = furnace_trace.from_newest(i);
-    
-            Log::info(
-                tag,
-                "time=", sample.time_s,
-                " temp=", sample.temperature,
-                " sp=", sample.setpoint,
-                " out=", sample.output);
-        }
-    }
         
 #endif
     

@@ -16,8 +16,8 @@ void Tui::draw_main() noexcept
         << "State:\n"
         << "Temperature:\n"
         << "Profile ID:\n";
-        
 }
+
     
     
 void Tui::update_main() noexcept
@@ -42,22 +42,32 @@ void Tui::update_main() noexcept
 
 
     move_cursor(15,1);
+    
+    std::cout << "\nt. Trace\n";
 }    
     
 void Tui::process_main_input() noexcept
 {
     char key;
 
-    if (!read_key(key)) 
+    if (!read_key(key))
     {
         return;
-    } 
+    }
+
+    if (key == 't' || key == 'T')
+    {
+        debug_page_ = DebugPage::Trace;
+        clear_screen();
+        draw_trace();
+
+        return;
+    }
 
     if (key < '1' || key > '9')
     {
         return;
     }
-
 
     const auto index =
         static_cast<uint8_t>(key - '1');
@@ -65,12 +75,10 @@ void Tui::process_main_input() noexcept
     const auto& page =
         ui_->main_page();
 
-
     if (index >= page.count)
     {
         return;
     }
-
 
     execute_action(
         page.buttons[index].action);

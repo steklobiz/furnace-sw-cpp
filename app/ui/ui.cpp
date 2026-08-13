@@ -307,6 +307,9 @@ void Ui::update_monitor() noexcept
     monitor_page_.step_elapsed =
         furnace_->step_elapsed();
 
+    monitor_page_.power =
+        furnace_->pid_output();
+        
     monitor_page_.outputs =
         furnace_->outputs();
 }

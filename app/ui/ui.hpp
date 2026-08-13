@@ -20,7 +20,8 @@ public:
         Main,
         Monitor,
         ProfileSelect,
-        
+        Result,
+    
         Count
     };
 
@@ -106,9 +107,21 @@ public:
         uint32_t profile_elapsed;
         uint32_t step_elapsed;
     
+        uint8_t power;
         uint8_t outputs;
     };
 
+    struct ResultPage
+    {
+        Furnace::State state;
+    
+        uint32_t duration;
+    
+        uint16_t temperature;
+    
+        uint8_t alarm_id;
+    };
+    
     // Page fields    
     enum class MonitorField : uint8_t
     {
@@ -119,6 +132,7 @@ public:
         Setpoint,
         ProfileElapsed,
         StepElapsed,
+        Power,
         Outputs,
 
         Count
@@ -143,6 +157,8 @@ public:
     const MainPage& main_page() const noexcept;
     
     const MonitorPage& monitor_page() const noexcept;
+    
+    const ResultPage& result_page() const noexcept;
     
     State state() const noexcept
     {
@@ -226,6 +242,7 @@ private:
     
     MainPage main_page_;
     MonitorPage monitor_page_;
+    ResultPage result_page_;
 };
 
 } // namespace app

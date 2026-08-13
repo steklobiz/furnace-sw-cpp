@@ -43,20 +43,28 @@ Furnace::init(
 void Furnace::process()
 {
     fsm_.dispatch(Event::Tick);
-    
+
     const int32_t temperature = hal::get_temperature();
 
     current_temperature_c_ =
         static_cast<int16_t>(temperature);
-    
-    pid_output_ = static_cast<uint8_t>(update_pid(temperature));
-    
+
+    if (state() == State::Running)
+    {
+        pid_output_ =
+            static_cast<uint8_t>(update_pid(temperature));
+    }
+    else
+    {
+        pid_output_ = 0;
+    }
+
     hal::set_heater_power(pid_output_);
-    
+
     history_->process(
         profile_elapsed_s_,
         hal::get_temperature(),
-        pid_output_);    
+        pid_output_);
 }
 
 const char* 

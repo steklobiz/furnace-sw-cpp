@@ -62,6 +62,7 @@ void Tui::draw_monitor() noexcept
         << "Setpoint:\n"
         << "Profile time:\n"
         << "Step time:\n"
+        << "Power:\n"
         << "Outputs:\n\n"
 
         << "1. Back\n"
@@ -161,15 +162,28 @@ void Tui::draw_monitor_field(
 
         break;
 
-
-    case Ui::MonitorField::Outputs:
-
+    case Ui::MonitorField::Power:
+    
+        move_cursor(
+            MonitorLayout::PowerRow,
+            MonitorLayout::ValueColumn);
+    
         std::cout
-            << static_cast<unsigned>(
-                   page.outputs);
-
+            << static_cast<unsigned>(page.power)
+            << " %";
+    
+        break;        
+        
+    case Ui::MonitorField::Outputs:
+    
+        move_cursor(
+            MonitorLayout::OutputsRow,
+            MonitorLayout::ValueColumn);
+    
+        std::cout
+            << static_cast<unsigned>(page.outputs);
+    
         break;
-
 
     default:
 
@@ -268,6 +282,9 @@ bool Tui::monitor_field_changed(
     case Ui::MonitorField::Outputs:
         return page.outputs != monitor_cache_.outputs;
 
+    case Ui::MonitorField::Power:
+        return page.power != monitor_cache_.power;    
+        
     default:
         return false;
     }

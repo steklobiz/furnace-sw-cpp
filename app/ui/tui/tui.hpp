@@ -1,6 +1,8 @@
+// tui.hpp
 #pragma once
 
 #include "ui.hpp"
+#include "trace.hpp"
 #include <iostream> // for cout
 
 namespace app
@@ -12,8 +14,10 @@ public:
 
     Tui() noexcept = default;
 
-    void init(Ui& ui) noexcept;
-        
+    void init(
+        Ui& ui,
+        platform::trace::Trace<100, 100>& trace) noexcept;
+                
     void process() noexcept;
     
 private:
@@ -53,12 +57,29 @@ private:
         Ui::MonitorField field) const noexcept;
                     
     //------------------------------------------------------
+    // Debug trace
+    //------------------------------------------------------ 
+
+    void draw_trace() noexcept;
+    void update_trace() noexcept;
+    void process_trace_input() noexcept;
+        
+        
+    //------------------------------------------------------
     // Profile select page functions
     //------------------------------------------------------
 
     void draw_profile_select() noexcept;
     void update_profile_select() noexcept;
     void process_profile_select_input() noexcept;    
+    
+    //------------------------------------------------------
+    // Result page functions
+    //------------------------------------------------------
+    
+    void draw_result() noexcept;
+    void update_result() noexcept;
+    void process_result_input() noexcept;
     
     //------------------------------------------------------
     // Common helper functions
@@ -81,9 +102,18 @@ private:
     bool buttons_changed(
         const Ui::MainPage& page) const noexcept;
           
-    bool read_key(char& key) noexcept;      
-        
+    bool read_key(char& key) noexcept;     
+    
+            
 private:
+    
+    using Trace = platform::trace::Trace<100, 100>;    
+
+    enum class DebugPage : uint8_t
+    {
+        None,
+        Trace
+    };
 
     struct MainLayout
     {
@@ -107,7 +137,19 @@ private:
         static constexpr uint8_t SetpointRow      = 9;
         static constexpr uint8_t ProfileTimeRow   = 10;
         static constexpr uint8_t StepTimeRow      = 11;
-        static constexpr uint8_t OutputsRow       = 12;
+        static constexpr uint8_t PowerRow         = 12;
+        static constexpr uint8_t OutputsRow       = 13;
+    };
+
+    struct TraceLayout
+    {
+        static constexpr uint8_t FurnaceStartRow = 6;
+        static constexpr uint8_t FurnaceRows = 10;
+    
+        static constexpr uint8_t PidStartRow =
+            FurnaceStartRow + FurnaceRows + 2;
+    
+        static constexpr uint8_t PidRows = 10;
     };
 
     struct ProfileSelectLayout{}; // ???
@@ -118,7 +160,10 @@ private:
     Ui::MonitorPage monitor_cache_;
     bool monitor_cache_initialized_ = false;
     
+    DebugPage debug_page_ = DebugPage::None;    
+    
     Ui* ui_ = nullptr;
+    Trace* trace_ = nullptr;
     
 };
 
