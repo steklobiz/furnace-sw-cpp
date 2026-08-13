@@ -72,8 +72,7 @@ public:
         return state_;
     }
 
-void 
-    dispatch(const Event& event) noexcept
+    void dispatch(const Event& event) noexcept
     {
                  
         const auto handler =
@@ -82,12 +81,10 @@ void
         transition((owner_->*handler)(event));
     }
 
-    /* Remove comments if need direct state changes
-    void change_state(State next) noexcept
+    void set_state(State next) noexcept
     {
         transition(next);
     }
-*/    
 
 private:
 

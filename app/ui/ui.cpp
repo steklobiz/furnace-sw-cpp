@@ -97,11 +97,7 @@ Ui::State Ui::main(const Event& event) noexcept
         
     case Event::Id::OpenMonitor:
         return State::Monitor;    
-        
-    case Event::Id::ShowResult:
-        
-            return State::Result;        
-        
+                
     default:
         return State::Main;
     }
@@ -116,14 +112,12 @@ Ui::State Ui::monitor(const Event& event) noexcept
 
         return State::Main;
 
-
     case Event::Id::Stop:
 
         furnace_->stop();
 
         return State::Main;
-
-
+    
     default:
 
         return State::Monitor;
@@ -348,7 +342,7 @@ void Ui::check_furnace_state() noexcept
 
         if (state == Furnace::State::Finished)
         {
-            fsm_.dispatch(Event::Id::ShowResult);
+            show_result();
         }
         else
         {
@@ -357,6 +351,10 @@ void Ui::check_furnace_state() noexcept
     }
 }
 
+void Ui::show_result() noexcept
+{
+    fsm_.set_state(State::Result);
+}
 
 const Ui::Button& Ui::main_button(
     uint8_t index) const noexcept

@@ -36,8 +36,8 @@ public:
             Reset,
 
             SelectProfile,
+
             OpenMonitor,
-            ShowResult,
             
             Back
         };
@@ -219,10 +219,10 @@ private:
     void update() noexcept;
         
     void update_main() noexcept;
-
     void update_monitor() noexcept;
 
     void check_furnace_state() noexcept;
+    void show_result() noexcept;
     
     const Button& main_button(
         uint8_t index) const noexcept;    
