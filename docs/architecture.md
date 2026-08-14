@@ -146,7 +146,10 @@ App
 ├── AlarmDispatcher
 ├── ProfileManager
 ├── SettingManager
-└── UI
+├── History
+├── PID
+├── UI
+└── Scheduler
 
 Objects are created with explicit ownership.
 
@@ -211,6 +214,16 @@ The UI is separate from Furnace.
 The UI sends commands to the application/Furnace and reads application state.
 
 The UI must not implement thermal process logic.
+
+### UI States
+
+The current UI states are:
+
+- Main
+- Monitor
+- ProfileSelect
+- Result
+
 
 ### UI FSM
 

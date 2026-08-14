@@ -82,7 +82,7 @@ M2 — Complete PC furnace simulation
 ## UI
 
 - [~] - UI FSM — current implementation
-- [ ] - Rewrite UI FSM using transition table
+- [ ] - Rewrite UI FSM using transition table ??
 - [ ] - Define UI states
 - [ ] - Define UI events
 - [ ] - Define UI transition table
@@ -106,6 +106,8 @@ M2 — Complete PC furnace simulation
 - [x] - Main screen
 - [x] - Monitor screen
 - [x] - Profile selection screen
+- [x] - Result screen
+- [~] - Trace screen
 - [x] - UI state-based rendering
 - [x] - Basic keyboard input
 - [~] - Non-blocking keyboard input
