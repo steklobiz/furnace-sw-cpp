@@ -209,36 +209,58 @@ The exact alarm API is still under development.
 
 ## 8. UI
 
-The UI is separate from Furnace.
+The UI provides operator interaction with the application.
 
-The UI sends commands to the application/Furnace and reads application state.
+The UI is separate from Furnace and does not implement thermal process
+logic.
 
-The UI must not implement thermal process logic.
+The UI:
 
-### UI States
-
-The current UI states are:
-
-- Main
-- Monitor
-- ProfileSelect
-- Result
-
+- presents application and furnace state
+- sends operator commands
+- maintains UI navigation state
+- reacts to important Furnace state changes
 
 ### UI FSM
 
-The current UI FSM implementation is temporary.
-
-The target implementation uses the table-driven `core::Fsm` architecture.
+The UI uses the table-driven `core::Fsm` architecture.
 
 State + Event
       ↓
-transition table
+state handler
       ↓
 next state
       ↓
-enter / handler / exit
+enter / exit
 
+Normal UI navigation is event-driven.
+
+External application conditions may cause a direct state transition
+when the transition does not belong to a particular UI state.
+
+For example, when Furnace reaches a terminal state such as Finished
+or Stopped, the UI transitions to a Result state.
+
+### UI Data
+
+The UI exposes application data through page-specific data structures.
+
+Live data is updated while required by the active UI state. Completed
+operations may be captured as a result snapshot for later presentation.
+
+The UI does not access hardware directly and does not contain thermal
+process logic.
+
+### UI Implementations
+
+The application UI is independent of the presentation layer.
+
+Current presentation implementations include:
+
+- TUI — PC development interface
+- DWIN — target display interface
+
+Both use the same UI state and application data model.
 
 ## 9. Diagnostics
 
