@@ -1,0 +1,101 @@
+ADR: Introduce DataAggregator
+
+Status: Accepted
+Date: 2026-08-15
+
+Context
+
+The UI needs data from several application sources:
+
+- Furnace
+- ProfileManager
+- SettingManager
+- TcParser
+- events and temperature samples
+
+We considered letting the UI collect this data directly.
+
+This would make the UI responsible for:
+
+- knowing individual application data sources;
+- requesting and refreshing their data;
+- detecting data changes;
+- storing data between page changes;
+- maintaining event/history queues.
+
+As the number of pages and data sources grows, this would tightly couple the UI to the application structure and make the UI harder to maintain.
+
+Decision
+
+Introduce a separate DataAggregator class owned by the application.
+
+DataAggregator knows about application data sources but knows nothing about:
+
+- UI pages;
+- fields defined by page descriptors;
+- renderers;
+- LCD/TUI/Web presentation;
+- UI actions.
+
+DataAggregator stores:
+
+- current data;
+- data versions;
+- change information;
+- bounded event/history data.
+
+The UI consumes data from DataAggregator instead of collecting it directly from application sources.
+
+Architecture:
+
+    Application sources
+            |
+            v
+      DataAggregator
+            |
+            v
+            UI
+            |
+            v
+        Renderers
+
+Rationale
+
+1. Separates application data collection from UI interaction.
+2. Removes direct dependencies from UI to individual application sources.
+3. Allows data to remain available when the user changes pages.
+4. Centralizes change detection and version tracking.
+5. Provides a natural owner for bounded event/history queues.
+6. Allows future consumers to use aggregated data without making the aggregator UI-specific.
+
+Alternatives considered
+
+UI collects data directly:
+Rejected because it couples UI to application data sources and makes UI responsible for data management.
+
+Renderers collect data directly:
+Rejected because renderers would need to know application organization and would duplicate data-access logic.
+
+Application sources notify UI directly:
+Rejected because this couples the application to the UI.
+
+Consequences
+
+Positive:
+- lower UI/application coupling;
+- centralized data management;
+- shared data for multiple consumers;
+- simpler renderers.
+
+Negative:
+- additional abstraction;
+- additional storage;
+- requires a defined refresh/update mechanism.
+
+Open questions
+
+- How sources notify DataAggregator.
+- How data versions are generated.
+- Exact field/value representation.
+- Exact event/history API.
+- How UI queries DataAggregator.

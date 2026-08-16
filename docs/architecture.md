@@ -24,35 +24,31 @@ The system is deterministic and does not use:
 ## 2. Main Architecture
 
 ```text
-                         Application
-                              │
-              ┌───────────────┼───────────────┐
-              │               │               │
-           Furnace            UI         Diagnostics
-              │               │               │
-       ┌──────┼──────┐        │        ┌──────┴──────┐
-       │      │      │        │        │             │
-      PID    TC     Model    TUI     Events      Debug messages
-            Parser
-       │
-       │
-    Alarms
-              │
-              ↓
-             Core
-       ┌──────┼──────┬──────┐
-       │      │      │      │
-      FSM   PID  Scheduler RingBuffer
+                         APPLICATION
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│   Furnace              UI                 Diagnostics       │
+│   ├─ PID               ├─ TUI             ├─ Events         │
+│   ├─ TC Parser         └─ DWIN            ├─ History        │
+│   ├─ Profile                              └─ Debug          │
+│   └─ Alarms                                                 │
+│                                                             │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+                              CORE
+                  ┌────────────┬────────────┐
+                  │ FSM        │ Scheduler  │
+                  │ PID        │ RingBuffer │
+                  └────────────┴────────────┘
+                               │
+                               ▼
+                           PLATFORM
+                    ┌──────────┴──────────┐
+                    │                     │
+                   PC                    MCU
+              simulation             MCU drivers
 
-              │
-              ↓
-          Platform
-        ┌──────┴──────┐
-        │             │
-       PC            MCU
-                      │
-                MCU Drivers
-                
 ```
 ## 3. Layers
 
@@ -168,6 +164,7 @@ It is responsible for:
 - step progression
 - setpoint calculation
 - PID operation
+- heater power control
 - output decisions
 - furnace state
 - thermal process timing
@@ -289,6 +286,14 @@ Events may contain important furnace values.
 
 Events are more important to the production system than debug logging.
 
+### Trace
+
+PC development builds provide diagnostic traces for:
+
+- furnace temperature / setpoint / power
+- PID setpoint / measurement / P / I / D / output
+
+Trace data is stored in fixed-size ring buffers.
 
 ## 10. Storage
 
@@ -313,13 +318,12 @@ Typical flow:
 
 Scheduler
     │
-    ├── TC update
-    │
-    ├── Furnace process
-    │
+    ├── Furnace processing
     ├── Alarm processing
-    │
     └── UI processing
+        
+Individual modules may have their own periodic processing
+requirements.
 
 Processing functions should be non-blocking.
 
