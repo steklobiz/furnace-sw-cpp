@@ -26,11 +26,23 @@ void TcParser::init()
     }
 }
 
+void TcParser::set_data_ready_callback(
+    DataReadyCallback callback,
+    void* context) noexcept
+{
+    data_ready_callback_ = callback;
+    data_ready_context_ = context;
+}
 
 void TcParser::update()
 {
     // Actual thermocouple acquisition and parsing
     // will be implemented here.
+    
+    if (data_ready_callback_ != nullptr)
+    {
+        data_ready_callback_(data_ready_context_);
+    }
 }
 
 
