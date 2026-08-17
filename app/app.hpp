@@ -69,18 +69,21 @@ public:
             furnace_    
         ); 
                 
-        data_aggregator_.init(tc_parser_);
+        data_aggregator_.init(
+             tc_parser_,
+             furnace_);
         
         ui_.init(
             furnace_, 
             profiles_, 
             settings_,
             data_aggregator_);
-            
+/*            
         tui_.init(
             ui_,
             trace_);
-        
+ */       
+  
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
         Profile& p = profiles_.edit();
@@ -113,7 +116,7 @@ public:
             *this);
                             
 #endif    
-                    
+/*                    
         scheduler_.every<Ui, &Ui::process>(
             100,
             ui_);
@@ -121,7 +124,7 @@ public:
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-            
+*/            
         return true; // replace with false if anything fails    
     }
 

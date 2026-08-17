@@ -1,3 +1,5 @@
+// ui.cpp
+
 #include "ui.hpp"
 
 namespace app
@@ -13,25 +15,24 @@ void Ui::init(
     profiles_ = &profiles;
     settings_ = &settings;
     data_ = &data;
-
-    temperature_version_ = data_->temperature().version;
-    monitor_.temperature = data_->temperature().value;
 }
 
 void Ui::process() noexcept
 {
-    const auto& temperature = data_->temperature();
-
-    if (temperature.version != temperature_version_)
-    {
-        monitor_.temperature = temperature.value;
-        temperature_version_ = temperature.version;
-    }
+    // UI state and actions will be implemented here.
 }
 
-const Ui::Monitor& Ui::monitor() const noexcept
+const DataItem<uint16_t>&
+Ui::get_field(MonitorField field) const noexcept
 {
-    return monitor_;
+    switch (field)
+    {
+        case MonitorField::Temperature:
+            return data_->get_item(TcParserItem::Temperature);
+    }
+
+    // Unreachable for a valid MonitorField.
+    return data_->get_item(TcParserItem::Temperature);
 }
 
 } // namespace app

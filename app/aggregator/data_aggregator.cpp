@@ -1,3 +1,4 @@
+// data_aggregator.cpp
 #include "data_aggregator.hpp"
 
 namespace app
@@ -10,59 +11,111 @@ void DataAggregator::init(
     tc_parser_ = &tc_parser;
     furnace_ = &furnace;
 
-    tc_parser_->set_data_ready_callback(
-        tc_data_is_ready,
+    // Register the aggregator as a notification receiver.
+    tc_parser_->set_notify_callback(
+        on_notification,
         this);
-
-    furnace_->set_data_ready_callback(
-        furnace_data_is_ready,
-        this);
+/*
+    furnace_->set_notify_callback(
+        on_notification,
+        this);*/
 }
 
-void DataAggregator::tc_data_is_ready(void* context) noexcept
+void DataAggregator::on_notification(
+    void* context,
+    const Notification& notification) noexcept
 {
-    auto* aggregator = static_cast<DataAggregator*>(context);
+    // Recover the DataAggregator instance that registered the callback.
+    auto* aggregator =
+        static_cast<DataAggregator*>(context);
 
-    aggregator->update_temperature();
+    aggregator->handle_notification(notification);
 }
 
-void DataAggregator::furnace_data_is_ready(void* context) noexcept
+void DataAggregator::handle_notification(
+    const Notification& notification) noexcept
 {
-    auto* aggregator = static_cast<DataAggregator*>(context);
-
-    aggregator->update_furnace();
-}
-
-void DataAggregator::update_temperature() noexcept
-{
-    const int16_t value = tc_parser_->average();
-
-    if (!initialized_)
+    // The notification context identifies the source
+    // that generated the notification.
+    if (notification.context == tc_parser_)
     {
-        temperature_.value = value;
-        initialized_ = true;
+        // TcParser currently provides temperature data.
+        
+        // Attention!!! temperature sended via notification. no need to read data 
+        
         return;
     }
-
-    if (temperature_.value != value)
+    
+    // Furnace notifications are handled according
+    // to their notification type.
+    if (notification.context == furnace_)
     {
-        temperature_.value = value;
-        ++temperature_.version;
+        // Notification came from Furnace.
+        switch (notification.type)
+        {
+            case NotificationType::DataReady:
+                
+                update_item_value(
+                    FurnaceItem::State,
+                    static_cast<uint16_t>(furnace_->state()));
+                    
+                update_item_value(
+                    FurnaceItem::Step,
+                    static_cast<uint16_t>(furnace_->current_step()));
+            
+                break;
+            case NotificationType::Error:
+                break;
+            default:
+                break;
+        }
+    }
+    
+}
+
+DataItem<int16_t> DataAggregator::get_item(uint8_t source_id, uint8_t field_id) noexcept
+{
+    // TODO: check bounds
+    switch (static_cast<DataSource>(source_id))
+    {
+        case DataSource::TcParser:
+            return tc_parser_items_[
+                static_cast<std::size_t>(field_id)];
+
+        case DataSource::Furnace:
+            return furnace_items_[
+                static_cast<std::size_t>(field_id)];
     }
 }
 
-void DataAggregator::update_furnace() noexcept
-{
-    // Example only:
-    // const int16_t value = furnace_->current_temperature();
 
-    // update the corresponding DataItem here.
+void DataAggregator::update_item_value(FurnaceItem id, uint16_t value) noexcept
+{
+    auto& item = furnace_items_[
+        static_cast<std::size_t>(id)
+        ];
+
+    
+    if (item.value != value)
+    {
+        item.value = value;
+        ++item.version;
+    }
 }
 
-const DataItem<int16_t>&
-DataAggregator::temperature() const noexcept
+void DataAggregator::update_item_value(TcParserItem id, uint16_t value) noexcept
 {
-    return temperature_;
+    auto& item = tc_parser_items_[
+        static_cast<std::size_t>(id)
+        ];
+
+    
+    if (item.value != value)
+    {
+        item.value = value;
+        ++item.version;
+    }
 }
+
 
 } // namespace app
