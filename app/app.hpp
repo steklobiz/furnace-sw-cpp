@@ -6,13 +6,13 @@
 #include "furnace.hpp"
 #include "tc_parser.hpp"
 #include "ui.hpp"
-#include "tui.hpp"
 #include "scheduler.hpp"
 #include "hal.hpp"
 #include "logger.hpp"
 #include "history.hpp"
 #include "alarm.hpp"
 #include "pid.hpp"
+#include "data_aggregator.hpp"
 
 #ifdef PLATFORM_PC
 #include "trace.hpp"
@@ -53,7 +53,8 @@ public:
             settings.pid_ki,
             settings.pid_kd
         });    
-            
+        
+        tc_parser_.init();
             
         // Connect objects (dependency injection)
         furnace_.init(
@@ -68,10 +69,13 @@ public:
             furnace_    
         ); 
                 
+        data_aggregator_.init(tc_parser_);
+        
         ui_.init(
             furnace_, 
             profiles_, 
-            settings_);
+            settings_,
+            data_aggregator_);
             
         tui_.init(
             ui_,
@@ -181,7 +185,9 @@ private:
     SettingManager settings_;
 
     TcParser tc_parser_;
-    
+
+    DataAggregator data_aggregator_;
+        
     History history_;
     
     Furnace furnace_;
@@ -189,8 +195,6 @@ private:
     AlarmDispatcher alarm_;
 
     Ui ui_;
-
-    Tui tui_;
 
     core::Scheduler scheduler_;
     

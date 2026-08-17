@@ -1,7 +1,7 @@
 CXX      := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic \
             -DPLATFORM_PC \
-            -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config -Iapp/tc_parser -Iapp/alarm -Iapp/history -Iapp/furnace \
+            -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config -Iapp/tc_parser -Iapp/alarm -Iapp/history -Iapp/furnace -Iapp/aggregator \
             -Icore/log -Icore/log/backends -Icore/pid -Icore/scheduler -Icore/format \
             -Iplatform
 LDFLAGS := -static
@@ -17,6 +17,7 @@ TCPDIR   := app/tc_parser
 ALARMDIR := app/alarm
 HISTDIR  := app/history
 FURNACEDIR := app/furnace
+AGGREGATORDIR := app/aggregator
 LOGDIR   := core/log
 LOGBDIR  := core/log/backends
 PIDDIR   := core/pid
@@ -37,13 +38,14 @@ TCP_SRCS  := $(wildcard $(TCPDIR)/*.cpp)
 ALARM_SRCS := $(wildcard $(ALARMDIR)/*.cpp)
 HIST_SRCS  := $(wildcard $(HISTDIR)/*.cpp)
 FURNACE_SRCS := $(wildcard $(FURNACEDIR)/*.cpp)
+AGGREGATOR_SRCS := $(wildcard $(AGGREGATORDIR)/*.cpp)
 LOG_SRCS  := $(wildcard $(LOGDIR)/*.cpp)
 LOGB_SRCS := $(wildcard $(LOGBDIR)/*.cpp)
 PID_SRCS  := $(wildcard $(PIDDIR)/*.cpp)
 SCHED_SRCS := $(wildcard $(SCHEDDIR)/*.cpp)
 FORM_SRCS  := $(wildcard $(FORMDIR)/*.cpp)
 HAL_SRCS  := $(wildcard $(HALDIR)/*.cpp)
-SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(PROF_SRCS) $(SET_SRCS) $(CONF_SRCS) $(TCP_SRCS) $(ALARM_SRCS) $(HIST_SRCS) $(FURNACE_SRCS) $(LOG_SRCS) $(LOGB_SRCS) $(PID_SRCS) $(SCHED_SRCS) $(FORM_SRCS) $(HAL_SRCS)
+SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(PROF_SRCS) $(SET_SRCS) $(CONF_SRCS) $(TCP_SRCS) $(ALARM_SRCS) $(HIST_SRCS) $(FURNACE_SRCS) $(AGGREGATOR_SRCS) $(LOG_SRCS) $(LOGB_SRCS) $(PID_SRCS) $(SCHED_SRCS) $(FORM_SRCS) $(HAL_SRCS)
 OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
              $(patsubst $(UIDIR)/%.cpp, $(BUILDDIR)/%.o, $(UI_SRCS)) \
              $(patsubst $(TUIDIR)/%.cpp, $(BUILDDIR)/%.o, $(TUI_SRCS)) \
@@ -55,6 +57,7 @@ OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
              $(patsubst $(ALARMDIR)/%.cpp, $(BUILDDIR)/%.o, $(ALARM_SRCS)) \
              $(patsubst $(HISTDIR)/%.cpp, $(BUILDDIR)/%.o, $(HIST_SRCS)) \
              $(patsubst $(FURNACEDIR)/%.cpp, $(BUILDDIR)/%.o, $(FURNACE_SRCS)) \
+             $(patsubst $(AGGREGATORDIR)/%.cpp, $(BUILDDIR)/%.o, $(AGGREGATOR_SRCS)) \
              $(patsubst $(LOGDIR)/%.cpp, $(BUILDDIR)/log_%.o, $(LOG_SRCS)) \
              $(patsubst $(LOGBDIR)/%.cpp, $(BUILDDIR)/logb_%.o, $(LOGB_SRCS)) \
              $(patsubst $(PIDDIR)/%.cpp, $(BUILDDIR)/pid_%.o, $(PID_SRCS)) \
@@ -100,6 +103,9 @@ $(BUILDDIR)/%.o: $(HISTDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/%.o: $(FURNACEDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
+
+$(BUILDDIR)/%.o: $(AGGREGATORDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/log_%.o: $(LOGDIR)/%.cpp | $(BUILDDIR)
