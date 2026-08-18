@@ -1,17 +1,16 @@
 // data_aggregator.hpp
-
-// DataAggregator collects and stores current application data from
-// registered data sources. It is independent of UI and presentation.
-// Values remain in their native form and are tracked with a version
-// that changes when the stored value changes. It may also own bounded
-// event and history queues.
-
 #pragma once
 
 #include <cstdint>
 
 #include "furnace.hpp"
 #include "tc_parser.hpp"
+
+// DataAggregator collects and stores current application data from
+// registered data sources. It is independent of UI and presentation.
+// Values remain in their native form and are tracked with a version
+// that changes when the stored value changes. It may also own bounded
+// event and history queues.
 
 namespace app
 {

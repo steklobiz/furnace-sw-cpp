@@ -6,6 +6,7 @@
 #include "furnace.hpp"
 #include "tc_parser.hpp"
 #include "ui.hpp"
+#include "tui.hpp"
 #include "scheduler.hpp"
 #include "hal.hpp"
 #include "logger.hpp"
@@ -78,11 +79,10 @@ public:
             profiles_, 
             settings_,
             data_aggregator_);
-/*            
+            
         tui_.init(
-            ui_,
-            trace_);
- */       
+            ui_);
+        
   
         // Temporary test profile.
         // Later this will probably come from EEPROM / flash storage.
@@ -104,7 +104,7 @@ public:
         scheduler_.every<Furnace, &Furnace::process>(
             1000,
             furnace_);
-            
+/*            
 #ifdef PLATFORM_PC
 
         scheduler_.every<App, &App::trace_pid>(
@@ -116,7 +116,7 @@ public:
             *this);
                             
 #endif    
-/*                    
+  */                  
         scheduler_.every<Ui, &Ui::process>(
             100,
             ui_);
@@ -124,7 +124,7 @@ public:
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-*/            
+            
         return true; // replace with false if anything fails    
     }
 
@@ -199,6 +199,8 @@ private:
 
     Ui ui_;
 
+    Tui tui_;
+    
     core::Scheduler scheduler_;
     
     core::Pid pid_;

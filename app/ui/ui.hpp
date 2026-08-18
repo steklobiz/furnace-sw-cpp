@@ -20,6 +20,14 @@ class Ui
 {
 public:
 
+    // Actions
+    enum class Action : uint8_t
+    {
+        StartProfile,
+        StopFurnace,
+        ResetFurnace
+    };
+    
     enum class Page : uint8_t
     {
         Main,
@@ -57,18 +65,20 @@ public:
     void process() noexcept;
 
     // Returns the current data item associated with a Main page field.
-    // The returned item contains both the current value and its version.
     const DataItem<uint16_t>& get_field(
         MainField field) const noexcept;
 
     // Returns the current data item associated with a Monitor page field.
-    // The returned item contains both the current value and its version.            
     const DataItem<uint16_t>& get_field(
         MonitorField field) const noexcept;
         
     // Returns current page
     Page page() const noexcept;    
-        
+    
+    // Executes a semantic UI action.
+    void execute(Action action) noexcept;
+    
+            
 private:
     struct FieldMapping
     {
