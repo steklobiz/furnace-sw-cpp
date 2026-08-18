@@ -16,23 +16,55 @@ namespace app
 class Tui
 {
 public:
+    struct Label
+    {
+        const char* caption;
+        uint8_t field;
+    };
+
     void init(Ui& ui) noexcept;
 
     void process() noexcept;
 
 private:
 
+    static constexpr Label main_labels_[] =
+    {
+        {
+            "Temperature:",
+            static_cast<uint8_t>(Ui::MainField::Temperature)
+        }
+    };
+
+    static constexpr Label monitor_labels_[] =
+    {
+        {
+            "State:",
+            static_cast<uint8_t>(Ui::MonitorField::State)
+        },
+        {
+            "Step:",
+            static_cast<uint8_t>(Ui::MonitorField::CurrentStep)
+        },
+        {
+            "Temperature, C:",
+            static_cast<uint8_t>(Ui::MonitorField::Temperature)
+        }
+    };
+    
     void process_input() noexcept;
 
     void render_main() noexcept;
     void render_monitor() noexcept;
 
     void render_main_field(
-        Ui::MainField field) noexcept;
-
+        Ui::MainField field,
+        const char* caption) noexcept;
+    
     void render_monitor_field(
-        Ui::MonitorField field) noexcept;
-            
+        Ui::MonitorField field,
+        const char* caption) noexcept;
+                
     Ui* ui_ = nullptr;
 
     static constexpr std::size_t MainFieldCount =

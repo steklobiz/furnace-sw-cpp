@@ -110,20 +110,30 @@ void Tui::process_input() noexcept
 // initialized so subsequent renders only print changed values.
 void Tui::render_main() noexcept
 {
-    render_main_field(Ui::MainField::Temperature);
-    
+    const auto& label = main_labels_[0];
+
+    const auto field =
+        static_cast<Ui::MainField>(label.field);
+
+    render_main_field(field, label.caption);
+
     main_initialized_ = true;
 }
-
 
 // Renders all fields of the Monitor page, then marks the page as
 // initialized so subsequent renders only print changed values.
 void Tui::render_monitor() noexcept
 {
-    render_monitor_field(Ui::MonitorField::State);
-    render_monitor_field(Ui::MonitorField::CurrentStep);
-    render_monitor_field(Ui::MonitorField::Temperature);
-    
+    for (const auto& label : monitor_labels_)
+    {
+        const auto field =
+            static_cast<Ui::MonitorField>(label.field);
+
+        render_monitor_field(
+            field,
+            label.caption);
+    }
+
     monitor_initialized_ = true;
 }
 
@@ -133,36 +143,31 @@ void Tui::render_monitor() noexcept
 // value selects the item via get_field(), keeping index and switch
 // cases in lockstep.
 void Tui::render_main_field(
-    Ui::MainField field) noexcept
+    Ui::MainField field,
+    const char* caption) noexcept
 {
-    // Fetch the field's current data item from Ui. Ui resolves the
-    // field to the correct DataAggregator item internally.
     const auto& item = ui_->get_field(field);
 
     const std::size_t index =
         static_cast<std::size_t>(field);
 
-    // Change detection: skip unless the item version differs from the
-    // last printed one. The initialized flag disables the check on the
-    // very first render so every field is printed at least once.
     if (main_initialized_ &&
         main_versions_[index] == item.version)
     {
         return;
     }
 
-    // Remember the printed version before emitting output.
     main_versions_[index] = item.version;
 
     switch (field)
     {
         case Ui::MainField::Temperature:
             std::printf(
-                "Temperature: %u C\n",
+                "%s %u C\n",
+                caption,
                 static_cast<unsigned>(item.value));
             break;
 
-        // Placeholder for future Main-page fields.
         case Ui::MainField::Count:
             break;
     }
@@ -171,7 +176,8 @@ void Tui::render_main_field(
 // Renders a single Monitor-page field using the same version-based
 // change detection as render_main_field().
 void Tui::render_monitor_field(
-    Ui::MonitorField field) noexcept
+    Ui::MonitorField field,
+    const char* caption) noexcept
 {
     const auto& item = ui_->get_field(field);
 
@@ -190,23 +196,25 @@ void Tui::render_monitor_field(
     {
         case Ui::MonitorField::State:
             std::printf(
-                "State: %u\n",
+                "%s %u\n",
+                caption,
                 static_cast<unsigned>(item.value));
             break;
 
         case Ui::MonitorField::CurrentStep:
             std::printf(
-                "Step: %u\n",
+                "%s %u\n",
+                caption,
                 static_cast<unsigned>(item.value));
             break;
 
         case Ui::MonitorField::Temperature:
             std::printf(
-                "Temperature: %u C\n",
+                "%s %u C\n",
+                caption,
                 static_cast<unsigned>(item.value));
             break;
 
-        // Placeholder for future Monitor-page fields.
         case Ui::MonitorField::Count:
             break;
     }
