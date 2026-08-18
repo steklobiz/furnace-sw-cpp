@@ -31,12 +31,14 @@ public:
     enum class Page : uint8_t
     {
         Main,
-        Monitor
+        Monitor,
+        Result
     };
 
     // Fields displayed by the Main page.
     enum class MainField : uint8_t
     {
+        State,
         Temperature,
         
         Count
@@ -52,6 +54,14 @@ public:
         Count
     };
 
+    // Fields displayed by the Result page.
+    enum class ResultField : uint8_t
+    {
+        State,
+        Temperature,
+        
+        Count
+    };
     
     // Initializes the UI and connects it to the application modules
     // required for UI operations.
@@ -71,7 +81,11 @@ public:
     // Returns the current data item associated with a Monitor page field.
     const DataItem<uint16_t>& get_field(
         MonitorField field) const noexcept;
-        
+
+    // Returns the current data item associated with a Monitor page field.
+    const DataItem<uint16_t>& get_field(
+        ResultField field) const noexcept;      
+                
     // Returns current page
     Page page() const noexcept;    
     
