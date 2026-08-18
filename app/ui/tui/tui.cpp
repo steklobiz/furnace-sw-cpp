@@ -114,6 +114,18 @@ void Tui::process_input() noexcept
                 }
             }
             break;
+            
+        case Ui::Page::Result:
+            for (const auto& button : result_buttons_)
+            {
+                if (button.key == key)
+                {
+                    ui_->execute(button.action);
+                    return;
+                }
+            }
+            break;
+    
     }
 }
 

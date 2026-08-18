@@ -78,7 +78,26 @@ private:
             Ui::Action::StopFurnace
         }
     };
+
+    // Reset page representation
+    static constexpr Label reset_labels_[] =
+    {
+        {
+            "Temperature, C:",
+            static_cast<uint8_t>(Ui::ResultField::Temperature)
+        }
+    };    
     
+    static constexpr Button result_buttons_[] =
+    {
+        {
+            'r',
+            "Reset",
+            Ui::Action::ResetFurnace
+        }
+    };
+
+        
     void process_input() noexcept;
 
     void render_main() noexcept;
