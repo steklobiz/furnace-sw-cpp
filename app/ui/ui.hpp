@@ -65,7 +65,8 @@ public:
     // The returned item contains both the current value and its version.            
     const DataItem<uint16_t>& get_field(
         MonitorField field) const noexcept;
-    
+        
+    // Returns current page
     Page page() const noexcept;    
         
 private:

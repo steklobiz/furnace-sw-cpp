@@ -44,4 +44,9 @@ Ui::get_field(MonitorField field) const noexcept
         mapping.field);
 }
 
+Ui::Page Ui::page() const noexcept
+{
+    return page_;
+}
+
 } // namespace app
