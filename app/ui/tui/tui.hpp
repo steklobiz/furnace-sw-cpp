@@ -21,21 +21,39 @@ public:
         const char* caption;
         uint8_t field;
     };
-
+    
+    struct Button
+    {
+        char key;
+        const char* caption;
+        Ui::Action action;
+    };
+    
     void init(Ui& ui) noexcept;
 
     void process() noexcept;
 
 private:
-
+    
+    // Main page representation
     static constexpr Label main_labels_[] =
     {
         {
-            "Temperature:",
+            "Temperature, C:",
             static_cast<uint8_t>(Ui::MainField::Temperature)
         }
     };
 
+    static constexpr Button main_buttons_[] =
+    {
+        {
+            's',
+            "Start",
+            Ui::Action::StartProfile
+        }
+    };
+
+    // Monitor page representation
     static constexpr Label monitor_labels_[] =
     {
         {
@@ -64,7 +82,7 @@ private:
     void render_monitor_field(
         Ui::MonitorField field,
         const char* caption) noexcept;
-                
+                    
     Ui* ui_ = nullptr;
 
     static constexpr std::size_t MainFieldCount =

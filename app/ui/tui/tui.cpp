@@ -84,39 +84,65 @@ void Tui::process() noexcept
 
 void Tui::process_input() noexcept
 {
-#ifdef PLATFORM_PC
-
     if (!_kbhit())
     {
         return;
     }
 
-    const int key = _getch();
+    const char key = static_cast<char>(_getch());
 
-    switch (key)
+    if (ui_->page() == Ui::Page::Main)
     {
-        case 's':
-            ui_->execute(Ui::Action::StartProfile);
-            break;
-
-        default:
-            break;
+        for (const auto& button : main_buttons_)
+        {
+            if (button.key == key)
+            {
+                ui_->execute(button.action);
+                return;
+            }
+        }
     }
-
-#endif
 }
 
 // Renders all fields of the Main page, then marks the page as
 // initialized so subsequent renders only print changed values.
 void Tui::render_main() noexcept
 {
-    const auto& label = main_labels_[0];
+    for (const auto& label : main_labels_)
+    {
+        const auto field =
+            static_cast<Ui::MainField>(label.field);
 
-    const auto field =
-        static_cast<Ui::MainField>(label.field);
+        const auto& item = ui_->get_field(field);
 
-    render_main_field(field, label.caption);
+        const std::size_t index =
+            static_cast<std::size_t>(field);
 
+        if (main_initialized_ &&
+            main_versions_[index] == item.version)
+        {
+            continue;
+        }
+
+        main_versions_[index] = item.version;
+
+        std::printf(
+            "%s %u\n",
+            label.caption,
+            static_cast<unsigned>(item.value));
+    }
+
+    if (!main_initialized_)
+    {
+        for (const auto& button : main_buttons_)
+        {
+            std::printf(
+                "[%c] %s\n",
+                button.key,
+                button.caption);
+        }
+    }
+        
     main_initialized_ = true;
 }
 
@@ -129,95 +155,27 @@ void Tui::render_monitor() noexcept
         const auto field =
             static_cast<Ui::MonitorField>(label.field);
 
-        render_monitor_field(
-            field,
-            label.caption);
+        const auto& item = ui_->get_field(field);
+
+        const std::size_t index =
+            static_cast<std::size_t>(field);
+
+        if (monitor_initialized_ &&
+            monitor_versions_[index] == item.version)
+        {
+            continue;
+        }
+
+        monitor_versions_[index] = item.version;
+
+        std::printf(
+            "%s %u\n",
+            label.caption,
+            static_cast<unsigned>(item.value));
     }
 
     monitor_initialized_ = true;
 }
 
-
-// Renders a single Main-page field, but only when its value changed.
-// The enum value doubles as the index into main_versions_; the same
-// value selects the item via get_field(), keeping index and switch
-// cases in lockstep.
-void Tui::render_main_field(
-    Ui::MainField field,
-    const char* caption) noexcept
-{
-    const auto& item = ui_->get_field(field);
-
-    const std::size_t index =
-        static_cast<std::size_t>(field);
-
-    if (main_initialized_ &&
-        main_versions_[index] == item.version)
-    {
-        return;
-    }
-
-    main_versions_[index] = item.version;
-
-    switch (field)
-    {
-        case Ui::MainField::Temperature:
-            std::printf(
-                "%s %u C\n",
-                caption,
-                static_cast<unsigned>(item.value));
-            break;
-
-        case Ui::MainField::Count:
-            break;
-    }
-}
-
-// Renders a single Monitor-page field using the same version-based
-// change detection as render_main_field().
-void Tui::render_monitor_field(
-    Ui::MonitorField field,
-    const char* caption) noexcept
-{
-    const auto& item = ui_->get_field(field);
-
-    const std::size_t index =
-        static_cast<std::size_t>(field);
-
-    if (monitor_initialized_ &&
-        monitor_versions_[index] == item.version)
-    {
-        return;
-    }
-
-    monitor_versions_[index] = item.version;
-
-    switch (field)
-    {
-        case Ui::MonitorField::State:
-            std::printf(
-                "%s %u\n",
-                caption,
-                static_cast<unsigned>(item.value));
-            break;
-
-        case Ui::MonitorField::CurrentStep:
-            std::printf(
-                "%s %u\n",
-                caption,
-                static_cast<unsigned>(item.value));
-            break;
-
-        case Ui::MonitorField::Temperature:
-            std::printf(
-                "%s %u C\n",
-                caption,
-                static_cast<unsigned>(item.value));
-            break;
-
-        case Ui::MonitorField::Count:
-            break;
-    }
-}
-
+        
 } // namespace app
