@@ -290,6 +290,23 @@ void Tui::render_result() noexcept
             static_cast<unsigned>(item.value));
     }
 
+    // Render Result page buttins
+    if (!result_initialized_)
+    {
+        for (std::size_t i = 0;
+             i < std::size(result_buttons_);
+             ++i)
+        {
+            const auto& button = result_buttons_[i];
+    
+            std::printf(
+                "\033[%zu;1H[%c] %s",
+                std::size(result_labels_) + i + 4,
+                button.key,
+                button.caption);
+        }
+    }
+    
     result_initialized_ = true;
 }
         
