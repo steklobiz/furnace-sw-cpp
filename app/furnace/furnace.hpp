@@ -45,6 +45,9 @@ public:
         History& history,
         core::Pid& pid) noexcept;
     
+    // Registers a callback invoked when new Furnace data is ready.
+    void set_notify_callback(NotificationCallback callback, void* context) noexcept;
+     
     // Should be executed by scheduler once a second
     void process();
 
@@ -199,6 +202,10 @@ private:
     int16_t current_temperature_c_; 
 
     uint8_t pid_output_ = 0;
+    
+    NotificationCallback notify_callback_ = nullptr;
+    void* notify_context_ = nullptr;
+
 
 };
 

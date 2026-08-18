@@ -70,6 +70,15 @@ private:
         }
     };
     
+    static constexpr Button monitor_buttons_[] =
+    {
+        {
+            'x',
+            "Stop",
+            Ui::Action::StopFurnace
+        }
+    };
+    
     void process_input() noexcept;
 
     void render_main() noexcept;

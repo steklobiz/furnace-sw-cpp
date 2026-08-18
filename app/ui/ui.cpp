@@ -89,6 +89,10 @@ void Ui::execute(Action action) noexcept
             furnace_->start();
             page_ = Page::Monitor;
             break;
+        case Action::StopFurnace:
+            furnace_->stop();
+            page_ = Page::Main;
+            break;    
         default:
             break;    
     }

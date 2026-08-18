@@ -39,11 +39,25 @@ Furnace::init(
     Log::info(tag, "Furnace initialized");
 }
         
+void Furnace::set_notify_callback(
+    NotificationCallback callback,
+    void* context) noexcept
+{
+    notify_callback_ = callback;
+    notify_context_ = context;
+}
+
 
 void Furnace::process()
 {
     fsm_.dispatch(Event::Tick);
 
+    // Emit a DataReady notification
+    if (notify_callback_ != nullptr)
+    {
+        notify_callback_(notify_context_, { this, NotificationType::DataReady, 0 });
+    }
+    
     const int32_t temperature = hal::get_temperature();
 
     current_temperature_c_ =

@@ -16,10 +16,10 @@ void DataAggregator::init(
     tc_parser_->set_notify_callback(
         on_notification,
         this);
-/*
+
     furnace_->set_notify_callback(
         on_notification,
-        this);*/
+        this);
 }
 
 void DataAggregator::on_notification(

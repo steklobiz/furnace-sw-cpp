@@ -91,25 +91,48 @@ void Tui::process_input() noexcept
 
     const char key = static_cast<char>(_getch());
 
-    if (ui_->page() == Ui::Page::Main)
+    switch (ui_->page())
     {
-        for (const auto& button : main_buttons_)
-        {
-            if (button.key == key)
+        case Ui::Page::Main:
+            for (const auto& button : main_buttons_)
             {
-                ui_->execute(button.action);
-                return;
+                if (button.key == key)
+                {
+                    ui_->execute(button.action);
+                    return;
+                }
             }
-        }
+            break;
+
+        case Ui::Page::Monitor:
+            for (const auto& button : monitor_buttons_)
+            {
+                if (button.key == key)
+                {
+                    ui_->execute(button.action);
+                    return;
+                }
+            }
+            break;
     }
 }
+
 
 // Renders all fields of the Main page, then marks the page as
 // initialized so subsequent renders only print changed values.
 void Tui::render_main() noexcept
 {
-    for (const auto& label : main_labels_)
+    if (!main_initialized_)
     {
+        std::printf("\033[1;1HMain");
+    }
+
+    for (std::size_t row = 0;
+         row < std::size(main_labels_);
+         ++row)
+    {
+        const auto& label = main_labels_[row];
+
         const auto field =
             static_cast<Ui::MainField>(label.field);
 
@@ -127,22 +150,29 @@ void Tui::render_main() noexcept
         main_versions_[index] = item.version;
 
         std::printf(
-            "%s %u\n",
+            "\033[%zu;1H%s %u",
+            row + 3,
             label.caption,
             static_cast<unsigned>(item.value));
     }
 
+    // Render Main page buttins
     if (!main_initialized_)
     {
-        for (const auto& button : main_buttons_)
+        for (std::size_t i = 0;
+             i < std::size(main_buttons_);
+             ++i)
         {
+            const auto& button = main_buttons_[i];
+
             std::printf(
-                "[%c] %s\n",
+                "\033[%zu;1H[%c] %s",
+                std::size(main_labels_) + i + 4,
                 button.key,
                 button.caption);
         }
     }
-        
+
     main_initialized_ = true;
 }
 
@@ -150,8 +180,17 @@ void Tui::render_main() noexcept
 // initialized so subsequent renders only print changed values.
 void Tui::render_monitor() noexcept
 {
-    for (const auto& label : monitor_labels_)
+    if (!monitor_initialized_)
     {
+        std::printf("\033[1;1HMonitor");
+    }
+
+    for (std::size_t row = 0;
+         row < std::size(monitor_labels_);
+         ++row)
+    {
+        const auto& label = monitor_labels_[row];
+
         const auto field =
             static_cast<Ui::MonitorField>(label.field);
 
@@ -169,11 +208,29 @@ void Tui::render_monitor() noexcept
         monitor_versions_[index] = item.version;
 
         std::printf(
-            "%s %u\n",
+            "\033[%zu;1H%s %u",
+            row + 3,
             label.caption,
             static_cast<unsigned>(item.value));
     }
 
+    // Render Monitor page buttins
+    if (!monitor_initialized_)
+    {
+        for (std::size_t i = 0;
+             i < std::size(monitor_buttons_);
+             ++i)
+        {
+            const auto& button = monitor_buttons_[i];
+    
+            std::printf(
+                "\033[%zu;1H[%c] %s",
+                std::size(monitor_labels_) + i + 4,
+                button.key,
+                button.caption);
+        }
+    }
+    
     monitor_initialized_ = true;
 }
 
