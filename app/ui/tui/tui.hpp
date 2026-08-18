@@ -77,11 +77,16 @@ private:
             "Stop",
             Ui::Action::StopFurnace
         }
-    };
-
-    // Reset page representation
-    static constexpr Label reset_labels_[] =
+    };    
+    
+    // Result page representation
+    static constexpr Label result_labels_[] =
     {
+        {
+            "State:",
+            static_cast<uint8_t>(Ui::ResultField::State)
+        },
+
         {
             "Temperature, C:",
             static_cast<uint8_t>(Ui::ResultField::Temperature)
@@ -102,14 +107,7 @@ private:
 
     void render_main() noexcept;
     void render_monitor() noexcept;
-
-    void render_main_field(
-        Ui::MainField field,
-        const char* caption) noexcept;
-    
-    void render_monitor_field(
-        Ui::MonitorField field,
-        const char* caption) noexcept;
+    void render_result() noexcept;
                     
     Ui* ui_ = nullptr;
 
@@ -121,9 +119,12 @@ private:
     
     uint8_t main_versions_[MainFieldCount]{};
     uint8_t monitor_versions_[MonitorFieldCount]{};
+    uint8_t result_versions_[MonitorFieldCount]{};
 
     bool main_initialized_ = false;
     bool monitor_initialized_ = false;
+    bool result_initialized_ = false; 
+       
     Ui::Page rendered_page_ = Ui::Page::Main;
     bool page_initialized_ = false;
 };

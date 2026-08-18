@@ -124,7 +124,19 @@ private:
         }
     };
 
-    
+    static constexpr FieldMapping result_fields_[] =
+    {
+        {
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::State)
+        },        
+        {
+            static_cast<uint8_t>(DataSource::TcParser),
+            static_cast<uint8_t>(TcParserItem::Temperature)
+        }
+    };
+
+        
     Page page_ = Page::Main;
     
     Furnace* furnace_ = nullptr;

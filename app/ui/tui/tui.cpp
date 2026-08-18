@@ -62,6 +62,10 @@ void Tui::process() noexcept
             case Ui::Page::Monitor:
                 monitor_initialized_ = false;
                 break;
+                
+            case Ui::Page::Result:
+                result_initialized_ = false;
+                break;
         }
     }
 
@@ -73,6 +77,10 @@ void Tui::process() noexcept
 
         case Ui::Page::Monitor:
             render_monitor();
+            break;
+            
+        case Ui::Page::Result:
+            render_result();
             break;
     }
 }
@@ -246,5 +254,43 @@ void Tui::render_monitor() noexcept
     monitor_initialized_ = true;
 }
 
+void Tui::render_result() noexcept
+{
+    if (!result_initialized_)
+    {
+        std::printf("\033[1;1HResult");
+    }
+
+    for (std::size_t row = 0;
+         row < std::size(result_labels_);
+         ++row)
+    {
+        const auto& label = result_labels_[row];
+
+        const auto field =
+            static_cast<Ui::ResultField>(label.field);
+
+        const auto& item = ui_->get_field(field);
+
+        const std::size_t index =
+            static_cast<std::size_t>(field);
+
+        if (result_initialized_ &&
+            result_versions_[index] == item.version)
+        {
+            continue;
+        }
+
+        result_versions_[index] = item.version;
+
+        std::printf(
+            "\033[%zu;1H%s %u",
+            row + 3,
+            label.caption,
+            static_cast<unsigned>(item.value));
+    }
+
+    result_initialized_ = true;
+}
         
 } // namespace app

@@ -74,6 +74,21 @@ Ui::get_field(MonitorField field) const noexcept
         mapping.field);
 }
 
+// Returns the current data item for a Result-page field.
+// Same mechanism as the Main-field overload, using result_fields_[].
+const DataItem<uint16_t>&
+Ui::get_field(ResultField field) const noexcept
+{
+    const auto& mapping =
+        result_fields_[static_cast<std::size_t>(field)];
+
+    return data_->get_item(
+        mapping.source,
+        mapping.field);
+}
+
+
+
 // Returns the currently active page. Renderers use this to decide
 // which page to draw on each cycle.
 Ui::Page Ui::page() const noexcept
@@ -91,8 +106,13 @@ void Ui::execute(Action action) noexcept
             break;
         case Action::StopFurnace:
             furnace_->stop();
+            page_ = Page::Result;
+            break;    
+        case Action::ResetFurnace:
+            furnace_->reset();
             page_ = Page::Main;
             break;    
+    
         default:
             break;    
     }
