@@ -1,5 +1,6 @@
 // data_aggregator.cpp
 #include "data_aggregator.hpp"
+#include <cassert> // temporary
 
 namespace app
 {
@@ -73,7 +74,7 @@ void DataAggregator::handle_notification(
     
 }
 
-DataItem<int16_t> DataAggregator::get_item(uint8_t source_id, uint8_t field_id) noexcept
+const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t field_id) noexcept
 {
     // TODO: check bounds
     switch (static_cast<DataSource>(source_id))
@@ -85,6 +86,12 @@ DataItem<int16_t> DataAggregator::get_item(uint8_t source_id, uint8_t field_id) 
         case DataSource::Furnace:
             return furnace_items_[
                 static_cast<std::size_t>(field_id)];
+        default:
+            // Invalid source_id — this is a programmer error.
+            // Depending on your project conventions, one of:
+            assert(false && "Invalid DataSource");
+            // TODO: insert halt here
+            break;        
     }
 }
 

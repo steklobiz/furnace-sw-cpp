@@ -1,5 +1,3 @@
-// ui.cpp
-
 #include "ui.hpp"
 
 namespace app
@@ -17,22 +15,33 @@ void Ui::init(
     data_ = &data;
 }
 
+
 void Ui::process() noexcept
 {
     // UI state and actions will be implemented here.
 }
 
+
+const DataItem<uint16_t>&
+Ui::get_field(MainField field) const noexcept
+{
+    const auto& mapping =
+        main_fields_[static_cast<std::size_t>(field)];
+
+    return data_->get_item(
+        mapping.source,
+        mapping.field);
+}
+
 const DataItem<uint16_t>&
 Ui::get_field(MonitorField field) const noexcept
 {
-    switch (field)
-    {
-        case MonitorField::Temperature:
-            return data_->get_item(TcParserItem::Temperature);
-    }
+    const auto& mapping =
+        monitor_fields_[static_cast<std::size_t>(field)];
 
-    // Unreachable for a valid MonitorField.
-    return data_->get_item(TcParserItem::Temperature);
+    return data_->get_item(
+        mapping.source,
+        mapping.field);
 }
 
 } // namespace app

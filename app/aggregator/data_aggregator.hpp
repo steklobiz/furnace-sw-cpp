@@ -61,7 +61,7 @@ public:
         Furnace& furnace) noexcept;
         
     // Returns specified data item.    
-    DataItem<int16_t> get_item(
+    const DataItem<uint16_t>& get_item(
         uint8_t source_id, 
         uint8_t field_id) noexcept;
      
@@ -90,10 +90,10 @@ private:
     TcParser* tc_parser_ = nullptr;
     Furnace* furnace_ = nullptr;
 
-    DataItem<int16_t> furnace_items_[
+    DataItem<uint16_t> furnace_items_[
         static_cast<std::size_t>(FurnaceItem::Count)]{};
         
-    DataItem<int16_t> tc_parser_items_[
+    DataItem<uint16_t> tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
 };
 
