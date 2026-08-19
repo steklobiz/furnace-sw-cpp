@@ -7,11 +7,13 @@ namespace app
 
 void DataAggregator::init(
     TcParser& tc_parser,
-    Furnace& furnace) noexcept
+    Furnace& furnace,
+    ProfileManager& profiles) noexcept
 {
     tc_parser_ = &tc_parser;
     furnace_ = &furnace;
-
+    profiles_= &profiles;
+    
     // Register the aggregator as a notification receiver.
     tc_parser_->set_notify_callback(
         on_notification,
@@ -57,13 +59,29 @@ void DataAggregator::handle_notification(
             case NotificationType::DataReady:
                 
                 update_item_value(
+                    FurnaceItem::Temperature,
+                    static_cast<uint16_t>(furnace_->current_temperature()));
+
+                update_item_value(
                     FurnaceItem::State,
                     static_cast<uint16_t>(furnace_->state()));
                     
                 update_item_value(
                     FurnaceItem::Step,
                     static_cast<uint16_t>(furnace_->current_step()));
-            
+
+                update_item_value(
+                    FurnaceItem::StepElapsed,
+                    static_cast<uint16_t>(furnace_->step_elapsed()));
+
+                update_item_value(
+                    FurnaceItem::ProfileElapsed,
+                    static_cast<uint16_t>(furnace_->profile_elapsed()));
+
+                update_item_value(
+                    FurnaceItem::Power,
+                    static_cast<uint16_t>(furnace_->power()));
+                    
                 break;
             case NotificationType::Error:
                 break;
@@ -95,6 +113,21 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
     }
 }
 
+/*
+Functions below may be chaned by template. Need to be checked 
+template<class SrcEnum, std::size_t N>
+void update(SrcEnum id, uint16_t value,
+            DataItem<uint16_t> (&items)[N]) noexcept;            
+{
+    const auto index = static_cast<std::size_t>(id);
+
+    if (items[index].value != value)
+    {
+        items[index].value = value;
+        ++items[index].version;
+    }
+}            
+*/
 
 void DataAggregator::update_item_value(FurnaceItem id, uint16_t value) noexcept
 {

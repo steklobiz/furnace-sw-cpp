@@ -116,10 +116,13 @@ private:
     
     static constexpr std::size_t MonitorFieldCount =
         static_cast<std::size_t>(Ui::MonitorField::Count);
-    
+
+    static constexpr std::size_t ResultFieldCount =
+        static_cast<std::size_t>(Ui::ResultField::Count);
+        
     uint8_t main_versions_[MainFieldCount]{};
     uint8_t monitor_versions_[MonitorFieldCount]{};
-    uint8_t result_versions_[MonitorFieldCount]{};
+    uint8_t result_versions_[ResultFieldCount]{};
 
     bool main_initialized_ = false;
     bool monitor_initialized_ = false;

@@ -484,7 +484,7 @@ Furnace::outputs() const noexcept
 };
 
 uint8_t 
-Furnace::pid_output() const noexcept
+Furnace::power() const noexcept
 {
     return pid_output_;
 }

@@ -1,3 +1,4 @@
+// notification.hpp
 // Notification defines the common notification contract between
 // application data sources and consumers such as DataAggregator.
 // A notification identifies its source, describes what happened,
@@ -16,6 +17,7 @@ enum class NotificationType : uint8_t
     Error,
     StepStarted,
     ProfileFinished,
+    ProfileChanged,
     // ...
 };
 

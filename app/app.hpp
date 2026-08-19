@@ -172,7 +172,7 @@ private:
             hal::tick_s(),
             furnace_.current_temperature(),
             furnace_.setpoint(),
-            furnace_.pid_output()
+            furnace_.power()
         });
     }
     

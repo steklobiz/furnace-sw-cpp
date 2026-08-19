@@ -9,7 +9,6 @@
 
 namespace app
 {
-
     
 class TcParser
 {
@@ -24,7 +23,6 @@ public:
         Fault
     };
 
-    
     // Initializes the temperature parser.
     void init();
     

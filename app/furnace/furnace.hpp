@@ -68,7 +68,7 @@ public:
     uint32_t profile_elapsed() const noexcept;
     uint32_t step_elapsed() const noexcept;
     uint8_t outputs() const noexcept;
-    uint8_t pid_output() const noexcept;
+    uint8_t power() const noexcept;
     
     // PID getter        
 #ifdef PLATFORM_PC

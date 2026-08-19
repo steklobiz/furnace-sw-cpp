@@ -23,14 +23,18 @@ public:
     // Actions
     enum class Action : uint8_t
     {
-        StartProfile,
+        StartProfile,       // Main -> ProfileSelection
+        SelectProfile,      // choose profile
+        ConfirmProfile,     // ProfileSelection -> start -> Monitor
         StopFurnace,
-        ResetFurnace
+        ResetFurnace,
+        Back
     };
     
     enum class Page : uint8_t
     {
         Main,
+        ProfileSelection,
         Monitor,
         Result
     };
@@ -103,8 +107,8 @@ private:
     static constexpr FieldMapping main_fields_[] =
     {
         {
-            static_cast<uint8_t>(DataSource::TcParser),
-            static_cast<uint8_t>(TcParserItem::Temperature)
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::Temperature)
         }
     };
     
@@ -119,8 +123,8 @@ private:
             static_cast<uint8_t>(FurnaceItem::Step)
         },
         {
-            static_cast<uint8_t>(DataSource::TcParser),
-            static_cast<uint8_t>(TcParserItem::Temperature)
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::Temperature)
         }
     };
 
@@ -131,8 +135,8 @@ private:
             static_cast<uint8_t>(FurnaceItem::State)
         },        
         {
-            static_cast<uint8_t>(DataSource::TcParser),
-            static_cast<uint8_t>(TcParserItem::Temperature)
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::Temperature)
         }
     };
 
