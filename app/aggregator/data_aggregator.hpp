@@ -76,6 +76,9 @@ public:
     const DataItem<uint16_t>& get_item(
         uint8_t source_id, 
         uint8_t field_id) noexcept;
+
+    // Returns the current profile snapshot.
+    const DataItem<Profile>& profile() const noexcept;    
      
 private:
 
@@ -98,7 +101,17 @@ private:
     void update_item_value(
         TcParserItem id, 
         uint16_t value) noexcept;
-            
+
+    // Updates a Profile data item.
+    void update_item_value(
+        ProfileItem id,
+        uint16_t value) noexcept;
+
+    // Updates the aggregated profile snapshot.
+    void update_profile() noexcept;
+    
+private:
+                        
     TcParser* tc_parser_ = nullptr;
     Furnace* furnace_ = nullptr;
     ProfileManager* profiles_ = nullptr;
@@ -108,6 +121,12 @@ private:
         
     DataItem<uint16_t> tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
+        
+    DataItem<uint16_t> profile_items_[
+        static_cast<std::size_t>(ProfileItem::Count)]{};
+            
+    DataItem<Profile> profile_;  
+      
 };
 
 } // namespace app

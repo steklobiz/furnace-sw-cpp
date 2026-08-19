@@ -22,6 +22,13 @@ void DataAggregator::init(
     furnace_->set_notify_callback(
         on_notification,
         this);
+
+    profiles_->set_notify_callback(
+        on_notification,
+        this);    
+    
+    // Initialize the profile snapshot immediately.
+    update_profile();        
 }
 
 void DataAggregator::on_notification(
@@ -46,6 +53,17 @@ void DataAggregator::handle_notification(
         
         // Attention!!! temperature sended via notification. no need to read data 
         
+        return;
+    }
+    
+    
+    if (notification.context == profiles_)
+    {
+        if (notification.type == NotificationType::ProfileChanged)
+        {
+            update_profile();
+        }
+
         return;
     }
     
@@ -113,20 +131,26 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
     }
 }
 
+const DataItem<Profile>&
+DataAggregator::profile() const noexcept
+{
+    return profile_;
+}
+
 /*
 Functions below may be chaned by template. Need to be checked 
-template<class SrcEnum, std::size_t N>
-void update(SrcEnum id, uint16_t value,
-            DataItem<uint16_t> (&items)[N]) noexcept;            
-{
-    const auto index = static_cast<std::size_t>(id);
 
-    if (items[index].value != value)
+template<typename T>
+void update_item(
+    DataItem<T>& item,
+    const T& value) noexcept
+{
+    if (item.value != value)
     {
-        items[index].value = value;
-        ++items[index].version;
+        item.value = value;
+        ++item.version;
     }
-}            
+}
 */
 
 void DataAggregator::update_item_value(FurnaceItem id, uint16_t value) noexcept
@@ -143,6 +167,8 @@ void DataAggregator::update_item_value(FurnaceItem id, uint16_t value) noexcept
     }
 }
 
+
+
 void DataAggregator::update_item_value(TcParserItem id, uint16_t value) noexcept
 {
     auto& item = tc_parser_items_[
@@ -157,5 +183,34 @@ void DataAggregator::update_item_value(TcParserItem id, uint16_t value) noexcept
     }
 }
 
+void DataAggregator::update_item_value(
+    ProfileItem id,
+    uint16_t value) noexcept
+{
+    auto& item = profile_items_[
+        static_cast<std::size_t>(id)];
+
+    if (item.value != value)
+    {
+        item.value = value;
+        ++item.version;
+    }
+}
+
+void DataAggregator::update_profile() noexcept
+{
+    update_item_value(
+        ProfileItem::SelectedId,
+        static_cast<uint16_t>(
+            profiles_->selected_id()));
+
+    const Profile& profile = profiles_->view();
+
+    if (profile_.value != profile)
+    {
+        profile_.value = profile;
+        ++profile_.version;
+    }
+}
 
 } // namespace app
