@@ -11,8 +11,9 @@
 //     They ask Ui for a field by its logical name and receive the
 //     matching DataItem reference (value + version).
 //   - Field->source resolution is defined statically in the
-//     main_fields_[] and monitor_fields_[] tables in ui.hpp: each
-//     entry stores a DataSource id and a field id within that source.
+//     main_fields_[] and monitor_fields_[] and result_fields_[] tables 
+//     in ui.hpp: each entry stores a DataSource id and a field id within 
+//     that source.
 
 #include "ui.hpp"
 
@@ -36,7 +37,7 @@ void Ui::init(
 
 
 // Updates UI state and processes pending UI actions.
-// Called periodically by the application. Placeholder for future
+// Called periodically by the application. Placeholder for
 // page switching and user-action handling; renderers poll page() and
 // get_field() independently.
 void Ui::process() noexcept

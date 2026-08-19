@@ -336,7 +336,7 @@ Furnace::enter_step() noexcept
 {   
     const auto& step =
         profiles_->view().steps[current_step_];
-         
+    
     hal::set_outputs(step.flags);
         
     history_->add_event(

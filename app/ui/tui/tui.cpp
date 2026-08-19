@@ -206,7 +206,7 @@ void Tui::render_main() noexcept
         main_versions_[index] = item.version;
 
         std::printf(
-            "\033[%zu;1H%s %u",
+            "\033[%zu;1H\033[2K%s %u",
             row + 3,
             label.caption,
             static_cast<unsigned>(item.value));
@@ -264,7 +264,7 @@ void Tui::render_monitor() noexcept
         monitor_versions_[index] = item.version;
 
         std::printf(
-            "\033[%zu;1H%s %u",
+            "\033[%zu;1H\033[2K%s %u",
             row + 3,
             label.caption,
             static_cast<unsigned>(item.value));
@@ -320,7 +320,7 @@ void Tui::render_result() noexcept
         result_versions_[index] = item.version;
 
         std::printf(
-            "\033[%zu;1H%s %u",
+            "\033[%zu;1H\033[2K%s %u",
             row + 3,
             label.caption,
             static_cast<unsigned>(item.value));

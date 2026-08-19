@@ -180,7 +180,6 @@ private:
     // Data
     //------------------------------------------------------
 
-    
     Fsm fsm_;
     
     ProfileManager* profiles_ = nullptr;
@@ -192,8 +191,8 @@ private:
     uint8_t current_step_ = 0;
 
     // Elapsed time 
-    uint32_t profile_elapsed_s_;
-    uint32_t step_elapsed_s_;
+    uint32_t profile_elapsed_s_ = 0;
+    uint32_t step_elapsed_s_ = 0;
     
     // Temperature at the beginning of the current step.
     int16_t step_start_temperature_c_;

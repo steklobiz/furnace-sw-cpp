@@ -66,13 +66,15 @@ public:
     // Fields displayed by the Monitor page.
     enum class MonitorField : uint8_t
     {
-        State,
+        State, 
         ProfileId,
         CurrentStep,
+        Temperature,
+        Setpoint,        
         StepElapsed,
         ProfileElapsed,
-        Temperature,
         Power,
+        Outputs,
 
         Count
     };
@@ -162,6 +164,16 @@ private:
         },
         {
             static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::Temperature)
+        },        
+        
+        { 
+            static_cast<uint8_t>(DataSource::Furnace),
+             static_cast<uint8_t>(FurnaceItem::Setpoint) 
+        },        
+        
+        {
+            static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::StepElapsed)
         },
         
@@ -172,12 +184,12 @@ private:
                 
         {
             static_cast<uint8_t>(DataSource::Furnace),
-            static_cast<uint8_t>(FurnaceItem::Temperature)
-        },        
-        {
-            static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::Power)
-        }
+        },
+        {
+             static_cast<uint8_t>(DataSource::Furnace),
+             static_cast<uint8_t>(FurnaceItem::Outputs) 
+         }
     };  
 
     static constexpr FieldMapping result_fields_[] =

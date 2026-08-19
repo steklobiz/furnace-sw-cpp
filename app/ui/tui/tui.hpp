@@ -76,14 +76,22 @@ private:
             static_cast<uint8_t>(Ui::MonitorField::State)
         },
         {
-            "Profile",
+            "Profile:",
             static_cast<uint8_t>(Ui::MonitorField::ProfileId)            
         },
-
         {
             "Step:",
             static_cast<uint8_t>(Ui::MonitorField::CurrentStep)
         },
+        {
+            "Temperature, C:",
+            static_cast<uint8_t>(Ui::MonitorField::Temperature)
+        },
+        {
+             "Setpoint, C:",
+             static_cast<uint8_t>(Ui::MonitorField::Setpoint) 
+         },
+        
         {
             "Step elapsed, s:",
             static_cast<uint8_t>(Ui::MonitorField::StepElapsed)
@@ -93,14 +101,13 @@ private:
             static_cast<uint8_t>(Ui::MonitorField::ProfileElapsed)
         },
         {
-            "Temperature, C:",
-            static_cast<uint8_t>(Ui::MonitorField::Temperature)
-        },
-        {
             "Power, %:",
             static_cast<uint8_t>(Ui::MonitorField::Power)
-        }
-
+        },
+        {
+             "Outputs:", 
+             static_cast<uint8_t>(Ui::MonitorField::Outputs) 
+         }
     };
     
     static constexpr Button monitor_buttons_[] =

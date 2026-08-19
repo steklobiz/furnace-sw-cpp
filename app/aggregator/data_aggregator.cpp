@@ -75,10 +75,6 @@ void DataAggregator::handle_notification(
         switch (notification.type)
         {
             case NotificationType::DataReady:
-                
-                update_item_value(
-                    FurnaceItem::Temperature,
-                    static_cast<uint16_t>(furnace_->current_temperature()));
 
                 update_item_value(
                     FurnaceItem::State,
@@ -86,8 +82,16 @@ void DataAggregator::handle_notification(
                     
                 update_item_value(
                     FurnaceItem::Step,
-                    static_cast<uint16_t>(furnace_->current_step()));
-
+                    static_cast<uint16_t>(furnace_->current_step()));            
+            
+                update_item_value(
+                    FurnaceItem::Temperature,
+                    static_cast<uint16_t>(furnace_->current_temperature()));
+                    
+                update_item_value(
+                    FurnaceItem::Setpoint,
+                    static_cast<uint16_t>(furnace_->setpoint()));
+                    
                 update_item_value(
                     FurnaceItem::StepElapsed,
                     static_cast<uint16_t>(furnace_->step_elapsed()));
@@ -99,6 +103,10 @@ void DataAggregator::handle_notification(
                 update_item_value(
                     FurnaceItem::Power,
                     static_cast<uint16_t>(furnace_->power()));
+                
+                update_item_value(
+                    FurnaceItem::Outputs,
+                    static_cast<uint16_t>(furnace_->outputs()));        
                     
                 break;
             case NotificationType::Error:

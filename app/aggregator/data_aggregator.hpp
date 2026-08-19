@@ -35,12 +35,14 @@ enum class DataSource : uint8_t
 // Identifies data items provided by Furnace.
 enum class FurnaceItem : uint8_t
 {
-    Temperature,
     State,
-    Step,
+    Step,    
+    Temperature,
+    Setpoint,
     StepElapsed,
     ProfileElapsed,
     Power,
+    Outputs,
     
     Count
 };
