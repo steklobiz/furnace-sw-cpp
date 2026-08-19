@@ -39,6 +39,16 @@ private:
     static constexpr Label main_labels_[] =
     {
         {
+            "State:",
+            static_cast<uint8_t>(Ui::MainField::State)
+        },
+        
+        {
+            "Profile",
+            static_cast<uint8_t>(Ui::MainField::ProfileId)            
+        },
+        
+        {
             "Temperature, C:",
             static_cast<uint8_t>(Ui::MainField::Temperature)
         }
@@ -49,7 +59,12 @@ private:
         {
             's',
             "Start",
-            Ui::Action::StartProfile
+            {Ui::ActionType::StartProfileSelection}
+        },
+        {
+            'e',
+            "Edit",
+            {Ui::ActionType::EditProfileSelection}
         }
     };
 
@@ -60,6 +75,11 @@ private:
             "State:",
             static_cast<uint8_t>(Ui::MonitorField::State)
         },
+        {
+            "Profile",
+            static_cast<uint8_t>(Ui::MonitorField::ProfileId)            
+        },
+
         {
             "Step:",
             static_cast<uint8_t>(Ui::MonitorField::CurrentStep)
@@ -75,7 +95,7 @@ private:
         {
             'x',
             "Stop",
-            Ui::Action::StopFurnace
+            {Ui::ActionType::StopFurnace}
         }
     };    
     
@@ -98,7 +118,7 @@ private:
         {
             'r',
             "Reset",
-            Ui::Action::ResetFurnace
+           {Ui::ActionType::ResetFurnace}
         }
     };
 
@@ -108,6 +128,7 @@ private:
     void render_main() noexcept;
     void render_monitor() noexcept;
     void render_result() noexcept;
+    void render_profile_selection() noexcept;
                     
     Ui* ui_ = nullptr;
 
@@ -125,6 +146,7 @@ private:
     uint8_t result_versions_[ResultFieldCount]{};
 
     bool main_initialized_ = false;
+    bool profile_selection_initialized_ = false;
     bool monitor_initialized_ = false;
     bool result_initialized_ = false; 
        

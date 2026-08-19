@@ -86,6 +86,7 @@ private:
     uint8_t selected_profile_id_ = 0;
 
     Profile current_profile_;
+    
     NotificationCallback notify_callback_ = nullptr;
     void* notify_context_ = nullptr;
 };

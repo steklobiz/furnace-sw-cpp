@@ -21,14 +21,28 @@ class Ui
 public:
 
     // Actions
-    enum class Action : uint8_t
+    enum class ActionType : uint8_t
     {
-        StartProfile,       // Main -> ProfileSelection
-        SelectProfile,      // choose profile
-        ConfirmProfile,     // ProfileSelection -> start -> Monitor
+        StartProfileSelection, // open profile selection ppage to start
+        EditProfileSelection,  // open profile selection ppage to edit
+
+        StartProfileConfirm,
+        EditProfileConfirm,        
+                
+        //SetCurrentStep,
+        //SetSetpoint,
+        //SetDuration,
+        //SetFlags,
+        //ConfirmProfile,     // ProfileSelection -> start -> Monitor ????
         StopFurnace,
         ResetFurnace,
         Back
+    };
+    
+    struct Action
+    {
+        ActionType type;
+        uint16_t argument = 0;
     };
     
     enum class Page : uint8_t
@@ -43,6 +57,7 @@ public:
     enum class MainField : uint8_t
     {
         State,
+        ProfileId,
         Temperature,
         
         Count
@@ -52,6 +67,7 @@ public:
     enum class MonitorField : uint8_t
     {
         State,
+        ProfileId,
         CurrentStep,
         Temperature,
 
@@ -93,8 +109,14 @@ public:
     // Returns current page
     Page page() const noexcept;    
     
+    // Return profile selection purpose
+    ActionType profile_selection_action() const noexcept
+    {
+        return profile_selection_action_;
+    }    
+    
     // Executes a semantic UI action.
-    void execute(Action action) noexcept;
+    void execute(const Action& action) noexcept;
     
             
 private:
@@ -108,15 +130,28 @@ private:
     {
         {
             static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::State)
+        },
+        {
+            static_cast<uint8_t>(DataSource::Profile),
+            static_cast<uint8_t>(ProfileItem::SelectedId)
+        },
+
+        {
+            static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::Temperature)
         }
     };
-    
+        
     static constexpr FieldMapping monitor_fields_[] =
     {
         {
             static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::State)
+        },
+        {
+            static_cast<uint8_t>(DataSource::Profile),
+            static_cast<uint8_t>(ProfileItem::SelectedId)
         },
         {
             static_cast<uint8_t>(DataSource::Furnace),
@@ -147,6 +182,9 @@ private:
     ProfileManager* profiles_ = nullptr;
     SettingManager* settings_ = nullptr;
     DataAggregator* data_ = nullptr;
+    
+    ActionType profile_selection_action_ = ActionType::StartProfileConfirm;
+    
 };
 
 } // namespace app

@@ -52,33 +52,47 @@ void Tui::process() noexcept
 
         rendered_page_ = page;
         page_initialized_ = true;
-
+        
+        // page transition/initialization
         switch (page)
         {
             case Ui::Page::Main:
                 main_initialized_ = false;
                 break;
 
+            case Ui::Page::ProfileSelection:
+                profile_selection_initialized_ = false;
+                break;
+
             case Ui::Page::Monitor:
                 monitor_initialized_ = false;
                 break;
-                
+
             case Ui::Page::Result:
                 result_initialized_ = false;
                 break;
         }
     }
-
+    
+    // rendering.
     switch (page)
     {
         case Ui::Page::Main:
             render_main();
             break;
-
+    
+        case Ui::Page::ProfileSelection:
+            if (!profile_selection_initialized_)
+            {
+                render_profile_selection();
+                profile_selection_initialized_ = true;
+            }
+            break;
+    
         case Ui::Page::Monitor:
             render_monitor();
             break;
-            
+    
         case Ui::Page::Result:
             render_result();
             break;
@@ -111,7 +125,29 @@ void Tui::process_input() noexcept
                 }
             }
             break;
-
+            
+        case Ui::Page::ProfileSelection:
+        {
+            if (key >= '0' && key <= '9')
+            {
+                const uint8_t profile_id =
+                    static_cast<uint8_t>(key - '0');
+        
+                ui_->execute({
+                    ui_->profile_selection_action(),
+                    profile_id
+                });
+            }
+            else if (key == 'b')
+            {
+                ui_->execute({
+                    Ui::ActionType::Back
+                });
+            }
+        
+            break;
+        }
+            
         case Ui::Page::Monitor:
             for (const auto& button : monitor_buttons_)
             {
@@ -310,4 +346,19 @@ void Tui::render_result() noexcept
     result_initialized_ = true;
 }
         
+void Tui::render_profile_selection() noexcept
+{
+    std::printf("SELECT PROFILE\n\n");
+
+    for (uint8_t id = 0; id < 10; ++id)
+    {
+        std::printf(
+            "%u  Profile %u\n",
+            static_cast<unsigned>(id),
+            static_cast<unsigned>(id));
+    }
+
+    std::printf("\nb  Back\n");
+}
+
 } // namespace app

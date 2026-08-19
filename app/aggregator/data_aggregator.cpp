@@ -122,6 +122,11 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
         case DataSource::Furnace:
             return furnace_items_[
                 static_cast<std::size_t>(field_id)];
+
+        case DataSource::Profile:
+            return profile_items_[
+                static_cast<std::size_t>(field_id)];
+                
         default:
             // Invalid source_id — this is a programmer error.
             // Depending on your project conventions, one of:

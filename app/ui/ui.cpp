@@ -96,25 +96,56 @@ Ui::Page Ui::page() const noexcept
     return page_;
 }
 
-void Ui::execute(Action action) noexcept
+
+void Ui::execute(const Action& action) noexcept
 {
-    switch (action)
+    switch (action.type)
     {
-        case Action::StartProfile:
+        case ActionType::StartProfileSelection:
+            profile_selection_action_ =
+                ActionType::StartProfileConfirm;
+            page_ = Page::ProfileSelection;
+            break;
+        
+        case ActionType::EditProfileSelection:
+            profile_selection_action_ =
+                ActionType::EditProfileConfirm;
+            page_ = Page::ProfileSelection;
+            break;
+    
+        case ActionType::StartProfileConfirm:
+            profiles_->open(
+                static_cast<uint8_t>(action.argument));
+
             furnace_->start();
             page_ = Page::Monitor;
             break;
-        case Action::StopFurnace:
+
+        case ActionType::EditProfileConfirm:
+            profiles_->open(
+                static_cast<uint8_t>(action.argument));
+
+            // Profile editor will be added later.
+            // For now return to Main.
+            page_ = Page::Main;
+            break;
+
+        case ActionType::StopFurnace:
             furnace_->stop();
             page_ = Page::Result;
-            break;    
-        case Action::ResetFurnace:
+            break;
+
+        case ActionType::ResetFurnace:
             furnace_->reset();
             page_ = Page::Main;
-            break;    
-    
+            break;
+
+        case ActionType::Back:
+            page_ = Page::Main;
+            break;
+
         default:
-            break;    
+            break;
     }
 }
 
