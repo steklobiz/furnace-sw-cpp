@@ -85,9 +85,22 @@ private:
             static_cast<uint8_t>(Ui::MonitorField::CurrentStep)
         },
         {
+            "Step elapsed, s:",
+            static_cast<uint8_t>(Ui::MonitorField::StepElapsed)
+        },
+        {
+            "Profile elapsed, s:",
+            static_cast<uint8_t>(Ui::MonitorField::ProfileElapsed)
+        },
+        {
             "Temperature, C:",
             static_cast<uint8_t>(Ui::MonitorField::Temperature)
+        },
+        {
+            "Power, %:",
+            static_cast<uint8_t>(Ui::MonitorField::Power)
         }
+
     };
     
     static constexpr Button monitor_buttons_[] =

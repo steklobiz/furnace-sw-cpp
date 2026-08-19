@@ -199,7 +199,7 @@ private:
     int16_t step_start_temperature_c_;
     
     // Current calculated temperature (update each tick). will be used as a target fo PID later
-    int16_t current_temperature_c_; 
+    int16_t current_temperature_c_ = 0; 
 
     uint8_t pid_output_ = 0;
     

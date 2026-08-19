@@ -69,7 +69,10 @@ public:
         State,
         ProfileId,
         CurrentStep,
+        StepElapsed,
+        ProfileElapsed,
         Temperature,
+        Power,
 
         Count
     };
@@ -159,9 +162,23 @@ private:
         },
         {
             static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::StepElapsed)
+        },
+        
+        {
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::ProfileElapsed)
+        },
+                
+        {
+            static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::Temperature)
+        },        
+        {
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::Power)
         }
-    };
+    };  
 
     static constexpr FieldMapping result_fields_[] =
     {

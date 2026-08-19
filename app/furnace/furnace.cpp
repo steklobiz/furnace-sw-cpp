@@ -51,18 +51,18 @@ void Furnace::set_notify_callback(
 void Furnace::process()
 {
     fsm_.dispatch(Event::Tick);
-
-    // Emit a DataReady notification
-    if (notify_callback_ != nullptr)
-    {
-        notify_callback_(notify_context_, { this, NotificationType::DataReady, 0 });
-    }
     
     const int32_t temperature = hal::get_temperature();
 
     current_temperature_c_ =
         static_cast<int16_t>(temperature);
-
+    
+    // Emit a DataReady notification
+    if (notify_callback_ != nullptr)
+    {
+        notify_callback_(notify_context_, { this, NotificationType::DataReady, 0 });
+    }    
+    
     if (state() == State::Running)
     {
         pid_output_ =
