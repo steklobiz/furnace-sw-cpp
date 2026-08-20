@@ -4,10 +4,18 @@
 #include <array>
 #include <cstdint>
 #include "notification.hpp"
+#include "profiles_test_data.hpp" // temporary
+
+// Profile data and profile management.
+// Provides runtime and editing profile copies.
+// Handles loading and saving profiles through persistent storage.
+// Notifies consumers when the editing profile is loaded or changed.
 
 namespace app
 {
 
+inline constexpr uint8_t invalid_profile_id = 0xFF;
+    
 struct Step
 {
     uint16_t setpoint_c = 0;
