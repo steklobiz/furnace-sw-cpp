@@ -4,7 +4,6 @@
 #include <array>
 #include <cstdint>
 #include "notification.hpp"
-#include "profiles_test_data.hpp" // temporary
 
 // Profile data and profile management.
 // Provides runtime and editing profile copies.
@@ -14,7 +13,6 @@
 namespace app
 {
 
-inline constexpr uint8_t invalid_profile_id = 0xFF;
     
 struct Step
 {
@@ -62,6 +60,51 @@ struct Profile
 };
 
 
+inline constexpr uint8_t invalid_profile_id = 0xFF;
+
+// Temporary test profiles.
+// TODO: Remove when persistent profile storage is implemented.
+
+inline constexpr Profile test_profiles[] =
+{
+    // Profile 0
+    {
+        {{
+            {50,  10, 0x01},
+            {50,  10, 0x02},
+            {100, 10, 0x00},
+            {100, 10, 0x00},
+            {50,  10, 0x00},
+        }}
+    },
+
+    // Profile 1
+    {
+        {{
+            {100, 10, 0x01},
+            {150, 20, 0x01},
+            {200, 30, 0x02},
+            {150, 20, 0x00},
+            {100, 10, 0x00},
+        }}
+    },
+
+    // Profile 2
+    {
+        {{
+            {25,  5,  0x01},
+            {50,  5,  0x01},
+            {75,  5,  0x02},
+            {100, 5,  0x02},
+        }}
+    }
+};
+
+inline constexpr std::size_t test_profile_count =
+    sizeof(test_profiles) / sizeof(test_profiles[0]);
+
+
+
 class ProfileManager
 {
 public:
@@ -87,8 +130,11 @@ private:
     void notify(NotificationType type,
             uint16_t argument = 0) noexcept;    
 
-    Profile start_profile_;
-    Profile edit_profile_;
+    uint8_t start_profile_id_ = invalid_profile_id; 
+    uint8_t edit_profile_id_ = invalid_profile_id;            
+            
+    Profile start_profile_{};
+    Profile edit_profile_{};
         
     NotificationCallback notify_callback_ = nullptr;
     void* notify_context_ = nullptr;

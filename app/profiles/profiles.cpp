@@ -34,6 +34,8 @@ ProfileManager::load_for_start(uint8_t profile_id) noexcept
     // TODO:
     // load profile from EEPROM into start_profile_
 
+    start_profile_id_ = profile_id;
+    
     start_profile_ = test_profiles[profile_id];
 
     return true;
@@ -49,6 +51,8 @@ ProfileManager::load_for_edit(uint8_t profile_id) noexcept
     }
     // TODO:
     // load profile from EEPROM into edit_profile_
+    
+    edit_profile_id_ = profile_id;
     
     edit_profile_ = test_profiles[profile_id];
 

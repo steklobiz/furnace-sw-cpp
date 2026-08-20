@@ -29,7 +29,7 @@ enum class DataSource : uint8_t
 {
     TcParser,
     Furnace,
-    Profile
+    Ui
 };
 
 // Identifies data items provided by Furnace.
@@ -53,6 +53,14 @@ enum class TcParserItem : uint8_t
     Temperature,
     Error,
     
+    Count
+};
+
+enum class UiItem : uint8_t
+{
+    StartProfileId,
+    EditProfileId,
+
     Count
 };
 
@@ -116,7 +124,11 @@ private:
         
     DataItem<uint16_t> tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
-                    
+
+    DataItem<uint16_t> ui_items_[
+        static_cast<std::size_t>(UiItem::Count)]{};
+
+                            
     DataItem<Profile> edit_profile_;
       
 };

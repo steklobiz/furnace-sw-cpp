@@ -57,7 +57,6 @@ public:
     enum class MainField : uint8_t
     {
         State,
-        ProfileId,
         Temperature,
         
         Count
@@ -67,7 +66,6 @@ public:
     enum class MonitorField : uint8_t
     {
         State, 
-        ProfileId,
         CurrentStep,
         Temperature,
         Setpoint,        
@@ -138,11 +136,6 @@ private:
             static_cast<uint8_t>(FurnaceItem::State)
         },
         {
-            static_cast<uint8_t>(DataSource::Profile),
-            static_cast<uint8_t>(ProfileItem::SelectedId)
-        },
-
-        {
             static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::Temperature)
         }
@@ -153,10 +146,6 @@ private:
         {
             static_cast<uint8_t>(DataSource::Furnace),
             static_cast<uint8_t>(FurnaceItem::State)
-        },
-        {
-            static_cast<uint8_t>(DataSource::Profile),
-            static_cast<uint8_t>(ProfileItem::SelectedId)
         },
         {
             static_cast<uint8_t>(DataSource::Furnace),
@@ -211,6 +200,9 @@ private:
     ProfileManager* profiles_ = nullptr;
     SettingManager* settings_ = nullptr;
     DataAggregator* data_ = nullptr;
+    
+    uint8_t start_profile_id_ = invalid_profile_id;
+    uint8_t edit_profile_id_ = invalid_profile_id;
     
     ActionType profile_selection_action_ = ActionType::StartProfileConfirm;
     
