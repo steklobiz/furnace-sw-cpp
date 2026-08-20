@@ -4,50 +4,52 @@
 namespace app {
 
 const Profile&
-ProfileManager::view() const noexcept
+ProfileManager::start_profile() const noexcept
 {
-    return current_profile_;
+    return start_profile_;
 }
 
 
 Profile&
-ProfileManager::edit() noexcept
+ProfileManager::edit_profile() noexcept
 {
-    return current_profile_;
+    return edit_profile_;
 }
 
 
-uint8_t
-ProfileManager::selected_id() const noexcept
+const Profile&
+ProfileManager::edit_profile() const noexcept
 {
-    return selected_profile_id_;
+    return edit_profile_;
 }
 
 
 bool
-ProfileManager::open(uint8_t profile_id) noexcept
+ProfileManager::load_for_start(uint8_t profile_id) noexcept
 {
-    if (profile_id == selected_profile_id_)
-    {
-        return true;
-    }
-    
     // TODO:
-    // load profile from EEPROM
-    
-    selected_profile_id_ = profile_id;
-    
-    notify(NotificationType::ProfileChanged);
-    
+    // load profile from EEPROM into start_profile_
+
     return true;
 }
 
 
 bool
-ProfileManager::save() noexcept
+ProfileManager::load_for_edit(uint8_t profile_id) noexcept
 {
     // TODO:
-    // save current_profile_ to EEPROM
+    // load profile from EEPROM into edit_profile_
+
+    notify(NotificationType::EditProfileChanged);
+
+    return true;
+}
+
+bool
+ProfileManager::save_edit() noexcept
+{
+    // TODO:
+    // save edit_profile_ to EEPROM
 
     return true;
 }

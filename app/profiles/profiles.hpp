@@ -60,21 +60,17 @@ public:
 
     ProfileManager() = default;
 
-    // For reading
-    const Profile& view() const noexcept;
+    // Runtime profile used by Furnace.
+    const Profile& start_profile() const noexcept;
 
-    // For editing
-    Profile& edit() noexcept;
+    // Profile currently being edited.
+    Profile& edit_profile() noexcept;
+    const Profile& edit_profile() const noexcept;
 
+    bool load_for_start(uint8_t profile_id) noexcept;
+    bool load_for_edit(uint8_t profile_id) noexcept;
 
-    uint8_t selected_id() const noexcept;
-
-
-    bool open(
-        uint8_t profile_id) noexcept;
-
-
-    bool save() noexcept;
+    bool save_edit() noexcept;
 
     void set_notify_callback(NotificationCallback callback, void* context) noexcept;
 
@@ -83,10 +79,9 @@ private:
     void notify(NotificationType type,
             uint16_t argument = 0) noexcept;    
 
-    uint8_t selected_profile_id_ = 0;
-
-    Profile current_profile_;
-    
+    Profile start_profile_;
+    Profile edit_profile_;
+        
     NotificationCallback notify_callback_ = nullptr;
     void* notify_context_ = nullptr;
 };
