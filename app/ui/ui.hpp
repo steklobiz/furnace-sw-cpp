@@ -49,8 +49,9 @@ public:
     {
         Main,
         ProfileSelection,
+        ProfileEditor,
         Monitor,
-        Result
+        Result,
     };
 
     // Fields displayed by the Main page.

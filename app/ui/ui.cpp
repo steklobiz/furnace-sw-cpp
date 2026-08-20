@@ -115,15 +115,21 @@ void Ui::execute(const Action& action) noexcept
             break;
 
         case ActionType::StartProfileConfirm:
-            profiles_->select_for_start(action.argument);
-            furnace_->start();
-            page_ = Page::Monitor;
-            break;
-        
+            if (profiles_->select_for_start( // temporary condition for testing
+                    static_cast<uint8_t>(action.argument)))
+            {
+                furnace_->start();
+                page_ = Page::Monitor;
+            }
+            break;        
         
         case ActionType::EditProfileConfirm:
-            profiles_->select_for_edit(action.argument);
-            page_ = Page::Main; // temporary; editor page will replace this
+
+            if (profiles_->select_for_edit( // temporary condition for testing
+            static_cast<uint8_t>(action.argument)))
+            {
+                page_ = Page::ProfileEditor;
+            }
             break;
                     
         case ActionType::ResetFurnace:

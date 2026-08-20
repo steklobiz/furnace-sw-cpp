@@ -146,6 +146,7 @@ private:
     void process_input() noexcept;
 
     void render_main() noexcept;
+    void render_profile_editor() noexcept;
     void render_monitor() noexcept;
     void render_result() noexcept;
     void render_profile_selection() noexcept;
@@ -167,6 +168,7 @@ private:
 
     bool main_initialized_ = false;
     bool profile_selection_initialized_ = false;
+    bool editor_initialized_ = false;
     bool monitor_initialized_ = false;
     bool result_initialized_ = false; 
        

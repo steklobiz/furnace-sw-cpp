@@ -47,13 +47,14 @@ void Tui::process() noexcept
 
     if (!page_initialized_ ||
         page != rendered_page_)
+        
+    // Initial page rendering    
     {
         std::printf("\033[2J\033[H");
 
         rendered_page_ = page;
         page_initialized_ = true;
-        
-        // page transition/initialization
+
         switch (page)
         {
             case Ui::Page::Main:
@@ -61,7 +62,11 @@ void Tui::process() noexcept
                 break;
 
             case Ui::Page::ProfileSelection:
-                profile_selection_initialized_ = false;
+                render_profile_selection();
+                break;
+
+            case Ui::Page::ProfileEditor:
+                render_profile_editor();
                 break;
 
             case Ui::Page::Monitor:
@@ -74,25 +79,25 @@ void Tui::process() noexcept
         }
     }
     
-    // rendering.
+    // Continuous page update  
     switch (page)
     {
         case Ui::Page::Main:
             render_main();
             break;
-    
+
         case Ui::Page::ProfileSelection:
-            if (!profile_selection_initialized_)
-            {
-                render_profile_selection();
-                profile_selection_initialized_ = true;
-            }
+            // no updates for static page
             break;
-    
+
+        case Ui::Page::ProfileEditor:
+            // no updates for static page
+            break;
+
         case Ui::Page::Monitor:
             render_monitor();
             break;
-    
+
         case Ui::Page::Result:
             render_result();
             break;
@@ -150,6 +155,10 @@ void Tui::process_input() noexcept
         
             break;
         }
+         
+        case Ui::Page::ProfileEditor:
+            render_profile_editor();
+            break;   
             
         case Ui::Page::Monitor:
             for (const auto& button : monitor_buttons_)
@@ -233,6 +242,11 @@ void Tui::render_main() noexcept
     }
 
     main_initialized_ = true;
+}
+
+void Tui::render_profile_editor() noexcept
+{
+    std::printf("PROFILE EDITOR\n");
 }
 
 // Renders all fields of the Monitor page, then marks the page as
