@@ -130,12 +130,15 @@ void Tui::process_input() noexcept
         {
             if (key >= '0' && key <= '9')
             {
-                const uint8_t profile_id =
+                const uint8_t selected_profile_id =
                     static_cast<uint8_t>(key - '0');
         
+                const Ui::ActionType action =
+                    ui_->profile_selection_action();
+        
                 ui_->execute({
-                    ui_->profile_selection_action(),
-                    profile_id
+                    action,
+                    selected_profile_id
                 });
             }
             else if (key == 'b')

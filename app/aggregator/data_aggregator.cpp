@@ -59,9 +59,24 @@ void DataAggregator::handle_notification(
     
     if (notification.context == profiles_)
     {
-        if (notification.type == NotificationType::EditProfileChanged)
+        switch (notification.type)
         {
-            update_edit_profile();
+            case NotificationType::StartProfileChanged:
+                update_item_value(
+                    ProfileItem::StartProfileId,
+                    profiles_->start_profile_id());
+                break;
+
+            case NotificationType::EditProfileChanged:
+                update_item_value(
+                    ProfileItem::EditProfileId,
+                    profiles_->edit_profile_id());
+
+                update_edit_profile();
+                break;
+
+            default:
+                break;
         }
 
         return;
@@ -131,6 +146,10 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
             return furnace_items_[
                 static_cast<std::size_t>(field_id)];
                 
+        case DataSource::Profile: 
+            return profile_items_[ 
+                static_cast<std::size_t>(field_id)]; 
+                       
         default:
             // Invalid source_id — this is a programmer error.
             // Depending on your project conventions, one of:
@@ -186,6 +205,20 @@ void DataAggregator::update_item_value(TcParserItem id, uint16_t value) noexcept
 
     
     if (item.value != value)
+    {
+        item.value = value;
+        ++item.version;
+    }
+}
+
+void DataAggregator::update_item_value( ProfileItem id, uint16_t value) noexcept 
+{ 
+    auto& item = profile_items_[
+        static_cast<std::size_t>(id)
+        ]; 
+
+            
+    if (item.value != value) 
     {
         item.value = value;
         ++item.version;

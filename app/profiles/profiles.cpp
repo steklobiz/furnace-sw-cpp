@@ -23,40 +23,60 @@ ProfileManager::edit_profile() const noexcept
     return edit_profile_;
 }
 
+uint8_t
+ProfileManager::start_profile_id() const noexcept
+{
+    return start_profile_id_;
+}
+
+
+uint8_t
+ProfileManager::edit_profile_id() const noexcept
+{
+    return edit_profile_id_;
+}
 
 bool
-ProfileManager::load_for_start(uint8_t profile_id) noexcept
+ProfileManager::select_for_start(uint8_t profile_id) noexcept
 {
     if (profile_id >= test_profile_count)
     {
         return false;
     }
+
     // TODO:
-    // load profile from EEPROM into start_profile_
+    // load profile from EEPROM
 
     start_profile_id_ = profile_id;
     
     start_profile_ = test_profiles[profile_id];
+    
+    notify(
+        NotificationType::StartProfileChanged,
+        profile_id);
 
     return true;
 }
 
 
 bool
-ProfileManager::load_for_edit(uint8_t profile_id) noexcept
+ProfileManager::select_for_edit(uint8_t profile_id) noexcept
 {
     if (profile_id >= test_profile_count)
     {
         return false;
     }
+
     // TODO:
-    // load profile from EEPROM into edit_profile_
-    
+    // load profile from EEPROM
+
     edit_profile_id_ = profile_id;
     
     edit_profile_ = test_profiles[profile_id];
 
-    notify(NotificationType::EditProfileChanged);
+    notify(
+        NotificationType::EditProfileChanged,
+        profile_id);
 
     return true;
 }
@@ -68,6 +88,15 @@ ProfileManager::save_edit() noexcept
     // save edit_profile_ to EEPROM
 
     return true;
+}
+
+void
+ProfileManager::clear_start_selection() noexcept
+{
+    start_profile_id_ = invalid_profile_id;
+    start_profile_ = Profile{};
+
+    notify(NotificationType::StartProfileChanged);
 }
 
 void

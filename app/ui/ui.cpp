@@ -113,32 +113,28 @@ void Ui::execute(const Action& action) noexcept
                 ActionType::EditProfileConfirm;
             page_ = Page::ProfileSelection;
             break;
-    
-        case ActionType::StartProfileConfirm:
-            profiles_->open(
-                static_cast<uint8_t>(action.argument));
 
+        case ActionType::StartProfileConfirm:
+            profiles_->select_for_start(action.argument);
             furnace_->start();
             page_ = Page::Monitor;
             break;
-
+        
+        
         case ActionType::EditProfileConfirm:
-            profiles_->open(
-                static_cast<uint8_t>(action.argument));
-
-            // Profile editor will be added later.
-            // For now return to Main.
-            page_ = Page::Main;
+            profiles_->select_for_edit(action.argument);
+            page_ = Page::Main; // temporary; editor page will replace this
             break;
-
+                    
+        case ActionType::ResetFurnace:
+            furnace_->reset();
+            profiles_->clear_start_selection();
+            page_ = Page::Main;
+            break;            
+            
         case ActionType::StopFurnace:
             furnace_->stop();
             page_ = Page::Result;
-            break;
-
-        case ActionType::ResetFurnace:
-            furnace_->reset();
-            page_ = Page::Main;
             break;
 
         case ActionType::Back:

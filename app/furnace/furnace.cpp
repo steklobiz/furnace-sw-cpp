@@ -335,8 +335,8 @@ void
 Furnace::enter_step() noexcept
 {   
     const auto& step =
-        profiles_->view().steps[current_step_];
-    
+        profiles_->start_profile().steps[current_step_];
+        
     hal::set_outputs(step.flags);
         
     history_->add_event(
@@ -355,9 +355,9 @@ Furnace::next_step() noexcept
     // Move to the next one.
     ++current_step_;
 
-    const Step& step =
-        profiles_->view().steps[current_step_];
-        
+    const auto& step =
+        profiles_->start_profile().steps[current_step_];    
+            
     // Case 1: We reached the maximum number of steps.
     if ((current_step_ >= app::config::profiles::max_steps) ||
         // Case 2: 0-0 marker means end of profile.
@@ -379,8 +379,10 @@ Furnace::next_step() noexcept
 
     // New step starts from the previous step target.
     step_start_temperature_c_ =
-        profiles_->view().steps[current_step_ - 1].setpoint_c;
-    
+        profiles_->start_profile()
+            .steps[current_step_ - 1]
+            .setpoint_c;        
+            
     step_elapsed_s_ = 0;    
         
     enter_step();
@@ -392,8 +394,8 @@ Furnace::next_step() noexcept
 void 
 Furnace::update_temperature() noexcept
 {
-    const Step& step =
-        profiles_->view().steps[current_step_];
+    const auto& step =
+        profiles_->start_profile().steps[current_step_];    
     
     current_temperature_c_ =
         step_start_temperature_c_
@@ -407,8 +409,8 @@ Furnace::update_temperature() noexcept
 bool 
 Furnace::is_step_finished() const noexcept
 {
-    const Step& step =
-        profiles_->view().steps[current_step_];
+    const auto& step =
+        profiles_->start_profile().steps[current_step_];    
 
     return step_elapsed_s_ >= step.duration;
 }
@@ -435,8 +437,8 @@ Furnace::state() const noexcept
 Furnace::StepType 
 Furnace::step_type() const noexcept
 {
-    const Step& step =
-        profiles_->view().steps[current_step_];
+    const auto& step =
+        profiles_->start_profile().steps[current_step_];    
 
     if (step.setpoint_c > step_start_temperature_c_)
         return StepType::Heating;
@@ -462,7 +464,7 @@ Furnace::current_step() const noexcept
 uint16_t 
 Furnace::setpoint() const noexcept
 {
-    return profiles_->view().steps[current_step_].setpoint_c;
+    return profiles_->start_profile().steps[current_step_].setpoint_c;
 };
     
 uint32_t 
@@ -480,7 +482,7 @@ Furnace::step_elapsed() const noexcept
 uint8_t 
 Furnace::outputs() const noexcept
 {
-    return profiles_->view().steps[current_step_].flags;
+    return profiles_->start_profile().steps[current_step_].flags;
 };
 
 uint8_t 

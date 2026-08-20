@@ -6,6 +6,7 @@
 #include "furnace.hpp"
 #include "tc_parser.hpp"
 #include "profiles.hpp"
+#include "notification.hpp"
 
 // DataAggregator collects and stores current application data from
 // registered data sources. It is independent of UI and presentation.
@@ -29,7 +30,7 @@ enum class DataSource : uint8_t
 {
     TcParser,
     Furnace,
-    Ui
+    Profile
 };
 
 // Identifies data items provided by Furnace.
@@ -56,12 +57,12 @@ enum class TcParserItem : uint8_t
     Count
 };
 
-enum class UiItem : uint8_t
-{
-    StartProfileId,
-    EditProfileId,
-
-    Count
+enum class ProfileItem : uint8_t 
+{ 
+    StartProfileId, 
+    EditProfileId, 
+    
+    Count 
 };
 
 class DataAggregator
@@ -125,8 +126,8 @@ private:
     DataItem<uint16_t> tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
 
-    DataItem<uint16_t> ui_items_[
-        static_cast<std::size_t>(UiItem::Count)]{};
+    DataItem<uint16_t> profile_items_[
+        static_cast<std::size_t>(ProfileItem::Count)]{};
 
                             
     DataItem<Profile> edit_profile_;
