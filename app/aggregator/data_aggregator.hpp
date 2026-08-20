@@ -56,13 +56,6 @@ enum class TcParserItem : uint8_t
     Count
 };
 
-enum class ProfileItem : uint8_t
-{
-    SelectedId,
-
-    Count
-};
-
 class DataAggregator
 {
 public:
@@ -110,7 +103,7 @@ private:
         uint16_t value) noexcept;
 
     // Updates the aggregated profile snapshot.
-    void update_profile() noexcept;
+    void update_edit_profile() noexcept;
     
 private:
                         
@@ -123,11 +116,8 @@ private:
         
     DataItem<uint16_t> tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
-        
-    DataItem<uint16_t> profile_items_[
-        static_cast<std::size_t>(ProfileItem::Count)]{};
-            
-    DataItem<Profile> profile_;  
+                    
+    DataItem<Profile> edit_profile_;
       
 };
 

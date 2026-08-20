@@ -17,7 +17,7 @@ enum class NotificationType : uint8_t
     Error,
     StepStarted,
     ProfileFinished,
-    ProfileChanged,
+    EditProfileChanged,
     // ...
 };
 

@@ -28,7 +28,7 @@ void DataAggregator::init(
         this);    
     
     // Initialize the profile snapshot immediately.
-    update_profile();        
+    update_edit_profile();        
 }
 
 void DataAggregator::on_notification(
@@ -59,9 +59,9 @@ void DataAggregator::handle_notification(
     
     if (notification.context == profiles_)
     {
-        if (notification.type == NotificationType::ProfileChanged)
+        if (notification.type == NotificationType::EditProfileChanged)
         {
-            update_profile();
+            update_edit_profile();
         }
 
         return;
@@ -130,10 +130,6 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
         case DataSource::Furnace:
             return furnace_items_[
                 static_cast<std::size_t>(field_id)];
-
-        case DataSource::Profile:
-            return profile_items_[
-                static_cast<std::size_t>(field_id)];
                 
         default:
             // Invalid source_id — this is a programmer error.
@@ -147,7 +143,7 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
 const DataItem<Profile>&
 DataAggregator::profile() const noexcept
 {
-    return profile_;
+    return edit_profile_;
 }
 
 /*
@@ -196,33 +192,15 @@ void DataAggregator::update_item_value(TcParserItem id, uint16_t value) noexcept
     }
 }
 
-void DataAggregator::update_item_value(
-    ProfileItem id,
-    uint16_t value) noexcept
+
+void DataAggregator::update_edit_profile() noexcept
 {
-    auto& item = profile_items_[
-        static_cast<std::size_t>(id)];
+    const Profile& profile = profiles_->edit_profile();
 
-    if (item.value != value)
+    if (edit_profile_.value != profile)
     {
-        item.value = value;
-        ++item.version;
-    }
-}
-
-void DataAggregator::update_profile() noexcept
-{
-    update_item_value(
-        ProfileItem::SelectedId,
-        static_cast<uint16_t>(
-            profiles_->selected_id()));
-
-    const Profile& profile = profiles_->view();
-
-    if (profile_.value != profile)
-    {
-        profile_.value = profile;
-        ++profile_.version;
+        edit_profile_.value = profile;
+        ++edit_profile_.version;
     }
 }
 

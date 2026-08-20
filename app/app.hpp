@@ -85,17 +85,6 @@ public:
             ui_);
         
   
-        // Temporary test profile.
-        // Later this will probably come from EEPROM / flash storage.
-        Profile& p = profiles_.edit();
-
-        p.steps[0] = {50, 10, 0x01};
-        p.steps[1] = {50, 10, 0x02};
-        p.steps[2] = {100, 10, 0x00};
-        p.steps[3] = {100, 10, 0x00};
-        p.steps[4] = {50, 10, 0x00};
-        p.steps[5] = {0, 0, 0x00};
-
         // Registration order defines execution order.
         // Scheduler stores:
         //     object pointer
