@@ -34,8 +34,11 @@ public:
     void process() noexcept;
 
 private:
-    
+
+    //------------------------------------------------------
     // Main page representation
+    //------------------------------------------------------
+
     static constexpr Label main_labels_[] =
     {
         {
@@ -53,6 +56,8 @@ private:
             static_cast<uint8_t>(Ui::MainField::Temperature)
         }
     };
+    
+    uint8_t main_versions_[std::size(main_labels_)]{};
 
     static constexpr Button main_buttons_[] =
     {
@@ -68,7 +73,10 @@ private:
         }
     };
 
+    //------------------------------------------------------
     // Monitor page representation
+    //------------------------------------------------------
+        
     static constexpr Label monitor_labels_[] =
     {
         {
@@ -110,6 +118,9 @@ private:
          }
     };
     
+    uint8_t monitor_versions_[std::size(monitor_labels_)]{};
+  
+    
     static constexpr Button monitor_buttons_[] =
     {
         {
@@ -119,7 +130,10 @@ private:
         }
     };    
     
-    // Result page representation
+    //------------------------------------------------------
+    // Monitor page representation
+    //------------------------------------------------------
+
     static constexpr Label result_labels_[] =
     {
         {
@@ -133,6 +147,9 @@ private:
         }
     };    
     
+    uint8_t result_versions_[std::size(monitor_labels_)]{};
+
+    
     static constexpr Button result_buttons_[] =
     {
         {
@@ -141,6 +158,10 @@ private:
            {Ui::ActionType::ResetFurnace}
         }
     };
+
+    //------------------------------------------------------
+    // Helper functions
+    //------------------------------------------------------
 
         
     void process_input() noexcept;
@@ -152,19 +173,6 @@ private:
     void render_profile_selection() noexcept;
                     
     Ui* ui_ = nullptr;
-
-    static constexpr std::size_t MainFieldCount =
-        static_cast<std::size_t>(Ui::MainField::Count);
-    
-    static constexpr std::size_t MonitorFieldCount =
-        static_cast<std::size_t>(Ui::MonitorField::Count);
-
-    static constexpr std::size_t ResultFieldCount =
-        static_cast<std::size_t>(Ui::ResultField::Count);
-        
-    uint8_t main_versions_[MainFieldCount]{};
-    uint8_t monitor_versions_[MonitorFieldCount]{};
-    uint8_t result_versions_[ResultFieldCount]{};
 
     bool main_initialized_ = false;
     bool profile_selection_initialized_ = false;
