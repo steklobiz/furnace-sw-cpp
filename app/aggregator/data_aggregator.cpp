@@ -157,6 +157,7 @@ const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t fi
             // TODO: insert halt here
             break;        
     }
+    return null_item_;
 }
 
 const DataItem<Profile>&

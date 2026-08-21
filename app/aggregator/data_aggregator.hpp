@@ -128,7 +128,8 @@ private:
 
     DataItem<uint16_t> profile_items_[
         static_cast<std::size_t>(ProfileItem::Count)]{};
-
+    
+    static constexpr DataItem<uint16_t> null_item_{0xFFFF, 0xFF};    
                             
     DataItem<Profile> edit_profile_;
       
