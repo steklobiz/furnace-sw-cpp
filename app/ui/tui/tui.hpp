@@ -26,6 +26,7 @@ public:
         char key;
         const char* caption;
         Ui::ActionType action;
+        uint16_t argument;
     };
 
 

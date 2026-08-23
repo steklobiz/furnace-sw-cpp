@@ -33,6 +33,7 @@ public:
 
         StartProfileSelection,
         EditProfileSelection,
+        SelectProfile,
 
         StartProfileConfirm,
         EditProfileConfirm,
@@ -53,6 +54,11 @@ public:
         Back
     };
 
+    enum class ProfileSelectionMode : uint8_t
+    {
+        Start,
+        Edit
+    };
 
     struct Action
     {
@@ -98,7 +104,8 @@ private:
 
     void start_profile_selection() noexcept;
     void edit_profile_selection() noexcept;
-
+    void select_profile(uint16_t id) noexcept;
+    
     void confirm_start_profile(uint8_t profile_id) noexcept;
     void confirm_edit_profile(uint8_t profile_id) noexcept;
 
@@ -120,6 +127,9 @@ private:
     uint8_t current_step_ = 0;
 
     static const DataItem<uint16_t> null_item_;
+    
+    ProfileSelectionMode profile_selection_mode_ =
+    ProfileSelectionMode::Start;
 };
 
 } // namespace app

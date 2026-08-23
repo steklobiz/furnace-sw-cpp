@@ -110,11 +110,11 @@ public:
         scheduler_.every<Ui, &Ui::process>(
             100,
             ui_);
-        
+  */      
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-  */          
+            
         return true; // replace with false if anything fails    
     }
 

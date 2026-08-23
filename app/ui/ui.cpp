@@ -126,7 +126,11 @@ void Ui::execute(Action action) noexcept
         case ActionType::EditProfileSelection:
             edit_profile_selection();
             break;
-
+            
+        case ActionType::SelectProfile:
+            select_profile(action.argument);
+            break;
+            
         case ActionType::StartProfileConfirm:
             confirm_start_profile(
                 static_cast<uint8_t>(action.argument));
@@ -170,15 +174,36 @@ void Ui::execute(Action action) noexcept
 
 void Ui::start_profile_selection() noexcept
 {
+    profile_selection_mode_ =
+        ProfileSelectionMode::Start;
+
     page_ = Page::ProfileSelection;
 }
 
 
 void Ui::edit_profile_selection() noexcept
 {
+    profile_selection_mode_ =
+        ProfileSelectionMode::Edit;
+
     page_ = Page::ProfileSelection;
 }
 
+void Ui::select_profile(uint16_t id) noexcept
+{
+    const auto profile_id =
+        static_cast<uint8_t>(id);
+
+    if (profile_selection_mode_ ==
+        ProfileSelectionMode::Start)
+    {
+        confirm_start_profile(profile_id);
+    }
+    else
+    {
+        confirm_edit_profile(profile_id);
+    }
+}
 
 void Ui::confirm_start_profile(uint8_t profile_id) noexcept
 {
