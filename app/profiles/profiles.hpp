@@ -118,10 +118,11 @@ public:
     Profile& edit_profile() noexcept;
     const Profile& edit_profile() const noexcept;
 
+    // UI getters (uint16_only)
     // Returns the selected profile ID for starting. 
-    uint8_t start_profile_id() const noexcept; 
+    uint16_t start_profile_id() const noexcept; 
     // Returns the selected profile ID for editing. 
-    uint8_t edit_profile_id() const noexcept;
+    uint16_t edit_profile_id() const noexcept;
     
     // Loads a profile for starting.
     bool select_for_start(uint8_t profile_id) noexcept;

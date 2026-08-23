@@ -59,16 +59,16 @@ public:
     static const char* state_name(State state) noexcept; // only for TUI
     static const char* step_type_name(StepType type) noexcept; // only for TUI
         
-    // UI getters 
-    State state() const noexcept;
-    StepType step_type() const noexcept;
+    // UI getters (uint16_t only)
+    uint16_t state() const noexcept;
+    uint16_t step_type() const noexcept;
     uint16_t current_temperature() const noexcept;
     uint16_t current_step() const noexcept;
     uint16_t setpoint() const noexcept;
-    uint32_t profile_elapsed() const noexcept;
-    uint32_t step_elapsed() const noexcept;
-    uint8_t outputs() const noexcept;
-    uint8_t power() const noexcept;
+    uint16_t profile_elapsed() const noexcept;
+    uint16_t step_elapsed() const noexcept;
+    uint16_t outputs() const noexcept;
+    uint16_t power() const noexcept;
     
     // PID getter        
 #ifdef PLATFORM_PC
@@ -191,8 +191,8 @@ private:
     uint8_t current_step_ = 0;
 
     // Elapsed time 
-    uint32_t profile_elapsed_s_ = 0;
-    uint32_t step_elapsed_s_ = 0;
+    uint16_t profile_elapsed_s_ = 0;
+    uint16_t step_elapsed_s_ = 0;
     
     // Temperature at the beginning of the current step.
     int16_t step_start_temperature_c_;

@@ -23,14 +23,14 @@ ProfileManager::edit_profile() const noexcept
     return edit_profile_;
 }
 
-uint8_t
+uint16_t
 ProfileManager::start_profile_id() const noexcept
 {
     return start_profile_id_;
 }
 
 
-uint8_t
+uint16_t
 ProfileManager::edit_profile_id() const noexcept
 {
     return edit_profile_id_;

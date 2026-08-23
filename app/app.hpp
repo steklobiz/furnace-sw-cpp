@@ -134,7 +134,7 @@ public:
 private:
 
     static constexpr uint32_t loop_delay_ms = 5;
-    
+/*    
 #ifdef PLATFORM_PC
 
 
@@ -168,7 +168,7 @@ private:
     
         
 #endif
-    
+*/    
     using Trace = platform::trace::Trace<100, 100>;
     
 private:

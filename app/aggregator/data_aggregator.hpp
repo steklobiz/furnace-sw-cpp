@@ -1,23 +1,18 @@
 // data_aggregator.hpp
+
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 #include "furnace.hpp"
-#include "tc_parser.hpp"
-#include "profiles.hpp"
 #include "notification.hpp"
-
-// DataAggregator collects and stores current application data from
-// registered data sources. It is independent of UI and presentation.
-// Values remain in their native form and are tracked with a version
-// that changes when the stored value changes. It may also own bounded
-// event and history queues.
+#include "profiles.hpp"
+#include "tc_parser.hpp"
 
 namespace app
 {
-    
-// Stores the current value of a data item and its change version.
+
 template<typename T>
 struct DataItem
 {
@@ -25,114 +20,110 @@ struct DataItem
     uint8_t version = 0;
 };
 
-// Identifies the application data source.
+
 enum class DataSource : uint8_t
 {
     TcParser,
     Furnace,
-    Profile
+    Profile,
+
+    Count
 };
 
-// Identifies data items provided by Furnace.
+
 enum class FurnaceItem : uint8_t
 {
     State,
-    Step,    
+    Step,
     Temperature,
     Setpoint,
     StepElapsed,
     ProfileElapsed,
     Power,
     Outputs,
-    
+
     Count
 };
 
-// Identifies data items provided by TcParser.
+
 enum class TcParserItem : uint8_t
 {
     Temperature,
-    Error,
-    
+
     Count
 };
 
-enum class ProfileItem : uint8_t 
-{ 
-    StartProfileId, 
-    EditProfileId, 
-    
-    Count 
+
+enum class ProfileItem : uint8_t
+{
+    StartProfileId,
+    EditProfileId,
+
+    Count
 };
+
 
 class DataAggregator
 {
 public:
 
-    // Connects the aggregator to application data sources
-    // and registers for their notifications.
     void init(
         TcParser& tc_parser,
         Furnace& furnace,
         ProfileManager& profiles) noexcept;
-        
-    // Returns specified data item.    
-    const DataItem<uint16_t>& get_item(
-        uint8_t source_id, 
-        uint8_t field_id) noexcept;
 
-    // Returns the current profile snapshot.
-    const DataItem<Profile>& profile() const noexcept;    
-     
+    const DataItem<uint16_t>& get_item(
+        uint8_t source,
+        uint8_t field) const noexcept;
+
+    const DataItem<Profile>& profile() const noexcept;
+
+
 private:
 
-    // Receives notifications from registered data sources.
-    static void on_notification(
+    struct SourceDescriptor
+    {
+        DataItem<uint16_t>* items;
+        std::size_t count;
+    };
+
+    static void tc_parser_callback(
         void* context,
         const Notification& notification) noexcept;
-        
-    // Identifies the notification source and updates the
-    // corresponding aggregated data.
-    void handle_notification(
+
+    static void furnace_callback(
+        void* context,
         const Notification& notification) noexcept;
 
-    // Updates a Furnace data item.    
-    void update_item_value(
-        FurnaceItem id, 
-        uint16_t value) noexcept;
-    
-    // Updates a TcParser data item.    
-    void update_item_value(
-        TcParserItem id, 
-        uint16_t value) noexcept;
+    static void profile_callback(
+        void* context,
+        const Notification& notification) noexcept;
 
-    // Updates a Profile data item.
-    void update_item_value(
-        ProfileItem id,
-        uint16_t value) noexcept;
 
-    // Updates the aggregated profile snapshot.
-    void update_edit_profile() noexcept;
-    
-private:
-                        
+    void update_tc_parser() noexcept;
+    void update_furnace() noexcept;
+    void update_profile() noexcept;
+
+
     TcParser* tc_parser_ = nullptr;
     Furnace* furnace_ = nullptr;
     ProfileManager* profiles_ = nullptr;
 
-    DataItem<uint16_t> furnace_items_[
-        static_cast<std::size_t>(FurnaceItem::Count)]{};
-        
     DataItem<uint16_t> tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
 
+    DataItem<uint16_t> furnace_items_[
+        static_cast<std::size_t>(FurnaceItem::Count)]{};
+
     DataItem<uint16_t> profile_items_[
         static_cast<std::size_t>(ProfileItem::Count)]{};
-    
-    static constexpr DataItem<uint16_t> null_item_{0xFFFF, 0xFF};    
-                            
-    DataItem<Profile> edit_profile_;
-      
+
+    DataItem<Profile> profile_{};
+
+    DataItem<uint16_t> null_item_{};
+
+    SourceDescriptor source_descriptors_[
+        static_cast<std::size_t>(DataSource::Count)]{};
 };
 
 } // namespace app

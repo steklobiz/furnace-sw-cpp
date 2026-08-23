@@ -63,7 +63,7 @@ void Furnace::process()
         notify_callback_(notify_context_, { this, NotificationType::DataReady, 0 });
     }    
     
-    if (state() == State::Running)
+    if (fsm_.state() == State::Running)
     {
         pid_output_ =
             static_cast<uint8_t>(update_pid(temperature));
@@ -428,25 +428,25 @@ int32_t Furnace::update_pid(int32_t temperature) noexcept
 // Getters for UI output and History
 //------------------------------------------------------
 
-Furnace::State 
+uint16_t 
 Furnace::state() const noexcept
 {
-    return fsm_.state();
+    return static_cast<uint16_t>(fsm_.state());
 }
 
-Furnace::StepType 
+uint16_t
 Furnace::step_type() const noexcept
 {
     const auto& step =
-        profiles_->start_profile().steps[current_step_];    
+        profiles_->start_profile().steps[current_step_];
 
     if (step.setpoint_c > step_start_temperature_c_)
-        return StepType::Heating;
+        return static_cast<uint16_t>(StepType::Heating);
 
     if (step.setpoint_c < step_start_temperature_c_)
-        return StepType::Cooling;
+        return static_cast<uint16_t>(StepType::Cooling);
 
-    return StepType::Holding;
+    return static_cast<uint16_t>(StepType::Holding);
 }
 
 uint16_t 
@@ -467,28 +467,28 @@ Furnace::setpoint() const noexcept
     return profiles_->start_profile().steps[current_step_].setpoint_c;
 };
     
-uint32_t 
+uint16_t 
 Furnace::profile_elapsed() const noexcept
 {
     return profile_elapsed_s_;    
 };
 
-uint32_t 
+uint16_t 
 Furnace::step_elapsed() const noexcept
 {
     return step_elapsed_s_;
 };
 
-uint8_t 
+uint16_t 
 Furnace::outputs() const noexcept
 {
-    return profiles_->start_profile().steps[current_step_].flags;
+    return static_cast<uint16_t>(profiles_->start_profile().steps[current_step_].flags);
 };
 
-uint8_t 
+uint16_t 
 Furnace::power() const noexcept
 {
-    return pid_output_;
+    return static_cast<uint16_t>(pid_output_);
 }
 
 #ifdef PLATFORM_PC

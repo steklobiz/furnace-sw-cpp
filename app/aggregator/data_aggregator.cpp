@@ -1,176 +1,36 @@
 // data_aggregator.cpp
+
 #include "data_aggregator.hpp"
-#include <cassert> // temporary
 
 namespace app
 {
 
-void DataAggregator::init(
-    TcParser& tc_parser,
-    Furnace& furnace,
-    ProfileManager& profiles) noexcept
+namespace
 {
-    tc_parser_ = &tc_parser;
-    furnace_ = &furnace;
-    profiles_= &profiles;
-    
-    // Register the aggregator as a notification receiver.
-    tc_parser_->set_notify_callback(
-        on_notification,
-        this);
 
-    furnace_->set_notify_callback(
-        on_notification,
-        this);
-
-    profiles_->set_notify_callback(
-        on_notification,
-        this);    
-    
-    // Initialize the profile snapshot immediately.
-    update_edit_profile();        
-}
-
-void DataAggregator::on_notification(
-    void* context,
-    const Notification& notification) noexcept
+struct FurnaceMapping
 {
-    // Recover the DataAggregator instance that registered the callback.
-    auto* aggregator =
-        static_cast<DataAggregator*>(context);
+    FurnaceItem item;
+    uint16_t (Furnace::*get)() const noexcept;
+};
 
-    aggregator->handle_notification(notification);
-}
 
-void DataAggregator::handle_notification(
-    const Notification& notification) noexcept
+struct TcParserMapping
 {
-    // The notification context identifies the source
-    // that generated the notification.
-    if (notification.context == tc_parser_)
-    {
-        // TcParser currently provides temperature data.
-        
-        // Attention!!! temperature sended via notification. no need to read data 
-        
-        return;
-    }
-    
-    
-    if (notification.context == profiles_)
-    {
-        switch (notification.type)
-        {
-            case NotificationType::StartProfileChanged:
-                update_item_value(
-                    ProfileItem::StartProfileId,
-                    profiles_->start_profile_id());
-                break;
+    TcParserItem item;
+    uint16_t (TcParser::*get)() const noexcept;
+};
 
-            case NotificationType::EditProfileChanged:
-                update_item_value(
-                    ProfileItem::EditProfileId,
-                    profiles_->edit_profile_id());
 
-                update_edit_profile();
-                break;
-
-            default:
-                break;
-        }
-
-        return;
-    }
-    
-    // Furnace notifications are handled according
-    // to their notification type.
-    if (notification.context == furnace_)
-    {
-        // Notification came from Furnace.
-        switch (notification.type)
-        {
-            case NotificationType::DataReady:
-
-                update_item_value(
-                    FurnaceItem::State,
-                    static_cast<uint16_t>(furnace_->state()));
-                    
-                update_item_value(
-                    FurnaceItem::Step,
-                    static_cast<uint16_t>(furnace_->current_step()));            
-            
-                update_item_value(
-                    FurnaceItem::Temperature,
-                    static_cast<uint16_t>(furnace_->current_temperature()));
-                    
-                update_item_value(
-                    FurnaceItem::Setpoint,
-                    static_cast<uint16_t>(furnace_->setpoint()));
-                    
-                update_item_value(
-                    FurnaceItem::StepElapsed,
-                    static_cast<uint16_t>(furnace_->step_elapsed()));
-
-                update_item_value(
-                    FurnaceItem::ProfileElapsed,
-                    static_cast<uint16_t>(furnace_->profile_elapsed()));
-
-                update_item_value(
-                    FurnaceItem::Power,
-                    static_cast<uint16_t>(furnace_->power()));
-                
-                update_item_value(
-                    FurnaceItem::Outputs,
-                    static_cast<uint16_t>(furnace_->outputs()));        
-                    
-                break;
-            case NotificationType::Error:
-                break;
-            default:
-                break;
-        }
-    }
-    
-}
-
-const DataItem<uint16_t>& DataAggregator::get_item(uint8_t source_id, uint8_t field_id) noexcept
+struct ProfileMapping
 {
-    // TODO: check bounds
-    switch (static_cast<DataSource>(source_id))
-    {
-        case DataSource::TcParser:
-            return tc_parser_items_[
-                static_cast<std::size_t>(field_id)];
+    ProfileItem item;
+    uint16_t (ProfileManager::*get)() const noexcept;
+};
 
-        case DataSource::Furnace:
-            return furnace_items_[
-                static_cast<std::size_t>(field_id)];
-                
-        case DataSource::Profile: 
-            return profile_items_[ 
-                static_cast<std::size_t>(field_id)]; 
-                       
-        default:
-            // Invalid source_id — this is a programmer error.
-            // Depending on your project conventions, one of:
-            assert(false && "Invalid DataSource");
-            // TODO: insert halt here
-            break;        
-    }
-    return null_item_;
-}
-
-const DataItem<Profile>&
-DataAggregator::profile() const noexcept
-{
-    return edit_profile_;
-}
-
-/*
-Functions below may be chaned by template. Need to be checked 
 
 template<typename T>
-void update_item(
+void update(
     DataItem<T>& item,
     const T& value) noexcept
 {
@@ -180,62 +40,208 @@ void update_item(
         ++item.version;
     }
 }
-*/
 
-void DataAggregator::update_item_value(FurnaceItem id, uint16_t value) noexcept
+
+template<typename Enum, typename T, std::size_t N>
+void update(
+    Enum id,
+    T value,
+    DataItem<T> (&items)[N]) noexcept
 {
-    auto& item = furnace_items_[
-        static_cast<std::size_t>(id)
-        ];
+    update(
+        items[static_cast<std::size_t>(id)],
+        value);
+}
 
-    
-    if (item.value != value)
+
+static constexpr FurnaceMapping furnace_mapping[] =
+{
+    {FurnaceItem::State,          &Furnace::state},
+    {FurnaceItem::Step,           &Furnace::current_step},
+    {FurnaceItem::Temperature,    &Furnace::current_temperature},
+    {FurnaceItem::Setpoint,       &Furnace::setpoint},
+    {FurnaceItem::StepElapsed,    &Furnace::step_elapsed},
+    {FurnaceItem::ProfileElapsed, &Furnace::profile_elapsed},
+    {FurnaceItem::Power,          &Furnace::power},
+    {FurnaceItem::Outputs,        &Furnace::outputs}
+};
+
+
+static constexpr TcParserMapping tc_parser_mapping[] =
+{
+    {TcParserItem::Temperature, &TcParser::average}
+};
+
+
+static constexpr ProfileMapping profile_mapping[] =
+{
+    {ProfileItem::StartProfileId, &ProfileManager::start_profile_id},
+    {ProfileItem::EditProfileId,  &ProfileManager::edit_profile_id}
+};
+
+} // namespace
+
+
+void DataAggregator::init(
+    TcParser& tc_parser,
+    Furnace& furnace,
+    ProfileManager& profiles) noexcept
+{
+    tc_parser_ = &tc_parser;
+    furnace_ = &furnace;
+    profiles_ = &profiles;
+
+    source_descriptors_[
+        static_cast<std::size_t>(DataSource::TcParser)] =
     {
-        item.value = value;
-        ++item.version;
+        tc_parser_items_,
+        std::size(tc_parser_items_)
+    };
+
+    source_descriptors_[
+        static_cast<std::size_t>(DataSource::Furnace)] =
+    {
+        furnace_items_,
+        std::size(furnace_items_)
+    };
+
+    source_descriptors_[
+        static_cast<std::size_t>(DataSource::Profile)] =
+    {
+        profile_items_,
+        std::size(profile_items_)
+    };
+
+    tc_parser_->set_notify_callback(
+        tc_parser_callback,
+        this);
+
+    furnace_->set_notify_callback(
+        furnace_callback,
+        this);
+
+    profiles_->set_notify_callback(
+        profile_callback,
+        this);
+
+    update_tc_parser();
+    update_furnace();
+    update_profile();
+}
+
+
+void DataAggregator::tc_parser_callback(
+    void* context,
+    const Notification& notification) noexcept
+{
+    if (notification.type != NotificationType::DataReady)
+        return;
+
+    auto& aggregator =
+        *static_cast<DataAggregator*>(context);
+
+    aggregator.update_tc_parser();
+}
+
+
+void DataAggregator::furnace_callback(
+    void* context,
+    const Notification& notification) noexcept
+{
+    if (notification.type != NotificationType::DataReady)
+        return;
+
+    auto& aggregator =
+        *static_cast<DataAggregator*>(context);
+
+    aggregator.update_furnace();
+}
+
+
+void DataAggregator::profile_callback(
+    void* context,
+    const Notification& notification) noexcept
+{
+    if (notification.type != NotificationType::StartProfileChanged &&
+        notification.type != NotificationType::EditProfileChanged)
+    {
+        return;
+    }
+
+    auto& aggregator =
+        *static_cast<DataAggregator*>(context);
+
+    aggregator.update_profile();
+}
+
+
+void DataAggregator::update_tc_parser() noexcept
+{
+    for (const auto& mapping : tc_parser_mapping)
+    {
+        update(
+            mapping.item,
+            (tc_parser_->*mapping.get)(),
+            tc_parser_items_);
     }
 }
 
 
-
-void DataAggregator::update_item_value(TcParserItem id, uint16_t value) noexcept
+void DataAggregator::update_furnace() noexcept
 {
-    auto& item = tc_parser_items_[
-        static_cast<std::size_t>(id)
-        ];
-
-    
-    if (item.value != value)
+    for (const auto& mapping : furnace_mapping)
     {
-        item.value = value;
-        ++item.version;
-    }
-}
-
-void DataAggregator::update_item_value( ProfileItem id, uint16_t value) noexcept 
-{ 
-    auto& item = profile_items_[
-        static_cast<std::size_t>(id)
-        ]; 
-
-            
-    if (item.value != value) 
-    {
-        item.value = value;
-        ++item.version;
+        update(
+            mapping.item,
+            (furnace_->*mapping.get)(),
+            furnace_items_);
     }
 }
 
 
-void DataAggregator::update_edit_profile() noexcept
+void DataAggregator::update_profile() noexcept
 {
-    const Profile& profile = profiles_->edit_profile();
-
-    if (edit_profile_.value != profile)
+    for (const auto& mapping : profile_mapping)
     {
-        edit_profile_.value = profile;
-        ++edit_profile_.version;
+        update(
+            mapping.item,
+            (profiles_->*mapping.get)(),
+            profile_items_);
     }
+
+    update(
+        profile_,
+        profiles_->edit_profile());
+}
+
+
+const DataItem<uint16_t>&
+DataAggregator::get_item(
+    uint8_t source,
+    uint8_t field) const noexcept
+{
+    if (source >=
+        static_cast<uint8_t>(DataSource::Count))
+    {
+        return null_item_;
+    }
+
+    const auto& descriptor =
+        source_descriptors_[source];
+
+    if (field >= descriptor.count)
+    {
+        return null_item_;
+    }
+
+    return descriptor.items[field];
+}
+
+
+const DataItem<Profile>&
+DataAggregator::profile() const noexcept
+{
+    return profile_;
 }
 
 } // namespace app

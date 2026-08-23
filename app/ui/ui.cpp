@@ -1,153 +1,299 @@
 // ui.cpp
-//
-// UI state and field mapping layer.
-//
-// Role in the architecture:
-//   - Ui is the application-facing facade over the data available to
-//     the UI. It holds the currently active page and maps logical
-//     page fields (MainField / MonitorField) to concrete items owned
-//     by the DataAggregator.
-//   - Renderers (such as Tui) never talk to DataAggregator directly.
-//     They ask Ui for a field by its logical name and receive the
-//     matching DataItem reference (value + version).
-//   - Field->source resolution is defined statically in the
-//     main_fields_[] and monitor_fields_[] and result_fields_[] tables 
-//     in ui.hpp: each entry stores a DataSource id and a field id within 
-//     that source.
 
 #include "ui.hpp"
 
 namespace app
 {
 
-// Binds the UI to the application modules it needs.
-// Must be called once before process()/get_field(); the pointers stay
-// valid for the lifetime of all involved objects.
-void Ui::init(
-    Furnace& furnace,
+namespace
+{
+
+static constexpr Ui::FieldMapping main_fields[] =
+{
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::State)},
+
+    {DataSource::Profile,
+     static_cast<uint8_t>(ProfileItem::StartProfileId)},
+
+    {DataSource::TcParser,
+     static_cast<uint8_t>(TcParserItem::Temperature)}
+};
+
+
+static constexpr Ui::FieldMapping monitor_fields[] =
+{
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::State)},
+
+    {DataSource::Profile,
+     static_cast<uint8_t>(ProfileItem::StartProfileId)},
+
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::Step)},
+
+    {DataSource::TcParser,
+     static_cast<uint8_t>(TcParserItem::Temperature)},
+
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::Setpoint)},
+
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::StepElapsed)},
+
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::ProfileElapsed)},
+
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::Power)},
+
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::Outputs)}
+};
+
+
+static constexpr Ui::FieldMapping result_fields[] =
+{
+    {DataSource::Furnace,
+     static_cast<uint8_t>(FurnaceItem::State)}
+};
+
+
+static constexpr Ui::PageDescriptor page_descriptors[] =
+{
+    {
+        main_fields,
+        std::size(main_fields)
+    },
+
+    {
+        nullptr,
+        0
+    },
+
+    {
+        nullptr,
+        0
+    },
+
+    {
+        monitor_fields,
+        std::size(monitor_fields)
+    },
+
+    {
+        result_fields,
+        std::size(result_fields)
+    }
+};
+
+} // namespace
+
+
+const DataItem<uint16_t> Ui::null_item_{};
+
+
+Ui::Ui(
+    DataAggregator& data,
     ProfileManager& profiles,
-    SettingManager& settings,
-    DataAggregator& data) noexcept
+    Furnace& furnace) noexcept
+    :
+    data_(&data),
+    profiles_(&profiles),
+    furnace_(&furnace)
 {
-    furnace_ = &furnace;
-    profiles_ = &profiles;
-    settings_ = &settings;
-    data_ = &data;
 }
 
 
-// Updates UI state and processes pending UI actions.
-// Called periodically by the application. Placeholder for
-// page switching and user-action handling; renderers poll page() and
-// get_field() independently.
-void Ui::process() noexcept
-{
-    // UI state and actions will be implemented here.
-}
-
-
-// Returns the current data item for a Main-page field.
-// The returned item contains both the current value and its version.            
-const DataItem<uint16_t>&
-Ui::get_field(MainField field) const noexcept
-{
-    const auto& mapping =
-        main_fields_[static_cast<std::size_t>(field)];
-
-    // Delegate to the aggregator. The returned item is shared
-    // (reference) and its version increments on every value change,
-    // which renderers use to detect "publish on change".
-    return data_->get_item(
-        mapping.source,
-        mapping.field);
-}
-
-// Returns the current data item for a Monitor-page field.
-// Same mechanism as the Main-field overload, using monitor_fields_[].
-const DataItem<uint16_t>&
-Ui::get_field(MonitorField field) const noexcept
-{
-    const auto& mapping =
-        monitor_fields_[static_cast<std::size_t>(field)];
-
-    return data_->get_item(
-        mapping.source,
-        mapping.field);
-}
-
-// Returns the current data item for a Result-page field.
-// Same mechanism as the Main-field overload, using result_fields_[].
-const DataItem<uint16_t>&
-Ui::get_field(ResultField field) const noexcept
-{
-    const auto& mapping =
-        result_fields_[static_cast<std::size_t>(field)];
-
-    return data_->get_item(
-        mapping.source,
-        mapping.field);
-}
-
-
-
-// Returns the currently active page. Renderers use this to decide
-// which page to draw on each cycle.
 Ui::Page Ui::page() const noexcept
 {
     return page_;
 }
 
 
-void Ui::execute(const Action& action) noexcept
+const DataItem<uint16_t>&
+Ui::get_field(
+    Page page,
+    uint8_t field) const noexcept
+{
+    const auto page_index =
+        static_cast<std::size_t>(page);
+
+    if (page_index >=
+        static_cast<std::size_t>(Page::Count))
+    {
+        return null_item_;
+    }
+
+    const auto& descriptor =
+        page_descriptors_[page_index];
+
+    if (descriptor.fields == nullptr ||
+        field >= descriptor.field_count)
+    {
+        return null_item_;
+    }
+
+    const auto& mapping =
+        descriptor.fields[field];
+
+    return data_->get_item(
+        mapping.source,
+        mapping.field);
+}
+
+
+const DataItem<Profile>&
+Ui::get_edit_profile() const noexcept
+{
+    return data_->get_edit_profile();
+}
+
+
+uint8_t Ui::current_step() const noexcept
+{
+    return current_step_;
+}
+
+
+void Ui::execute(Action action) noexcept
 {
     switch (action.type)
     {
         case ActionType::StartProfileSelection:
-            profile_selection_action_ =
-                ActionType::StartProfileConfirm;
-            page_ = Page::ProfileSelection;
+            start_profile_selection();
             break;
-        
+
         case ActionType::EditProfileSelection:
-            profile_selection_action_ =
-                ActionType::EditProfileConfirm;
-            page_ = Page::ProfileSelection;
+            edit_profile_selection();
             break;
 
         case ActionType::StartProfileConfirm:
-            if (profiles_->select_for_start( // temporary condition for testing
-                    static_cast<uint8_t>(action.argument)))
-            {
-                furnace_->start();
-                page_ = Page::Monitor;
-            }
-            break;        
-        
-        case ActionType::EditProfileConfirm:
-
-            if (profiles_->select_for_edit( // temporary condition for testing
-            static_cast<uint8_t>(action.argument)))
-            {
-                page_ = Page::ProfileEditor;
-            }
+            confirm_start_profile(
+                static_cast<uint8_t>(action.argument));
             break;
-                    
-        case ActionType::ResetFurnace:
-            furnace_->reset();
-            profiles_->clear_start_selection();
-            page_ = Page::Main;
-            break;            
-            
-        case ActionType::StopFurnace:
-            furnace_->stop();
-            page_ = Page::Result;
+
+        case ActionType::EditProfileConfirm:
+            confirm_edit_profile(
+                static_cast<uint8_t>(action.argument));
+            break;
+
+        case ActionType::NextStep:
+            next_step();
+            break;
+
+        case ActionType::PreviousStep:
+            previous_step();
+            break;
+
+        case ActionType::SaveProfile:
+            save_profile();
+            break;
+
+        case ActionType::CancelProfile:
+            cancel_profile();
             break;
 
         case ActionType::Back:
+            back();
+            break;
+
+        case ActionType::None:
+        case ActionType::EditSetpoint:
+        case ActionType::EditDuration:
+        case ActionType::EditFlags:
+        case ActionType::StopFurnace:
+        case ActionType::ResetFurnace:
+            break;
+    }
+}
+
+
+void Ui::start_profile_selection() noexcept
+{
+    page_ = Page::ProfileSelection;
+}
+
+
+void Ui::edit_profile_selection() noexcept
+{
+    page_ = Page::ProfileSelection;
+}
+
+
+void Ui::confirm_start_profile(uint8_t profile_id) noexcept
+{
+    if (!profiles_->select_for_start(profile_id))
+        return;
+
+    furnace_->start();
+    page_ = Page::Monitor;
+}
+
+
+void Ui::confirm_edit_profile(uint8_t profile_id) noexcept
+{
+    if (!profiles_->select_for_edit(profile_id))
+        return;
+
+    current_step_ = 0;
+    page_ = Page::ProfileEditor;
+}
+
+
+void Ui::next_step() noexcept
+{
+    const auto& profile =
+        data_->get_edit_profile().value;
+
+    if (current_step_ + 1 < profile.steps.size())
+        ++current_step_;
+}
+
+
+void Ui::previous_step() noexcept
+{
+    if (current_step_ > 0)
+        --current_step_;
+}
+
+
+void Ui::save_profile() noexcept
+{
+    profiles_->save();
+    page_ = Page::Main;
+}
+
+
+void Ui::cancel_profile() noexcept
+{
+    profiles_->cancel_edit();
+    page_ = Page::Main;
+}
+
+
+void Ui::back() noexcept
+{
+    switch (page_)
+    {
+        case Page::ProfileSelection:
             page_ = Page::Main;
             break;
 
-        default:
+        case Page::ProfileEditor:
+            page_ = Page::ProfileSelection;
+            break;
+
+        case Page::Monitor:
+            page_ = Page::Main;
+            break;
+
+        case Page::Result:
+            page_ = Page::Main;
+            break;
+
+        case Page::Main:
+        case Page::Count:
             break;
     }
 }
