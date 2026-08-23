@@ -76,14 +76,14 @@ public:
              profiles_);
         
         ui_.init(
-            furnace_, 
-            profiles_, 
-            settings_,
-            data_aggregator_);
+            data_aggregator_,
+            profiles_,
+            furnace_
+            );
             
         tui_.init(
             ui_);
-        
+       
   
         // Registration order defines execution order.
         // Scheduler stores:
@@ -106,7 +106,7 @@ public:
             *this);
                             
 #endif    
-  */                  
+                    
         scheduler_.every<Ui, &Ui::process>(
             100,
             ui_);
@@ -114,7 +114,7 @@ public:
         scheduler_.every<Tui, &Tui::process>(
             100,
             tui_);
-            
+  */          
         return true; // replace with false if anything fails    
     }
 

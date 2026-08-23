@@ -75,11 +75,11 @@ public:
     };
 
 
-    Ui(
+
+    void init(
         DataAggregator& data,
         ProfileManager& profiles,
         Furnace& furnace) noexcept;
-
 
     void execute(Action action) noexcept;
 
@@ -109,10 +109,6 @@ private:
     void cancel_profile() noexcept;
 
     void back() noexcept;
-
-
-    static const PageDescriptor page_descriptors_[
-        static_cast<std::size_t>(Page::Count)];
 
 
     DataAggregator* data_;

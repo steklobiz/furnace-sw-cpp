@@ -87,6 +87,7 @@ private:
         std::size_t count;
     };
 
+
     static void tc_parser_callback(
         void* context,
         const Notification& notification) noexcept;

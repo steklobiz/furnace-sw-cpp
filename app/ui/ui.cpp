@@ -10,81 +10,39 @@ namespace
 
 static constexpr Ui::FieldMapping main_fields[] =
 {
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::State)},
-
-    {DataSource::Profile,
-     static_cast<uint8_t>(ProfileItem::StartProfileId)},
-
-    {DataSource::TcParser,
-     static_cast<uint8_t>(TcParserItem::Temperature)}
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
+    {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
+    {DataSource::TcParser, static_cast<uint8_t>(TcParserItem::Temperature)}
 };
 
 
 static constexpr Ui::FieldMapping monitor_fields[] =
 {
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::State)},
-
-    {DataSource::Profile,
-     static_cast<uint8_t>(ProfileItem::StartProfileId)},
-
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::Step)},
-
-    {DataSource::TcParser,
-     static_cast<uint8_t>(TcParserItem::Temperature)},
-
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::Setpoint)},
-
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::StepElapsed)},
-
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::ProfileElapsed)},
-
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::Power)},
-
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::Outputs)}
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
+    {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step)},
+    {DataSource::TcParser, static_cast<uint8_t>(TcParserItem::Temperature)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Setpoint)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::StepElapsed)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::ProfileElapsed)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Power)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
 
 static constexpr Ui::FieldMapping result_fields[] =
 {
-    {DataSource::Furnace,
-     static_cast<uint8_t>(FurnaceItem::State)}
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)}
 };
 
 
 static constexpr Ui::PageDescriptor page_descriptors[] =
 {
-    {
-        main_fields,
-        std::size(main_fields)
-    },
-
-    {
-        nullptr,
-        0
-    },
-
-    {
-        nullptr,
-        0
-    },
-
-    {
-        monitor_fields,
-        std::size(monitor_fields)
-    },
-
-    {
-        result_fields,
-        std::size(result_fields)
-    }
+    {main_fields,    std::size(main_fields)},
+    {nullptr,         0},
+    {nullptr,         0},
+    {monitor_fields, std::size(monitor_fields)},
+    {result_fields,  std::size(result_fields)}
 };
 
 } // namespace
@@ -93,17 +51,18 @@ static constexpr Ui::PageDescriptor page_descriptors[] =
 const DataItem<uint16_t> Ui::null_item_{};
 
 
-Ui::Ui(
+void Ui::init(
     DataAggregator& data,
     ProfileManager& profiles,
     Furnace& furnace) noexcept
-    :
-    data_(&data),
-    profiles_(&profiles),
-    furnace_(&furnace)
 {
-}
+    data_ = &data;
+    profiles_ = &profiles;
+    furnace_ = &furnace;
 
+    page_ = Page::Main;
+    current_step_ = 0;
+}
 
 Ui::Page Ui::page() const noexcept
 {
@@ -125,9 +84,9 @@ Ui::get_field(
         return null_item_;
     }
 
-    const auto& descriptor =
-        page_descriptors_[page_index];
-
+const auto& descriptor =
+    page_descriptors[page_index];
+    
     if (descriptor.fields == nullptr ||
         field >= descriptor.field_count)
     {
@@ -138,7 +97,7 @@ Ui::get_field(
         descriptor.fields[field];
 
     return data_->get_item(
-        mapping.source,
+        static_cast<uint8_t>(mapping.source),
         mapping.field);
 }
 
@@ -146,7 +105,7 @@ Ui::get_field(
 const DataItem<Profile>&
 Ui::get_edit_profile() const noexcept
 {
-    return data_->get_edit_profile();
+    return data_->profile();
 }
 
 
@@ -244,12 +203,14 @@ void Ui::confirm_edit_profile(uint8_t profile_id) noexcept
 void Ui::next_step() noexcept
 {
     const auto& profile =
-        data_->get_edit_profile().value;
+        data_->profile().value;
 
-    if (current_step_ + 1 < profile.steps.size())
+    if (static_cast<std::size_t>(current_step_) + 1 <
+        profile.steps.size())
+    {
         ++current_step_;
+    }
 }
-
 
 void Ui::previous_step() noexcept
 {
@@ -260,15 +221,14 @@ void Ui::previous_step() noexcept
 
 void Ui::save_profile() noexcept
 {
-    profiles_->save();
+    profiles_->save_edit();
     page_ = Page::Main;
 }
 
 
 void Ui::cancel_profile() noexcept
 {
-    profiles_->cancel_edit();
-    page_ = Page::Main;
+    page_ = Page::ProfileSelection;
 }
 
 
