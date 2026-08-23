@@ -198,6 +198,43 @@ void Ui::previous_step(uint16_t) noexcept
         --current_step_;
 }
 
+void Ui::edit_setpoint(uint16_t value) noexcept
+{
+    if (current_step_ >= Profile::MaxSteps)
+        return;
+
+    profiles_->edit_profile()
+        .steps[current_step_]
+        .setpoint_c = value;
+
+    profiles_->edit_profile_changed();
+}
+
+
+void Ui::edit_duration(uint16_t value) noexcept
+{
+    if (current_step_ >= Profile::MaxSteps)
+        return;
+
+    profiles_->edit_profile()
+        .steps[current_step_]
+        .duration = value;
+
+    profiles_->edit_profile_changed();
+}
+
+
+void Ui::edit_flags(uint16_t value) noexcept
+{
+    if (current_step_ >= Profile::MaxSteps)
+        return;
+
+    profiles_->edit_profile()
+        .steps[current_step_]
+        .flags = static_cast<uint8_t>(value);
+
+    profiles_->edit_profile_changed();
+}
 
 void Ui::save_profile(uint16_t) noexcept
 {

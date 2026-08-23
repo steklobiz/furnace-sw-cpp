@@ -23,6 +23,13 @@ ProfileManager::edit_profile() const noexcept
     return edit_profile_;
 }
 
+void ProfileManager::edit_profile_changed() noexcept
+{
+    notify(
+        NotificationType::EditProfileChanged,
+        edit_profile_id_);
+}
+
 uint16_t
 ProfileManager::start_profile_id() const noexcept
 {

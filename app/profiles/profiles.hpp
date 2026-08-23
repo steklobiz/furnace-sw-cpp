@@ -116,8 +116,12 @@ public:
 
     // Profile currently being edited.
     Profile& edit_profile() noexcept;
+    
     const Profile& edit_profile() const noexcept;
 
+    // Notify observers that the editable profile has changed.
+    void edit_profile_changed() noexcept;
+    
     // UI getters (uint16_only)
     // Returns the selected profile ID for starting. 
     uint16_t start_profile_id() const noexcept; 
@@ -128,7 +132,7 @@ public:
     bool select_for_start(uint8_t profile_id) noexcept;
     // Loads a profile for editing.
     bool select_for_edit(uint8_t profile_id) noexcept;
-
+    
     // Saves the currently edited profile.
     bool save_edit() noexcept;
 

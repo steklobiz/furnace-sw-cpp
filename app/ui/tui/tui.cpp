@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <conio.h>
+#include <limits>
 
 namespace app
 {
@@ -63,6 +64,25 @@ static constexpr Tui::Button profile_selection_buttons[] =
     {'b', "Back",    Ui::ActionType::Back, 0}
 };
 
+static constexpr Tui::Label profile_editor_labels[] =
+{
+    {"Profile:", 0},
+    {"Step:", 1},
+    {"Setpoint, C:", 2},
+    {"Duration, s:", 3},
+    {"Flags:", 4}
+};
+
+static constexpr Tui::Button profile_editor_buttons[] =
+{
+    {'e', "Edit setpoint", Ui::ActionType::EditSetpoint, 0},
+    {'d', "Edit duration", Ui::ActionType::EditDuration, 0},
+    {'f', "Edit flags",    Ui::ActionType::EditFlags,    0},
+    {'n', "Next",          Ui::ActionType::NextStep,     0},
+    {'p', "Previous",      Ui::ActionType::PreviousStep, 0},
+    {'s', "Save",          Ui::ActionType::SaveProfile,  0},
+    {'c', "Cancel",        Ui::ActionType::CancelProfile, 0}
+};
 
 static constexpr Tui::Label result_labels[] =
 {
@@ -98,8 +118,8 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
     {
         nullptr,
         0,
-        nullptr,
-        0
+        profile_editor_buttons,
+        std::size(profile_editor_buttons)
     },
 
     // Monitor
@@ -131,6 +151,14 @@ void Tui::init(Ui& ui) noexcept
 
     rendered_page_ = Ui::Page::Count;
     page_rendered_ = false;
+    
+    input_mode_ = InputMode::Normal;
+    input_action_ = Ui::ActionType::None;
+    input_value_ = 0;
+    input_has_value_ = false;
+
+    rendered_profile_version_ = 0;
+    rendered_profile_step_ = 0xff;
 }
 
 
@@ -145,6 +173,7 @@ void Tui::process() noexcept
         rendered_page_ = page;
         page_rendered_ = false;
 
+        // Clear the terminal when switching pages.
         std::printf("\033[2J\033[H");
     }
 
@@ -154,11 +183,17 @@ void Tui::process() noexcept
     if (page_index >= std::size(page_descriptors))
         return;
 
+    if (page == Ui::Page::ProfileEditor)
+    {
+        render_profile_editor_page();
+        return;
+    }
+
     render_page(
         page_descriptors[page_index],
         page);
-}
-
+}    
+    
 
 void Tui::render_page(
     const PageDescriptor& descriptor,
@@ -234,8 +269,105 @@ void Tui::render_page(
     page_rendered_ = true;
 }
 
+void Tui::render_profile_content() noexcept
+{
+    const auto& profile =
+        ui_->get_edit_profile().value;
+
+    const auto step_index =
+        static_cast<std::size_t>(ui_->current_step());
+
+    if (step_index >= profile.steps.size())
+    {
+        return;
+    }
+
+    const auto& step =
+        profile.steps[step_index];
+
+    std::printf(
+        "\033[3;1H\033[2KStep: %u",
+        static_cast<unsigned>(step_index));
+
+    std::printf(
+        "\033[4;1H\033[2KSetpoint, C: %u",
+        static_cast<unsigned>(step.setpoint_c));
+
+    std::printf(
+        "\033[5;1H\033[2KDuration, s: %u",
+        static_cast<unsigned>(step.duration));
+
+    std::printf(
+        "\033[6;1H\033[2KFlags: %u",
+        static_cast<unsigned>(step.flags));
+}
+
+void Tui::render_profile_editor_page() noexcept
+{
+    const auto& profile =
+        ui_->get_edit_profile();
+
+    const auto step =
+        ui_->current_step();
+
+    if (!page_rendered_)
+    {
+        std::printf(
+            "\033[1;1H\033[2KProfile Editor");
+
+        rendered_profile_version_ =
+            static_cast<uint8_t>(profile.version - 1);
+
+        rendered_profile_step_ = 0xff;
+    }
+
+    if (profile.version != rendered_profile_version_ ||
+        step != rendered_profile_step_)
+    {
+        render_profile_content();
+
+        rendered_profile_version_ =
+            profile.version;
+
+        rendered_profile_step_ =
+            step;
+    }
+
+    if (!page_rendered_)
+    {
+        const auto& descriptor =
+            page_descriptors[
+                static_cast<std::size_t>(
+                    Ui::Page::ProfileEditor)];
+
+        const std::size_t first_button_row = 8;
+
+        for (std::size_t i = 0;
+             i < descriptor.button_count;
+             ++i)
+        {
+            const auto& button =
+                descriptor.buttons[i];
+
+            std::printf(
+                "\033[%zu;1H\033[2K[%c] %s",
+                first_button_row + i,
+                button.key,
+                button.caption);
+        }
+    }
+
+    page_rendered_ = true;
+}
+
 void Tui::process_input() noexcept
 {
+    if (input_mode_ == InputMode::Numeric)
+    {
+        process_numeric_input();
+        return;
+    }
+
     if (!_kbhit())
     {
         return;
@@ -244,9 +376,10 @@ void Tui::process_input() noexcept
     const char key =
         static_cast<char>(_getch());
 
-    const auto page = ui_->page();
+    const auto page =
+        ui_->page();
 
-    const std::size_t page_index =
+    const auto page_index =
         static_cast<std::size_t>(page);
 
     if (page_index >= std::size(page_descriptors))
@@ -264,16 +397,48 @@ void Tui::process_input() noexcept
         const auto& button =
             descriptor.buttons[i];
 
-        if (button.key == key)
+        if (button.key != key)
         {
-            ui_->execute({
-                button.action,
-                0
-            });
+            continue;
+        }
+
+        if (button.action == Ui::ActionType::EditSetpoint ||
+            button.action == Ui::ActionType::EditDuration ||
+            button.action == Ui::ActionType::EditFlags)
+        {
+            input_mode_ = InputMode::Numeric;
+            input_action_ = button.action;
+            input_value_ = 0;
+            input_has_value_ = false;
+
+            std::printf(
+                "\033[10;1H\033[2KEnter value: ");
 
             return;
         }
+
+        ui_->execute({
+            button.action,
+            button.argument
+        });
+
+        return;
     }
+}
+
+
+void Tui::process_numeric_input() noexcept
+{
+    if (!_kbhit())
+    {
+        return;
+    }
+
+    const int key = _getch();
+
+    std::printf(
+        "\033[10;1H\033[2Kkey = %d",
+        key);
 }
 
 } // namespace app

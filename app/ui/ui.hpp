@@ -118,7 +118,11 @@ private:
     
     void next_step(uint16_t) noexcept;
     void previous_step(uint16_t) noexcept;
-    
+
+    void edit_setpoint(uint16_t) noexcept;
+    void edit_duration(uint16_t) noexcept;
+    void edit_flags(uint16_t) noexcept;
+        
     void save_profile(uint16_t) noexcept;
     void cancel_profile(uint16_t) noexcept;
     
@@ -150,6 +154,15 @@ private:
         {Ui::ActionType::PreviousStep,
             &Ui::previous_step},
     
+        {Ui::ActionType::EditSetpoint,
+            &Ui::edit_setpoint},
+        
+        {Ui::ActionType::EditDuration,
+            &Ui::edit_duration},
+        
+        {Ui::ActionType::EditFlags,
+            &Ui::edit_flags},            
+            
         {Ui::ActionType::SaveProfile,
             &Ui::save_profile},
     
