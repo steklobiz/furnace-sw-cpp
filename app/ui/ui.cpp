@@ -7,12 +7,12 @@ namespace app
 
 namespace
 {
-
+    
 static constexpr Ui::FieldMapping main_fields[] =
 {
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
-    {DataSource::TcParser, static_cast<uint8_t>(TcParserItem::Temperature)}
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature)}
 };
 
 
@@ -21,7 +21,7 @@ static constexpr Ui::FieldMapping monitor_fields[] =
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step)},
-    {DataSource::TcParser, static_cast<uint8_t>(TcParserItem::Temperature)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Setpoint)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::StepElapsed)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::ProfileElapsed)},
@@ -32,17 +32,17 @@ static constexpr Ui::FieldMapping monitor_fields[] =
 
 static constexpr Ui::FieldMapping result_fields[] =
 {
-    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)}
+    {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::State)},
+    {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::Temperature)}
 };
-
 
 static constexpr Ui::PageDescriptor page_descriptors[] =
 {
-    {main_fields,    std::size(main_fields)},
-    {nullptr,         0},
-    {nullptr,         0},
-    {monitor_fields, std::size(monitor_fields)},
-    {result_fields,  std::size(result_fields)}
+    {main_fields,    std::size(main_fields)},    // Main page
+    {nullptr,         0},    // ProfileSelection page
+    {nullptr,         0},    // ProfileEditor page
+    {monitor_fields, std::size(monitor_fields)},    // Monitor page
+    {result_fields,  std::size(result_fields)}    // Result page
 };
 
 } // namespace
@@ -117,62 +117,17 @@ uint8_t Ui::current_step() const noexcept
 
 void Ui::execute(Action action) noexcept
 {
-    switch (action.type)
+    for (const auto& mapping : action_mapping)
     {
-        case ActionType::StartProfileSelection:
-            start_profile_selection();
-            break;
-
-        case ActionType::EditProfileSelection:
-            edit_profile_selection();
-            break;
-            
-        case ActionType::SelectProfile:
-            select_profile(action.argument);
-            break;
-            
-        case ActionType::StartProfileConfirm:
-            confirm_start_profile(
-                static_cast<uint8_t>(action.argument));
-            break;
-
-        case ActionType::EditProfileConfirm:
-            confirm_edit_profile(
-                static_cast<uint8_t>(action.argument));
-            break;
-
-        case ActionType::NextStep:
-            next_step();
-            break;
-
-        case ActionType::PreviousStep:
-            previous_step();
-            break;
-
-        case ActionType::SaveProfile:
-            save_profile();
-            break;
-
-        case ActionType::CancelProfile:
-            cancel_profile();
-            break;
-
-        case ActionType::Back:
-            back();
-            break;
-
-        case ActionType::None:
-        case ActionType::EditSetpoint:
-        case ActionType::EditDuration:
-        case ActionType::EditFlags:
-        case ActionType::StopFurnace:
-        case ActionType::ResetFurnace:
-            break;
+        if (mapping.type == action.type)
+        {
+            (this->*mapping.callback)(action.argument);
+            return;
+        }
     }
 }
 
-
-void Ui::start_profile_selection() noexcept
+void Ui::start_profile_selection(uint16_t) noexcept
 {
     profile_selection_mode_ =
         ProfileSelectionMode::Start;
@@ -181,7 +136,7 @@ void Ui::start_profile_selection() noexcept
 }
 
 
-void Ui::edit_profile_selection() noexcept
+void Ui::edit_profile_selection(uint16_t) noexcept
 {
     profile_selection_mode_ =
         ProfileSelectionMode::Edit;
@@ -205,7 +160,7 @@ void Ui::select_profile(uint16_t id) noexcept
     }
 }
 
-void Ui::confirm_start_profile(uint8_t profile_id) noexcept
+void Ui::confirm_start_profile(uint16_t profile_id) noexcept
 {
     if (!profiles_->select_for_start(profile_id))
         return;
@@ -215,7 +170,7 @@ void Ui::confirm_start_profile(uint8_t profile_id) noexcept
 }
 
 
-void Ui::confirm_edit_profile(uint8_t profile_id) noexcept
+void Ui::confirm_edit_profile(uint16_t profile_id) noexcept
 {
     if (!profiles_->select_for_edit(profile_id))
         return;
@@ -225,7 +180,7 @@ void Ui::confirm_edit_profile(uint8_t profile_id) noexcept
 }
 
 
-void Ui::next_step() noexcept
+void Ui::next_step(uint16_t) noexcept
 {
     const auto& profile =
         data_->profile().value;
@@ -237,27 +192,38 @@ void Ui::next_step() noexcept
     }
 }
 
-void Ui::previous_step() noexcept
+void Ui::previous_step(uint16_t) noexcept
 {
     if (current_step_ > 0)
         --current_step_;
 }
 
 
-void Ui::save_profile() noexcept
+void Ui::save_profile(uint16_t) noexcept
 {
     profiles_->save_edit();
     page_ = Page::Main;
 }
 
 
-void Ui::cancel_profile() noexcept
+void Ui::cancel_profile(uint16_t) noexcept
 {
     page_ = Page::ProfileSelection;
 }
 
+void Ui::stop_furnace(uint16_t) noexcept
+{
+    furnace_->stop();
+    page_ = Page::Result;
+}
 
-void Ui::back() noexcept
+void Ui::reset_furnace(uint16_t) noexcept
+{
+    furnace_->reset();
+    page_ = Page::Main;
+}
+
+void Ui::back(uint16_t) noexcept
 {
     switch (page_)
     {

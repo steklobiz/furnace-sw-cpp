@@ -94,6 +94,11 @@ public:
         scheduler_.every<Furnace, &Furnace::process>(
             1000,
             furnace_);
+            
+        scheduler_.every<TcParser, &TcParser::update>(
+            500,
+            tc_parser_);
+    
 /*            
 #ifdef PLATFORM_PC
 
@@ -194,11 +199,11 @@ private:
     core::Scheduler scheduler_;
     
     core::Pid pid_;
-
+/*
 #ifdef PLATFORM_PC
     Trace trace_;
 #endif
-    
+  */  
 };
 
 } // namespace app

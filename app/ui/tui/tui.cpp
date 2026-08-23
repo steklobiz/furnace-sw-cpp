@@ -62,6 +62,18 @@ static constexpr Tui::Button profile_selection_buttons[] =
     {'b', "Back",    Ui::ActionType::Back, 0}
 };
 
+
+static constexpr Tui::Label result_labels[] =
+{
+    {"State:", 0},
+    {"Temperature, C:", 1}
+};
+
+static constexpr Tui::Button result_buttons[] =
+{
+    {'b', "Back", Ui::ActionType::Back, 0}
+};
+
 static constexpr Tui::PageDescriptor page_descriptors[] =
 {
     // Main
@@ -98,10 +110,10 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
 
     // Result
     {
-        nullptr,
-        0,
-        nullptr,
-        0
+        result_labels,
+        std::size(result_labels),
+        result_buttons,
+        std::size(result_buttons)
     }
 };
 

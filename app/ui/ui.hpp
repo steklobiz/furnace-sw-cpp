@@ -102,22 +102,70 @@ public:
 
 private:
 
-    void start_profile_selection() noexcept;
-    void edit_profile_selection() noexcept;
-    void select_profile(uint16_t id) noexcept;
+    struct ActionMapping
+    {
+        Ui::ActionType type;
+        void (Ui::*callback)(uint16_t) noexcept;
+    };    
+
+
+    void start_profile_selection(uint16_t) noexcept;
+    void edit_profile_selection(uint16_t) noexcept;
+    void select_profile(uint16_t) noexcept;
     
-    void confirm_start_profile(uint8_t profile_id) noexcept;
-    void confirm_edit_profile(uint8_t profile_id) noexcept;
+    void confirm_start_profile(uint16_t) noexcept;
+    void confirm_edit_profile(uint16_t) noexcept;
+    
+    void next_step(uint16_t) noexcept;
+    void previous_step(uint16_t) noexcept;
+    
+    void save_profile(uint16_t) noexcept;
+    void cancel_profile(uint16_t) noexcept;
+    
+    void stop_furnace(uint16_t) noexcept;
+    void reset_furnace(uint16_t) noexcept;
+    
+    void back(uint16_t) noexcept;
 
-    void next_step() noexcept;
-    void previous_step() noexcept;
-
-    void save_profile() noexcept;
-    void cancel_profile() noexcept;
-
-    void back() noexcept;
-
-
+    static constexpr ActionMapping action_mapping[] =
+    {
+        {Ui::ActionType::StartProfileSelection,
+            &Ui::start_profile_selection},
+    
+        {Ui::ActionType::EditProfileSelection,
+            &Ui::edit_profile_selection},
+    
+        {Ui::ActionType::SelectProfile,
+            &Ui::select_profile},
+    
+        {Ui::ActionType::StartProfileConfirm,
+            &Ui::confirm_start_profile},
+    
+        {Ui::ActionType::EditProfileConfirm,
+            &Ui::confirm_edit_profile},
+    
+        {Ui::ActionType::NextStep,
+            &Ui::next_step},
+    
+        {Ui::ActionType::PreviousStep,
+            &Ui::previous_step},
+    
+        {Ui::ActionType::SaveProfile,
+            &Ui::save_profile},
+    
+        {Ui::ActionType::CancelProfile,
+            &Ui::cancel_profile},
+    
+        {Ui::ActionType::StopFurnace,
+            &Ui::stop_furnace},
+    
+        {Ui::ActionType::ResetFurnace,
+            &Ui::reset_furnace},
+    
+        {Ui::ActionType::Back,
+            &Ui::back}
+    };
+        
     DataAggregator* data_;
     ProfileManager* profiles_;
     Furnace* furnace_;
