@@ -43,7 +43,8 @@ static constexpr Tui::Label monitor_labels[] =
 static constexpr Tui::Button monitor_buttons[] =
 {
     {'s', "Stop", Ui::ActionType::StopFurnace, 0},
-    {'r', "Reset", Ui::ActionType::ResetFurnace, 0}
+    {'b', "Back", Ui::ActionType::Back, 0}
+
 };
 
 
@@ -71,7 +72,8 @@ static constexpr Tui::Label result_labels[] =
 
 static constexpr Tui::Button result_buttons[] =
 {
-    {'b', "Back", Ui::ActionType::Back, 0}
+    {'r', "Reset", Ui::ActionType::ResetFurnace, 0}
+
 };
 
 static constexpr Tui::PageDescriptor page_descriptors[] =
