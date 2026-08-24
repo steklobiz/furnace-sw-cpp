@@ -23,7 +23,7 @@ namespace app
 
 struct Settings
 {
-    uint16_t buzzer_volume = 100;
+    uint16_t buzzer_state = 1;
 
     uint16_t display_brightness = 100;
 
@@ -57,6 +57,13 @@ public:
 
     void reset_defaults() noexcept;
 
+    // ui getters
+    uint16_t get_pid_kp() const noexcept;
+    uint16_t get_pid_ki() const noexcept;
+    uint16_t get_pid_kd() const noexcept;
+    uint16_t get_max_temperature_c() const noexcept;
+    uint16_t get_buzzer_state() const noexcept;
+    
 private:
 
     Settings settings_;
