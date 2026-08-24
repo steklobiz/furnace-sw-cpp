@@ -88,6 +88,57 @@ ProfileManager::select_for_edit(uint8_t profile_id) noexcept
     return true;
 }
 
+
+bool ProfileManager::set_edit_setpoint(
+    uint16_t step,
+    uint16_t value) noexcept
+{
+    if (step >= Profile::MaxSteps ||
+        value > Profile::MaxSetpointC)
+    {
+        return false;
+    }
+
+    edit_profile_.steps[step].setpoint_c = value;
+    edit_profile_changed();
+
+    return true;
+}
+
+bool ProfileManager::set_edit_duration(
+    uint16_t step,
+    uint16_t value) noexcept
+{
+    if (step >= Profile::MaxSteps ||
+        value > Profile::MaxDurationS)
+    {
+        return false;
+    }
+
+    edit_profile_.steps[step].duration = value;
+    edit_profile_changed();
+
+    return true;
+}
+
+bool ProfileManager::set_edit_flags(
+    uint16_t step,
+    uint16_t value) noexcept
+{
+    if (step >= Profile::MaxSteps ||
+        value > Profile::MaxFlags)
+    {
+        return false;
+    }
+
+    edit_profile_.steps[step].flags =
+        static_cast<uint8_t>(value);
+
+    edit_profile_changed();
+
+    return true;
+}
+
 bool
 ProfileManager::save_edit() noexcept
 {

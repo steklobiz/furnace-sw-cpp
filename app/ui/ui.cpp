@@ -200,40 +200,23 @@ void Ui::previous_step(uint16_t) noexcept
 
 void Ui::edit_setpoint(uint16_t value) noexcept
 {
-    if (current_step_ >= Profile::MaxSteps)
-        return;
-
-    profiles_->edit_profile()
-        .steps[current_step_]
-        .setpoint_c = value;
-
-    profiles_->edit_profile_changed();
+    profiles_->set_edit_setpoint(
+        current_step_,
+        value);
 }
-
 
 void Ui::edit_duration(uint16_t value) noexcept
 {
-    if (current_step_ >= Profile::MaxSteps)
-        return;
-
-    profiles_->edit_profile()
-        .steps[current_step_]
-        .duration = value;
-
-    profiles_->edit_profile_changed();
+    profiles_->set_edit_duration(
+        current_step_,
+        value);
 }
-
 
 void Ui::edit_flags(uint16_t value) noexcept
 {
-    if (current_step_ >= Profile::MaxSteps)
-        return;
-
-    profiles_->edit_profile()
-        .steps[current_step_]
-        .flags = static_cast<uint8_t>(value);
-
-    profiles_->edit_profile_changed();
+    profiles_->set_edit_flags(
+        current_step_,
+        value);
 }
 
 void Ui::save_profile(uint16_t) noexcept

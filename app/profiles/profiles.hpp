@@ -40,6 +40,9 @@ struct Step
 
 struct Profile
 {
+    static constexpr uint16_t MaxSetpointC = 999;
+    static constexpr uint16_t MaxDurationS = 999;
+    static constexpr uint8_t MaxFlags = 135;
     static constexpr uint8_t MaxSteps = 16;
 
     std::array<Step, MaxSteps> steps{};
@@ -133,6 +136,10 @@ public:
     // Loads a profile for editing.
     bool select_for_edit(uint8_t profile_id) noexcept;
     
+    bool set_edit_setpoint(uint16_t step, uint16_t value) noexcept;
+    bool set_edit_duration(uint16_t step, uint16_t value) noexcept;
+    bool set_edit_flags(uint16_t step, uint16_t value) noexcept;
+        
     // Saves the currently edited profile.
     bool save_edit() noexcept;
 

@@ -11,7 +11,12 @@ namespace app
 
 namespace
 {
-
+    
+// Lfayout constants
+static constexpr std::size_t profile_editor_content_row = 3;
+static constexpr std::size_t profile_editor_input_row   = 8;
+static constexpr std::size_t profile_editor_button_row  = 10;
+    
 static constexpr Tui::Label main_labels[] =
 {
     {"State:",   0},
@@ -286,19 +291,23 @@ void Tui::render_profile_content() noexcept
         profile.steps[step_index];
 
     std::printf(
-        "\033[3;1H\033[2KStep: %u",
+        "\033[%zu;1H\033[2KStep: %u",
+        profile_editor_content_row,
         static_cast<unsigned>(step_index));
 
     std::printf(
-        "\033[4;1H\033[2KSetpoint, C: %u",
+        "\033[%zu;1H\033[2KSetpoint, C: %u",
+        profile_editor_content_row + 1,
         static_cast<unsigned>(step.setpoint_c));
 
     std::printf(
-        "\033[5;1H\033[2KDuration, s: %u",
+        "\033[%zu;1H\033[2KDuration, s: %u",
+        profile_editor_content_row + 2,
         static_cast<unsigned>(step.duration));
 
     std::printf(
-        "\033[6;1H\033[2KFlags: %u",
+        "\033[%zu;1H\033[2KFlags: %u",
+        profile_editor_content_row + 3,
         static_cast<unsigned>(step.flags));
 }
 
@@ -314,25 +323,28 @@ void Tui::render_profile_editor_page() noexcept
     {
         std::printf(
             "\033[1;1H\033[2KProfile Editor");
-
-        rendered_profile_version_ =
-            static_cast<uint8_t>(profile.version - 1);
-
+    
+        // Clear the reserved numeric-input line.
+        std::printf(
+            "\033[%zu;1H\033[2K",
+            profile_editor_input_row);
+    
         rendered_profile_step_ = 0xff;
     }
-
-    if (profile.version != rendered_profile_version_ ||
+    
+    if (!page_rendered_ ||
+        profile.version != rendered_profile_version_ ||
         step != rendered_profile_step_)
     {
         render_profile_content();
-
+    
         rendered_profile_version_ =
             profile.version;
-
+    
         rendered_profile_step_ =
             step;
     }
-
+    
     if (!page_rendered_)
     {
         const auto& descriptor =
@@ -340,15 +352,16 @@ void Tui::render_profile_editor_page() noexcept
                 static_cast<std::size_t>(
                     Ui::Page::ProfileEditor)];
 
-        const std::size_t first_button_row = 8;
-
+        const std::size_t first_button_row =
+            profile_editor_button_row;
+        
         for (std::size_t i = 0;
              i < descriptor.button_count;
              ++i)
         {
             const auto& button =
                 descriptor.buttons[i];
-
+        
             std::printf(
                 "\033[%zu;1H\033[2K[%c] %s",
                 first_button_row + i,
@@ -411,9 +424,10 @@ void Tui::process_input() noexcept
             input_value_ = 0;
             input_has_value_ = false;
 
-            std::printf(
-                "\033[10;1H\033[2KEnter value: ");
-
+        std::printf(
+            "\033[%zu;1H\033[2KEnter value: ",
+            profile_editor_input_row);
+    
             return;
         }
 
@@ -436,9 +450,73 @@ void Tui::process_numeric_input() noexcept
 
     const int key = _getch();
 
-    std::printf(
-        "\033[10;1H\033[2Kkey = %d",
-        key);
-}
+    if (key >= '0' && key <= '9')
+    {
+        const auto digit =
+            static_cast<uint16_t>(key - '0');
 
+        const auto max =
+            std::numeric_limits<uint16_t>::max();
+
+        if (input_value_ <=
+            static_cast<uint16_t>((max - digit) / 10))
+        {
+            input_value_ =
+                static_cast<uint16_t>(
+                    input_value_ * 10 + digit);
+
+            input_has_value_ = true;
+        }
+    }
+    else if (key == '\b')
+    {
+        input_value_ =
+            static_cast<uint16_t>(
+                input_value_ / 10);
+
+        input_has_value_ =
+            input_value_ != 0;
+    }
+    else if (key == '\r')
+    {
+        if (!input_has_value_)
+        {
+            return;
+        }
+    
+        ui_->execute({
+            input_action_,
+            input_value_
+        });
+    
+        input_mode_ = InputMode::Normal;
+        input_action_ = Ui::ActionType::None;
+        input_value_ = 0;
+        input_has_value_ = false;
+    
+        // Clear numeric input prompt.
+        std::printf(
+            "\033[%zu;1H\033[2K",
+            profile_editor_input_row);
+    }
+    else if (key == '\x1b')
+    {
+        input_mode_ = InputMode::Normal;
+        input_action_ = Ui::ActionType::None;
+        input_value_ = 0;
+        input_has_value_ = false;
+    
+        // Clear numeric input prompt.
+        std::printf(
+            "\033[%zu;1H\033[2K",
+            profile_editor_input_row);
+    }
+    if (input_mode_ == InputMode::Numeric)
+    {
+        std::printf(
+            "\033[%zu;1H\033[2KEnter value: %u",
+            profile_editor_input_row,
+            static_cast<unsigned>(input_value_));
+    }
+}
 } // namespace app
