@@ -10,16 +10,13 @@
 #include "profiles.hpp"
 #include "tc_parser.hpp"
 
+// Data aggregator between application data sources and the UI.
+// Collects current snapshots from Furnace, ProfileManager, and other sources.
+// Provides a stable, UI-oriented view of application data.
+// Owns no UI logic; it only publishes current data and forwards notifications.
+
 namespace app
 {
-
-template<typename T>
-struct DataItem
-{
-    T value{};
-    uint8_t version = 0;
-};
-
 
 enum class DataSource : uint8_t
 {
@@ -72,18 +69,18 @@ public:
         Furnace& furnace,
         ProfileManager& profiles) noexcept;
 
-    const DataItem<uint16_t>& get_item(
+    const uint16_t& get_item(
         uint8_t source,
         uint8_t field) const noexcept;
 
-    const DataItem<Profile>& profile() const noexcept;
+    const Profile& profile() const noexcept;
 
 
 private:
 
     struct SourceDescriptor
     {
-        DataItem<uint16_t>* items;
+        uint16_t* items;
         std::size_t count;
     };
 
@@ -110,18 +107,18 @@ private:
     Furnace* furnace_ = nullptr;
     ProfileManager* profiles_ = nullptr;
 
-    DataItem<uint16_t> tc_parser_items_[
+    uint16_t tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
 
-    DataItem<uint16_t> furnace_items_[
+    uint16_t furnace_items_[
         static_cast<std::size_t>(FurnaceItem::Count)]{};
 
-    DataItem<uint16_t> profile_items_[
+    uint16_t profile_items_[
         static_cast<std::size_t>(ProfileItem::Count)]{};
 
-    DataItem<Profile> profile_{};
+    Profile profile_{};
 
-    DataItem<uint16_t> null_item_{};
+    uint16_t null_item_{};
 
     SourceDescriptor source_descriptors_[
         static_cast<std::size_t>(DataSource::Count)]{};

@@ -29,30 +29,14 @@ struct ProfileMapping
 };
 
 
-template<typename T>
-void update(
-    DataItem<T>& item,
-    const T& value) noexcept
-{
-    if (item.value != value)
-    {
-        item.value = value;
-        ++item.version;
-    }
-}
-
-
-template<typename Enum, typename T, std::size_t N>
+template<class Enum, class T, std::size_t N>
 void update(
     Enum id,
     T value,
     DataItem<T> (&items)[N]) noexcept
 {
-    update(
-        items[static_cast<std::size_t>(id)],
-        value);
+    items[static_cast<std::size_t>(id)] = value;;
 }
-
 
 static constexpr FurnaceMapping furnace_mapping[] =
 {
@@ -209,13 +193,11 @@ void DataAggregator::update_profile() noexcept
             profile_items_);
     }
 
-    update(
-        profile_,
-        profiles_->edit_profile());
+    profile_ = profile_ = profiles_->edit_profile();
 }
 
 
-const DataItem<uint16_t>&
+const uint16_t&
 DataAggregator::get_item(
     uint8_t source,
     uint8_t field) const noexcept
@@ -238,7 +220,7 @@ DataAggregator::get_item(
 }
 
 
-const DataItem<Profile>&
+const Profile&
 DataAggregator::profile() const noexcept
 {
     return profile_;

@@ -156,16 +156,14 @@ void Tui::init(Ui& ui) noexcept
 
     rendered_page_ = Ui::Page::Count;
     page_rendered_ = false;
-    
+
     input_mode_ = InputMode::Normal;
     input_action_ = Ui::ActionType::None;
     input_value_ = 0;
     input_has_value_ = false;
 
-    rendered_profile_version_ = 0;
-    rendered_profile_step_ = 0xff;
+    rendered_step_index_ = 0xff;
 }
-
 
 void Tui::process() noexcept
 {
@@ -255,14 +253,14 @@ void Tui::render_page(
                 label.field);
 
         if (page_rendered_ &&
-            rendered_versions_[page_index][label.field] ==
-                item.version)
+            rendered_values_[page_index][label.field] ==
+                item.value)
         {
             continue;
         }
-
-        rendered_versions_[page_index][label.field] =
-            item.version;
+        
+        rendered_values_[page_index][label.field] =
+            item.value;
 
         std::printf(
             "\033[%zu;1H\033[2K%s %u",
@@ -314,37 +312,42 @@ void Tui::render_profile_content() noexcept
 void Tui::render_profile_editor_page() noexcept
 {
     const auto& profile =
-        ui_->get_edit_profile();
+        ui_->get_edit_profile().value;
 
-    const auto step =
+    const auto step_index =
         ui_->current_step();
+
+    if (step_index >= profile.steps.size())
+    {
+        return;
+    }
+
+    const auto& step =
+        profile.steps[step_index];
 
     if (!page_rendered_)
     {
         std::printf(
             "\033[1;1H\033[2KProfile Editor");
-    
+
         // Clear the reserved numeric-input line.
         std::printf(
             "\033[%zu;1H\033[2K",
             profile_editor_input_row);
-    
-        rendered_profile_step_ = 0xff;
+
+        rendered_step_index_ = 0xff;
     }
-    
+
     if (!page_rendered_ ||
-        profile.version != rendered_profile_version_ ||
-        step != rendered_profile_step_)
+        step_index != rendered_step_index_ ||
+        step != rendered_step_)
     {
         render_profile_content();
-    
-        rendered_profile_version_ =
-            profile.version;
-    
-        rendered_profile_step_ =
-            step;
+
+        rendered_step_index_ = step_index;
+        rendered_step_ = step;
     }
-    
+
     if (!page_rendered_)
     {
         const auto& descriptor =
@@ -354,14 +357,14 @@ void Tui::render_profile_editor_page() noexcept
 
         const std::size_t first_button_row =
             profile_editor_button_row;
-        
+
         for (std::size_t i = 0;
              i < descriptor.button_count;
              ++i)
         {
             const auto& button =
                 descriptor.buttons[i];
-        
+
             std::printf(
                 "\033[%zu;1H\033[2K[%c] %s",
                 first_button_row + i,
