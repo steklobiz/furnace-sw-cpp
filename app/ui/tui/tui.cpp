@@ -80,9 +80,9 @@ static constexpr Tui::Label profile_editor_labels[] =
 
 static constexpr Tui::Button profile_editor_buttons[] =
 {
-    {'e', "Edit setpoint", Ui::ActionType::EditSetpoint, 0},
-    {'d', "Edit duration", Ui::ActionType::EditDuration, 0},
-    {'f', "Edit flags",    Ui::ActionType::EditFlags,    0},
+    {'e', "Edit setpoint", Ui::ActionType::EditSetpoint, 0, true},
+    {'d', "Edit duration", Ui::ActionType::EditDuration, 0, true},
+    {'f', "Edit flags",    Ui::ActionType::EditFlags,    0, true},
     {'n', "Next",          Ui::ActionType::NextStep,     0},
     {'p', "Previous",      Ui::ActionType::PreviousStep, 0},
     {'s', "Save",          Ui::ActionType::SaveProfile,  0},
@@ -415,9 +415,7 @@ void Tui::process_input() noexcept
             continue;
         }
 
-        if (button.action == Ui::ActionType::EditSetpoint ||
-            button.action == Ui::ActionType::EditDuration ||
-            button.action == Ui::ActionType::EditFlags)
+        if (button.numeric_input)
         {
             input_mode_ = InputMode::Numeric;
             input_action_ = button.action;
