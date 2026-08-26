@@ -128,13 +128,20 @@ void DataAggregator::init(
     furnace_->set_notify_callback(
         furnace_callback,
         this);
-
+        
+    settings->set_notify_callback(
+        settings_callback,
+        this);
+        
     profiles_->set_notify_callback(
         profile_callback,
         this);
+        
+        
 
     update_tc_parser();
     update_furnace();
+    update_settings();
     update_profile();
 }
 
@@ -164,6 +171,19 @@ void DataAggregator::furnace_callback(
         *static_cast<DataAggregator*>(context);
 
     aggregator.update_furnace();
+}
+
+void DataAggregator::settings_callback(
+    void* context,
+    const Notification& notification) noexcept
+{
+    if (notification.type != NotificationType::SettingsChanged)
+        return;
+
+    auto& aggregator =
+        *static_cast<DataAggregator*>(context);
+
+    aggregator.update_settings();
 }
 
 
@@ -204,6 +224,17 @@ void DataAggregator::update_furnace() noexcept
             mapping.item,
             (furnace_->*mapping.get)(),
             furnace_items_);
+    }
+}
+
+void DataAggregator::update_settings() noexcept
+{
+    for (const auto& mapping : setting_mapping)
+    {
+        update(
+            mapping.item,
+            (settings_->*mapping.get)(),
+            setting_items_);
     }
 }
 

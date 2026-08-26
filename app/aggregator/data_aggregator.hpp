@@ -108,7 +108,11 @@ private:
     static void furnace_callback(
         void* context,
         const Notification& notification) noexcept;
-
+        
+    static void settings_callback(
+        void* context,
+        const Notification& notification) noexcept;
+    
     static void profile_callback(
         void* context,
         const Notification& notification) noexcept;
@@ -116,6 +120,7 @@ private:
 
     void update_tc_parser() noexcept;
     void update_furnace() noexcept;
+    void update_settings() noexcept;
     void update_profile() noexcept;
 
 

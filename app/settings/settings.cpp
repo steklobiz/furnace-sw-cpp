@@ -43,6 +43,14 @@ SettingManager::reset_defaults() noexcept
     settings_ = Settings{};
 }
 
+void SettingManager::set_notify_callback(
+    NotificationCallback callback,
+    void* context) noexcept
+{
+    notify_callback_ = callback;
+    notify_context_ = context;
+}
+
 uint16_t 
 SettingManager::get_pid_kp() const noexcept
 {
@@ -80,13 +88,6 @@ bool SettingManager::set_pid_kp(uint16_t value) noexcept
     return true;
 }
 
-bool SettingManager::set_pid_kp(uint16_t value) noexcept
-{
-    settings_.pid_kp = value;
-    settings_changed();
-
-    return true;
-} 
 
 bool SettingManager::set_pid_ki(uint16_t value) noexcept
 {
@@ -125,13 +126,17 @@ bool SettingManager::set_buzzer_state(uint16_t value) noexcept
 
 void SettingManager::settings_changed() noexcept
 {
-    if (notify_callback_)
+    if (notify_callback_ != nullptr)
     {
         notify_callback_(
             notify_context_,
-            NotificationType::SettingsChanged,
-            0);
+            Notification{
+                this,
+                NotificationType::SettingsChanged,
+                0
+            });
     }
 }
+
 
 } // namespace app

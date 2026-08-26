@@ -59,13 +59,11 @@ public:
 
     void reset_defaults() noexcept;
 
-    using NotifyCallback =
-        void (*)(void* context) noexcept;
 
     void set_notify_callback(
-        NotifyCallback callback,
+        NotificationCallback callback,
         void* context) noexcept;
-    
+        
     // ui getters
     uint16_t get_pid_kp() const noexcept;
     uint16_t get_pid_ki() const noexcept;
@@ -83,9 +81,12 @@ public:
 private:
 
     void settings_changed() noexcept;
-    
+    void notify(
+        NotificationType type,
+        uint16_t argument = 0) noexcept;
+        
     Settings settings_;
-    NotifyCallback notify_callback_ = nullptr;
+    NotificationCallback notify_callback_ = nullptr;
     void* notify_context_ = nullptr;
     
 };
