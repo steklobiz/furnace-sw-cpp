@@ -108,8 +108,6 @@ private:
     uint16_t input_value_ = 0;
     // Indicates whether at least one numeric digit has been entered.
     bool input_has_value_ = false;
-    // Returned when a requested data item is invalid.
-    static const DataItem<uint16_t> null_item_;
 };
 
 } // namespace app

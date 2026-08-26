@@ -146,9 +146,7 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
 
 } // namespace
 
-
-const DataItem<uint16_t> Tui::null_item_{};
-
+static const uint16_t null_item_ = 0;
 
 void Tui::init(Ui& ui) noexcept
 {
@@ -254,19 +252,19 @@ void Tui::render_page(
 
         if (page_rendered_ &&
             rendered_values_[page_index][label.field] ==
-                item.value)
+                item)
         {
             continue;
         }
         
         rendered_values_[page_index][label.field] =
-            item.value;
+            item;
 
         std::printf(
             "\033[%zu;1H\033[2K%s %u",
             row + 3,
             label.caption,
-            static_cast<unsigned>(item.value));
+            static_cast<unsigned>(item));
     }
 
     page_rendered_ = true;
@@ -275,7 +273,7 @@ void Tui::render_page(
 void Tui::render_profile_content() noexcept
 {
     const auto& profile =
-        ui_->get_edit_profile().value;
+        ui_->get_edit_profile();
 
     const auto step_index =
         static_cast<std::size_t>(ui_->current_step());
@@ -312,7 +310,7 @@ void Tui::render_profile_content() noexcept
 void Tui::render_profile_editor_page() noexcept
 {
     const auto& profile =
-        ui_->get_edit_profile().value;
+        ui_->get_edit_profile();
 
     const auto step_index =
         ui_->current_step();

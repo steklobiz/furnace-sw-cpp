@@ -48,7 +48,7 @@ static constexpr Ui::PageDescriptor page_descriptors[] =
 } // namespace
 
 
-const DataItem<uint16_t> Ui::null_item_{};
+static const uint16_t null_item_ = 0;
 
 
 void Ui::init(
@@ -70,27 +70,23 @@ Ui::Page Ui::page() const noexcept
 }
 
 
-const DataItem<uint16_t>&
-Ui::get_field(
-    Page page,
-    uint8_t field) const noexcept
-{
+    uint16_t Ui::get_field(
+        Ui::Page page,
+        uint8_t field) const noexcept    
+    {
     const auto page_index =
         static_cast<std::size_t>(page);
 
-    if (page_index >=
-        static_cast<std::size_t>(Page::Count))
-    {
-        return null_item_;
-    }
+    if (page_index >= static_cast<std::size_t>(Page::Count))
+        return 0;
 
-const auto& descriptor =
-    page_descriptors[page_index];
-    
+    const auto& descriptor =
+        page_descriptors[page_index];
+
     if (descriptor.fields == nullptr ||
         field >= descriptor.field_count)
     {
-        return null_item_;
+        return 0;
     }
 
     const auto& mapping =
@@ -101,8 +97,7 @@ const auto& descriptor =
         mapping.field);
 }
 
-
-const DataItem<Profile>&
+const Profile&
 Ui::get_edit_profile() const noexcept
 {
     return data_->profile();
@@ -183,7 +178,7 @@ void Ui::confirm_edit_profile(uint16_t profile_id) noexcept
 void Ui::next_step(uint16_t) noexcept
 {
     const auto& profile =
-        data_->profile().value;
+        data_->profile();
 
     if (static_cast<std::size_t>(current_step_) + 1 <
         profile.steps.size())

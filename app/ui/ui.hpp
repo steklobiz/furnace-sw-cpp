@@ -98,11 +98,11 @@ public:
 
     Page page() const noexcept;
 
-    const DataItem<uint16_t>& get_field(
-        Page page,
+    uint16_t get_field(
+        Ui::Page page,
         uint8_t field) const noexcept;
-
-    const DataItem<Profile>& get_edit_profile() const noexcept;
+    
+    const Profile& get_edit_profile() const noexcept;
 
     uint8_t current_step() const noexcept;
 
@@ -193,8 +193,6 @@ private:
     Page page_ = Page::Main;
 
     uint8_t current_step_ = 0;
-
-    static const DataItem<uint16_t> null_item_;
     
     ProfileSelectionMode profile_selection_mode_ =
     ProfileSelectionMode::Start;
