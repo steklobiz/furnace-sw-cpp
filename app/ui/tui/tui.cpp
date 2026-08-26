@@ -27,8 +27,9 @@ static constexpr Tui::Label main_labels[] =
 
 static constexpr Tui::Button main_buttons[] =
 {
-    {'s', "Start profile", Ui::ActionType::StartProfileSelection, 0},
-    {'e', "Edit profile",  Ui::ActionType::EditProfileSelection, 0}
+    {'s', "Start profile", Ui::ActionType::StartProfileSelection,0},
+    {'e', "Edit profile",  Ui::ActionType::EditProfileSelection, 0},
+    {'t', "Settings",      Ui::ActionType::Settings,             0},
 };
 
 
@@ -69,7 +70,7 @@ static constexpr Tui::Button profile_selection_buttons[] =
     {'9', "Profile 9", Ui::ActionType::SelectProfile, 0},
     {'b', "Back",    Ui::ActionType::Back, 0}
 };
-
+/*
 static constexpr Tui::Label profile_editor_labels[] =
 {
     {"Profile:", 0},
@@ -77,6 +78,20 @@ static constexpr Tui::Label profile_editor_labels[] =
     {"Setpoint, C:", 2},
     {"Duration, s:", 3},
     {"Flags:", 4}
+};
+*/
+static constexpr Tui::Label settings_labels[] =
+{
+    {"Buzzer:",              0},
+    {"PID Kp:",              1},
+    {"PID Ki:",              2},
+    {"PID Kd:",              3},
+    {"Max temperature, C:",  4}
+};
+
+static constexpr Tui::Button settings_buttons[] =
+{
+    {'b', "Back", Ui::ActionType::Back, 0}
 };
 
 static constexpr Tui::Button profile_editor_buttons[] =
@@ -120,6 +135,13 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
         std::size(profile_selection_buttons)
     },
 
+    {
+    settings_labels,
+    std::size(settings_labels),
+    settings_buttons,
+    std::size(settings_buttons)
+    },
+    
     // ProfileEditor
     {
         nullptr,

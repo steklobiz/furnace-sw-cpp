@@ -19,6 +19,7 @@ public:
     {
         Main,
         ProfileSelection,
+        Settings,
         ProfileEditor,
         Monitor,
         Result,
@@ -38,9 +39,11 @@ public:
         StartProfileConfirm,
         EditProfileConfirm,
 
+        Settings,
+                
         NextStep,
         PreviousStep,
-
+        
         EditSetpoint,
         EditDuration,
         EditFlags,
@@ -65,6 +68,15 @@ public:
         Setpoint,
         Duration,
         Flags
+    };
+    
+    enum class SettingsField : uint8_t
+    {
+        Buzzer,
+        PidKp,
+        PidKi,
+        PidKd,
+        MaxTemperature,
     };
     
     struct Action
@@ -123,6 +135,8 @@ private:
     void confirm_start_profile(uint16_t) noexcept;
     void confirm_edit_profile(uint16_t) noexcept;
     
+    void open_settings(uint16_t) noexcept;
+    
     void next_step(uint16_t) noexcept;
     void previous_step(uint16_t) noexcept;
 
@@ -155,6 +169,9 @@ private:
         {Ui::ActionType::EditProfileConfirm,
             &Ui::confirm_edit_profile},
     
+        {Ui::ActionType::Settings,
+            &Ui::open_settings},    
+            
         {Ui::ActionType::NextStep,
             &Ui::next_step},
     

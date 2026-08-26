@@ -9,6 +9,7 @@
 #include "notification.hpp"
 #include "profiles.hpp"
 #include "tc_parser.hpp"
+#include "settings.hpp"
 
 // Data aggregator between application data sources and the UI.
 // Collects current snapshots from Furnace, ProfileManager, and other sources.
@@ -23,6 +24,7 @@ enum class DataSource : uint8_t
     TcParser,
     Furnace,
     Profile,
+    Setting,
 
     Count
 };
@@ -61,6 +63,18 @@ enum class ProfileItem : uint8_t
 };
 
 
+enum class SettingItem : uint8_t
+{
+    Buzzer,
+    PidKp,
+    PidKi,
+    PidKd,
+    MaxTemperature,
+
+    Count
+};
+
+
 class DataAggregator
 {
 public:
@@ -68,7 +82,8 @@ public:
     void init(
         TcParser& tc_parser,
         Furnace& furnace,
-        ProfileManager& profiles) noexcept;
+        ProfileManager& profiles,
+        SettingManager& settings) noexcept;
 
     const uint16_t& get_item(
         uint8_t source,
@@ -107,6 +122,7 @@ private:
     TcParser* tc_parser_ = nullptr;
     Furnace* furnace_ = nullptr;
     ProfileManager* profiles_ = nullptr;
+    SettingManager* settings_ = nullptr;
 
     uint16_t tc_parser_items_[
         static_cast<std::size_t>(TcParserItem::Count)]{};
@@ -116,6 +132,9 @@ private:
 
     uint16_t profile_items_[
         static_cast<std::size_t>(ProfileItem::Count)]{};
+        
+    uint16_t setting_items_[
+        static_cast<std::size_t>(SettingItem::Count)]{};
 
     Profile profile_{};
 

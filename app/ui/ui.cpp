@@ -30,6 +30,14 @@ static constexpr Ui::FieldMapping monitor_fields[] =
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
+static constexpr Ui::FieldMapping settings_fields[] =
+{
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::Buzzer)},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKp)},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKi)},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKd)},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::MaxTemperature)}
+};
 
 static constexpr Ui::FieldMapping result_fields[] =
 {
@@ -39,11 +47,12 @@ static constexpr Ui::FieldMapping result_fields[] =
 
 static constexpr Ui::PageDescriptor page_descriptors[] =
 {
-    {main_fields,    std::size(main_fields)},    // Main page
-    {nullptr,         0},    // ProfileSelection page
-    {nullptr,         0},    // ProfileEditor page
+    {main_fields,    std::size(main_fields)},       // Main page
+    {nullptr,        0},                            // ProfileSelection page
+    {settings_fields, std::size(settings_fields)},  // Settings page
+    {nullptr,        0},                            // ProfileEditor page
     {monitor_fields, std::size(monitor_fields)},    // Monitor page
-    {result_fields,  std::size(result_fields)}    // Result page
+    {result_fields,  std::size(result_fields)}      // Result page
 };
 
 } // namespace
@@ -173,6 +182,11 @@ void Ui::confirm_edit_profile(uint16_t profile_id) noexcept
 }
 
 
+void Ui::open_settings(uint16_t) noexcept
+{
+    page_ = Page::Settings;
+}
+
 void Ui::next_step(uint16_t) noexcept
 {
     const auto& profile =
@@ -244,6 +258,10 @@ void Ui::back(uint16_t) noexcept
             page_ = Page::Main;
             break;
 
+        case Page::Settings:
+            page_ = Page::Main;
+            break;
+            
         case Page::ProfileEditor:
             page_ = Page::ProfileSelection;
             break;

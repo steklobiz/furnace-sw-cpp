@@ -73,7 +73,8 @@ public:
         data_aggregator_.init(
              tc_parser_,
              furnace_, 
-             profiles_);
+             profiles_,
+             settings_);
         
         ui_.init(
             data_aggregator_,

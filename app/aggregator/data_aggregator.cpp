@@ -28,6 +28,11 @@ struct ProfileMapping
     uint16_t (ProfileManager::*get)() const noexcept;
 };
 
+struct SettingMapping
+{
+    SettingItem item;
+    uint16_t (SettingManager::*get)() const noexcept;
+};
 
 template<class Enum, class T, std::size_t N>
 void update(
@@ -64,17 +69,28 @@ static constexpr ProfileMapping profile_mapping[] =
     {ProfileItem::EditProfileId,  &ProfileManager::edit_profile_id}
 };
 
+static constexpr SettingMapping setting_mapping[] =
+{
+    {SettingItem::Buzzer,          &SettingManager::get_buzzer_state},
+    {SettingItem::PidKp,           &SettingManager::get_pid_kp},
+    {SettingItem::PidKi,           &SettingManager::get_pid_ki},
+    {SettingItem::PidKd,           &SettingManager::get_pid_kd},
+    {SettingItem::MaxTemperature,  &SettingManager::get_max_temperature_c}
+};
+
 } // namespace
 
 
 void DataAggregator::init(
     TcParser& tc_parser,
     Furnace& furnace,
-    ProfileManager& profiles) noexcept
+    ProfileManager& profiles,
+    SettingManager& settings) noexcept
 {
     tc_parser_ = &tc_parser;
     furnace_ = &furnace;
     profiles_ = &profiles;
+    settings_ = &settings;
 
     source_descriptors_[
         static_cast<std::size_t>(DataSource::TcParser)] =
