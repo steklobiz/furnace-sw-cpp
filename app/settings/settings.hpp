@@ -76,7 +76,7 @@ public:
     bool set_pid_kp(uint16_t value) noexcept;
     bool set_pid_ki(uint16_t value) noexcept;
     bool set_pid_kd(uint16_t value) noexcept;
-    bool set_max_temperature_c(uint16_t value) noexcept;
+    bool set_max_temperature(uint16_t value) noexcept;
     
 private:
 

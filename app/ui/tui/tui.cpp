@@ -51,7 +51,7 @@ static constexpr Tui::Label monitor_labels[] =
 static constexpr Tui::Button monitor_buttons[] =
 {
     {'s', "Stop", Ui::ActionType::StopFurnace, 0},
-    {'b', "Back", Ui::ActionType::Back, 0}
+    {'q', "Back", Ui::ActionType::Back, 0}
 
 };
 
@@ -68,7 +68,7 @@ static constexpr Tui::Button profile_selection_buttons[] =
     {'7', "Profile 7", Ui::ActionType::SelectProfile, 0},
     {'8', "Profile 8", Ui::ActionType::SelectProfile,0},
     {'9', "Profile 9", Ui::ActionType::SelectProfile, 0},
-    {'b', "Back",    Ui::ActionType::Back, 0}
+    {'q', "Back",    Ui::ActionType::Back, 0}
 };
 /*
 static constexpr Tui::Label profile_editor_labels[] =
@@ -91,9 +91,9 @@ static constexpr Tui::Label settings_labels[] =
 
 static constexpr Tui::Button settings_buttons[] =
 {
-{'e', "Edit buzzer", Ui::ActionType::EditBuzzer,
+{'b', "Edit buzzer", Ui::ActionType::EditBuzzer,
      0, true},
-{'k', "Edit PID Kp", Ui::ActionType::EditPidKp,
+{'p', "Edit PID Kp", Ui::ActionType::EditPidKp,
      0, true},
 {'i', "Edit PID Ki", Ui::ActionType::EditPidKi,
      0, true},
@@ -101,7 +101,7 @@ static constexpr Tui::Button settings_buttons[] =
      0, true},
 {'m', "Edit max temperature", Ui::ActionType::EditMaxTemperature,
      0, true},
-{'b', "Back", Ui::ActionType::Back, 0},
+{'q', "Back", Ui::ActionType::Back, 0},
 };
 
 static constexpr Tui::Button profile_editor_buttons[] =

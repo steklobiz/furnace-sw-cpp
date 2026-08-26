@@ -60,11 +60,13 @@ static constexpr Ui::PageDescriptor page_descriptors[] =
 
 void Ui::init(
     DataAggregator& data,
+    Furnace& furnace,
     ProfileManager& profiles,
-    Furnace& furnace) noexcept
+    SettingManager& settings) noexcept
 {
     data_ = &data;
     profiles_ = &profiles;
+    settings_ = &settings;
     furnace_ = &furnace;
 
     page_ = Page::Main;
@@ -198,6 +200,32 @@ void Ui::next_step(uint16_t) noexcept
         ++current_step_;
     }
 }
+
+void Ui::edit_buzzer(uint16_t value) noexcept
+{
+    settings_->set_buzzer_state(value);    
+};
+
+void Ui::edit_pid_kp(uint16_t value) noexcept
+{
+    settings_->set_pid_kp(value);
+};
+
+void Ui::edit_pid_ki(uint16_t value) noexcept
+{
+    settings_->set_pid_ki(value);    
+};
+
+void Ui::edit_pid_kd(uint16_t value) noexcept
+{
+    settings_->set_pid_kd(value);
+};
+
+void Ui::edit_max_temperature(uint16_t value) noexcept
+{
+    settings_->set_max_temperature(value);
+};
+
 
 void Ui::previous_step(uint16_t) noexcept
 {

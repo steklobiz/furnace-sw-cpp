@@ -7,6 +7,7 @@
 
 #include "data_aggregator.hpp"
 #include "profiles.hpp"
+#include "settings.hpp"
 
 namespace app
 {
@@ -106,11 +107,11 @@ public:
     };
 
 
-
     void init(
         DataAggregator& data,
+        Furnace& furnace,
         ProfileManager& profiles,
-        Furnace& furnace) noexcept;
+        SettingManager& settings) noexcept;
 
     void execute(Action action) noexcept;
 
@@ -142,7 +143,13 @@ private:
     void confirm_edit_profile(uint16_t) noexcept;
     
     void open_settings(uint16_t) noexcept;
-    
+
+    void edit_buzzer(uint16_t value) noexcept;
+    void edit_pid_kp(uint16_t value) noexcept;
+    void edit_pid_ki(uint16_t value) noexcept;
+    void edit_pid_kd(uint16_t value) noexcept;
+    void edit_max_temperature(uint16_t value) noexcept;
+        
     void next_step(uint16_t) noexcept;
     void previous_step(uint16_t) noexcept;
 
@@ -177,6 +184,21 @@ private:
     
         {Ui::ActionType::Settings,
             &Ui::open_settings},    
+       
+        {Ui::ActionType::EditBuzzer,
+            &Ui::edit_buzzer},
+    
+        {Ui::ActionType::EditPidKp,
+            &Ui::edit_pid_kp},
+    
+        {Ui::ActionType::EditPidKi,
+            &Ui::edit_pid_ki},
+    
+        {Ui::ActionType::EditPidKd,
+            &Ui::edit_pid_kd},
+    
+        {Ui::ActionType::EditMaxTemperature,
+            &Ui::edit_max_temperature},     
             
         {Ui::ActionType::NextStep,
             &Ui::next_step},
@@ -211,6 +233,7 @@ private:
         
     DataAggregator* data_;
     ProfileManager* profiles_;
+    SettingManager* settings_;
     Furnace* furnace_;
 
     Page page_ = Page::Main;

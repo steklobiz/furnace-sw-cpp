@@ -105,7 +105,7 @@ bool SettingManager::set_pid_kd(uint16_t value) noexcept
     return true;
 }
 
-bool SettingManager::set_max_temperature_c(uint16_t value) noexcept
+bool SettingManager::set_max_temperature(uint16_t value) noexcept
 {
     settings_.max_temperature_c = value;
     settings_changed();

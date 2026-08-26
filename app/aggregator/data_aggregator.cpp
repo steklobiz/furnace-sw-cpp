@@ -129,7 +129,7 @@ void DataAggregator::init(
         furnace_callback,
         this);
         
-    settings->set_notify_callback(
+    settings_->set_notify_callback(
         settings_callback,
         this);
         
@@ -137,8 +137,6 @@ void DataAggregator::init(
         profile_callback,
         this);
         
-        
-
     update_tc_parser();
     update_furnace();
     update_settings();

@@ -78,8 +78,9 @@ public:
         
         ui_.init(
             data_aggregator_,
+            furnace_,            
             profiles_,
-            furnace_
+            settings_
             );
             
         tui_.init(
