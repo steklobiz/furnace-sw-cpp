@@ -32,6 +32,7 @@ enum class FurnaceItem : uint8_t
 {
     State,
     Step,
+    StepType,
     Temperature,
     Setpoint,
     StepElapsed,

@@ -21,6 +21,7 @@ static constexpr Ui::FieldMapping monitor_fields[] =
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::StepType)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Setpoint)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::StepElapsed)},
@@ -46,9 +47,6 @@ static constexpr Ui::PageDescriptor page_descriptors[] =
 };
 
 } // namespace
-
-
-static const uint16_t null_item_ = 0;
 
 
 void Ui::init(

@@ -37,12 +37,13 @@ static constexpr Tui::Label monitor_labels[] =
     {"State:",             0},
     {"Profile:",           1},
     {"Step:",              2},
-    {"Temperature, C:",    3},
-    {"Setpoint, C:",       4},
-    {"Step elapsed, s:",   5},
-    {"Profile elapsed, s:",6},
-    {"Power, %:",          7},
-    {"Outputs:",           8}
+    {"Step type:",         3},
+    {"Temperature, C:",    4},
+    {"Setpoint, C:",       5},
+    {"Step elapsed, s:",   6},
+    {"Profile elapsed, s:",7},
+    {"Power, %:",          8},
+    {"Outputs:",           9}
 };
 
 
@@ -145,8 +146,6 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
 };
 
 } // namespace
-
-static const uint16_t null_item_ = 0;
 
 void Tui::init(Ui& ui) noexcept
 {

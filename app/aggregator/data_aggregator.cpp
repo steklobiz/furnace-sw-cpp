@@ -42,6 +42,7 @@ static constexpr FurnaceMapping furnace_mapping[] =
 {
     {FurnaceItem::State,          &Furnace::state},
     {FurnaceItem::Step,           &Furnace::current_step},
+    {FurnaceItem::StepType,       &Furnace::step_type},
     {FurnaceItem::Temperature,    &Furnace::current_temperature},
     {FurnaceItem::Setpoint,       &Furnace::setpoint},
     {FurnaceItem::StepElapsed,    &Furnace::step_elapsed},
