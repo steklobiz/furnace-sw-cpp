@@ -91,7 +91,17 @@ static constexpr Tui::Label settings_labels[] =
 
 static constexpr Tui::Button settings_buttons[] =
 {
-    {'b', "Back", Ui::ActionType::Back, 0}
+{'e', "Edit buzzer", Ui::ActionType::EditBuzzer,
+     0, true},
+{'k', "Edit PID Kp", Ui::ActionType::EditPidKp,
+     0, true},
+{'i', "Edit PID Ki", Ui::ActionType::EditPidKi,
+     0, true},
+{'d', "Edit PID Kd", Ui::ActionType::EditPidKd,
+     0, true},
+{'m', "Edit max temperature", Ui::ActionType::EditMaxTemperature,
+     0, true},
+{'b', "Back", Ui::ActionType::Back, 0},
 };
 
 static constexpr Tui::Button profile_editor_buttons[] =

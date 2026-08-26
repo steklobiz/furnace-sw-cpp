@@ -40,6 +40,12 @@ public:
         EditProfileConfirm,
 
         Settings,
+        
+        EditBuzzer,
+        EditPidKp,
+        EditPidKi,
+        EditPidKd,
+        EditMaxTemperature,
                 
         NextStep,
         PreviousStep,

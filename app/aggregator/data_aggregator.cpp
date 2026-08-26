@@ -113,6 +113,14 @@ void DataAggregator::init(
         std::size(profile_items_)
     };
 
+    source_descriptors_[
+    static_cast<std::size_t>(DataSource::Setting)] =
+    {
+        setting_items_,
+        std::size(setting_items_)
+    };
+
+    
     tc_parser_->set_notify_callback(
         tc_parser_callback,
         this);

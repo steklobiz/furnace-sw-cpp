@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include "notification.hpp"
+
 
 namespace app
 {
@@ -57,16 +59,35 @@ public:
 
     void reset_defaults() noexcept;
 
+    using NotifyCallback =
+        void (*)(void* context) noexcept;
+
+    void set_notify_callback(
+        NotifyCallback callback,
+        void* context) noexcept;
+    
     // ui getters
     uint16_t get_pid_kp() const noexcept;
     uint16_t get_pid_ki() const noexcept;
     uint16_t get_pid_kd() const noexcept;
     uint16_t get_max_temperature_c() const noexcept;
     uint16_t get_buzzer_state() const noexcept;
+
+    // ui setters    
+    bool set_buzzer_state(uint16_t value) noexcept;
+    bool set_pid_kp(uint16_t value) noexcept;
+    bool set_pid_ki(uint16_t value) noexcept;
+    bool set_pid_kd(uint16_t value) noexcept;
+    bool set_max_temperature_c(uint16_t value) noexcept;
     
 private:
 
+    void settings_changed() noexcept;
+    
     Settings settings_;
+    NotifyCallback notify_callback_ = nullptr;
+    void* notify_context_ = nullptr;
+    
 };
 
 } // namespace app
