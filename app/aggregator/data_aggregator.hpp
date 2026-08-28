@@ -184,16 +184,13 @@ private:
         
     uint16_t setting_items_[
         static_cast<std::size_t>(SettingItem::Count)]{};
-
-    uint32_t elapsed_s_{0};
         
     Profile profile_{};
 
     uint16_t null_item_{};
 
-    static constexpr std::size_t EventCapacity = 32;
-    
-    core::RingBuffer<Event, EventCapacity> events_;
+    core::RingBuffer<Event, config::history::event_capacity> events_;
+        
     core::RingBuffer<FurnaceSample,config::history::sample_capacity> samples_;    
     
     SourceDescriptor source_descriptors_[

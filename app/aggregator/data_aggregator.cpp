@@ -168,13 +168,32 @@ void DataAggregator::furnace_callback(
     void* context,
     const Notification& notification) noexcept
 {
-    if (notification.type != NotificationType::DataReady)
-        return;
-
     auto& aggregator =
         *static_cast<DataAggregator*>(context);
 
-    aggregator.update_furnace();
+    switch (notification.type)
+    {
+    case NotificationType::DataReady:
+        aggregator.update_furnace();
+        break;
+
+    case NotificationType::ProfileStarted:
+        aggregator.clear_history();
+        aggregator.add_event(
+            DataSource::Furnace,
+            notification);
+        break;
+
+    case NotificationType::StepStarted:
+    case NotificationType::ProfileFinished:
+        aggregator.add_event(
+            DataSource::Furnace,
+            notification);
+        break;
+
+    default:
+        break;
+    }
 }
 
 void DataAggregator::settings_callback(
@@ -324,6 +343,12 @@ DataAggregator::event_from_newest(
     std::size_t index) const noexcept
 {
     return events_.from_newest(index);
+}
+
+void DataAggregator::clear_history() noexcept
+{
+    events_.clear();
+    samples_.clear();
 }
 
 } // namespace app
