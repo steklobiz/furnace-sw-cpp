@@ -17,7 +17,7 @@
 // Data aggregator between application data sources and the UI.
 // Collects current snapshots from Furnace, ProfileManager, and other sources.
 // Provides a stable, UI-oriented view of application data.
-// Owns no UI logic; it only publishes current data and forwards notifications.
+// Owns no UI logic; it only publishes current data and retains events and samples.
 
 namespace app
 {
@@ -124,8 +124,10 @@ public:
     std::size_t sample_count() const noexcept;
     // Returns a furnace sample by position, starting with the newest sample.
     const FurnaceSample& sample_from_newest(
-        std::size_t index) const noexcept;        
-    
+        std::size_t index) const noexcept; 
+               
+    void collect_sample() noexcept;
+        
     // Clears all retained events and furnace samples.
     void clear_history() noexcept;        
                 
@@ -189,6 +191,8 @@ private:
 
     uint16_t null_item_{};
 
+    uint32_t next_sample_s_{0};
+    
     core::RingBuffer<Event, config::history::event_capacity> events_;
         
     core::RingBuffer<FurnaceSample,config::history::sample_capacity> samples_;    

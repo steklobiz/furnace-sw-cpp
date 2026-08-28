@@ -175,6 +175,7 @@ void DataAggregator::furnace_callback(
     {
     case NotificationType::DataReady:
         aggregator.update_furnace();
+        aggregator.collect_sample();
         break;
 
     case NotificationType::ProfileStarted:
@@ -345,10 +346,44 @@ DataAggregator::event_from_newest(
     return events_.from_newest(index);
 }
 
+void DataAggregator::collect_sample() noexcept
+{
+    const uint16_t elapsed_s =
+        get_item(
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::ProfileElapsed));
+
+    if (elapsed_s < next_sample_s_)
+        return;
+
+    const int16_t temperature =
+        static_cast<int16_t>(
+            get_item(
+                static_cast<uint8_t>(DataSource::Furnace),
+                static_cast<uint8_t>(FurnaceItem::Temperature)));
+
+    const uint8_t output =
+        static_cast<uint8_t>(
+            get_item(
+                static_cast<uint8_t>(DataSource::Furnace),
+                static_cast<uint8_t>(FurnaceItem::Power)));
+
+    samples_.push_overwrite({
+        elapsed_s,
+        temperature,
+        output
+    });
+
+    next_sample_s_ =
+        elapsed_s + config::history::sample_period_s;
+}
+
 void DataAggregator::clear_history() noexcept
 {
     events_.clear();
     samples_.clear();
+    
+    next_sample_s_ = 0;
 }
 
 } // namespace app
