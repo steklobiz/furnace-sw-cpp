@@ -16,6 +16,7 @@ enum class NotificationType : uint8_t
     DataReady,
     Error,
     StepStarted,
+    ProfileStarted,
     ProfileFinished,
     EditProfileChanged,
     StartProfileChanged,

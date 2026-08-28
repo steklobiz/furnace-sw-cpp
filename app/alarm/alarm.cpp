@@ -47,11 +47,34 @@ bool AlarmDispatcher::has_active() const noexcept
     return false;    
 }
 
-
 void AlarmDispatcher::raise(AlarmId id) noexcept
 {
-    alarms_[static_cast<std::size_t>(id)] = true;
+    auto& active =
+        alarms_[static_cast<std::size_t>(id)];
+
+    if (active)
+        return;
+
+    active = true;
+
+    if (notify_callback_ != nullptr)
+    {
+        notify_callback_(
+            notify_context_,
+            {
+                this,
+                NotificationType::Error,
+                static_cast<uint16_t>(id)
+            });
+    }
 }
 
+void AlarmDispatcher::set_notify_callback(
+    NotificationCallback callback,
+    void* context) noexcept
+{
+    notify_callback_ = callback;
+    notify_context_ = context;
+}
 
 } // namespace app

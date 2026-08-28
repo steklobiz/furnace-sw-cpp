@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <array>
 #include "tc_parser.hpp"
+#include "notification.hpp"
 
 namespace app
 {
@@ -36,12 +37,19 @@ public:
     // Activates the specified alarm.
     void raise(AlarmId id) noexcept;
 
+    void set_notify_callback(
+        NotificationCallback callback,
+        void* context) noexcept;
+    
 private:
     TcParser* tc_parser_{nullptr};
     Furnace* furnace_{nullptr};
     
     std::array<bool,
                static_cast<std::size_t>(AlarmId::Count)> alarms_{};    
+               
+    NotificationCallback notify_callback_{nullptr};
+    void* notify_context_{nullptr};            
 };
 
 } // namespace app

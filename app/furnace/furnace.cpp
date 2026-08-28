@@ -24,14 +24,12 @@ void
 Furnace::init(
     ProfileManager& profiles, 
     SettingManager& settings, 
-    TcParser& tc_parser,  
-    History& history,
+    TcParser& tc_parser,
     core::Pid& pid) noexcept
 {
     profiles_ = &profiles;
     settings_ = &settings;
     tc_parser_ = &tc_parser;
-    history_ = &history;
     pid_ = &pid;
     
     fsm_.init(*this, State::Idle, fsm_tables_);
@@ -51,18 +49,12 @@ void Furnace::set_notify_callback(
 void Furnace::process()
 {
     fsm_.dispatch(Event::Tick);
-    
+
     const int32_t temperature = hal::get_temperature();
 
     current_temperature_c_ =
         static_cast<int16_t>(temperature);
-    
-    // Emit a DataReady notification
-    if (notify_callback_ != nullptr)
-    {
-        notify_callback_(notify_context_, { this, NotificationType::DataReady, 0 });
-    }    
-    
+
     if (fsm_.state() == State::Running)
     {
         pid_output_ =
@@ -75,10 +67,14 @@ void Furnace::process()
 
     hal::set_heater_power(pid_output_);
 
-    history_->process(
-        profile_elapsed_s_,
-        hal::get_temperature(),
-        pid_output_);
+    // Emit a DataReady notification after all
+    // published Furnace data has been updated.
+    if (notify_callback_ != nullptr)
+    {
+        notify_callback_(
+            notify_context_,
+            { this, NotificationType::DataReady, 0 });
+    }
 }
 
 const char* 
@@ -307,26 +303,29 @@ Furnace::error(const Event& event) noexcept
 // Starting profile from Idle state:
 // - reset profile
 // - first step starts from ambient
-void 
+void
 Furnace::start_profile() noexcept
 {
     current_step_ = 0;
-    
+
     profile_elapsed_s_ = 0;
     step_elapsed_s_ = 0;
 
     step_start_temperature_c_ = ambient_temperature_c_;
-    
-    history_->clear();
 
-    history_->add_event(
-        profile_elapsed_s_,
-        EventId::ProfileStarted,
-        current_step_);
-    
+    if (notify_callback_ != nullptr)
+    {
+        notify_callback_(
+            notify_context_,
+            {
+                this,
+                NotificationType::ProfileStarted,
+                current_step_
+            });
+    }
+
     enter_step();
-};
-
+}
 
 // Step's beginning
 // - apply outputs
@@ -338,12 +337,18 @@ Furnace::enter_step() noexcept
         profiles_->start_profile().steps[current_step_];
         
     hal::set_outputs(step.flags);
+    
+    if (notify_callback_ != nullptr)
+    {
+        notify_callback_(
+            notify_context_,
+            {
+                this,
+                NotificationType::StepStarted,
+                current_step_
+            });
+    }    
         
-    history_->add_event(
-        profile_elapsed_s_,
-        EventId::StepStarted,
-        current_step_);
-
     Log::info(tag, "Step started");
 };
 
@@ -369,9 +374,16 @@ Furnace::next_step() noexcept
 
         // TODO: Do i need to reset outputs?
                 
-        history_->add_event(
-            profile_elapsed_s_,
-            EventId::ProfileFinished);
+        if (notify_callback_ != nullptr)
+        {
+            notify_callback_(
+                notify_context_,
+                {
+                    this,
+                    NotificationType::ProfileFinished,
+                    0
+                });
+        }        
         
         return State::Finished;
     }

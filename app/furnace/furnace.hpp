@@ -6,7 +6,6 @@
 #include "profiles.hpp"
 #include "settings.hpp"
 #include "tc_parser.hpp"
-#include "history.hpp"
 #include "pid.hpp"
 
 namespace app {
@@ -42,7 +41,6 @@ public:
         ProfileManager& profiles, 
         SettingManager& settings, 
         TcParser& tc_parser,  
-        History& history,
         core::Pid& pid) noexcept;
     
     // Registers a callback invoked when new Furnace data is ready.
@@ -185,7 +183,6 @@ private:
     ProfileManager* profiles_ = nullptr;
     SettingManager* settings_ = nullptr;
     TcParser* tc_parser_ = nullptr;
-    History* history_ = nullptr;
     core::Pid* pid_ = nullptr;
     
     uint8_t current_step_ = 0;

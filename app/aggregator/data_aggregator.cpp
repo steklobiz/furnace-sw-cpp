@@ -85,13 +85,15 @@ void DataAggregator::init(
     TcParser& tc_parser,
     Furnace& furnace,
     ProfileManager& profiles,
-    SettingManager& settings) noexcept
+    SettingManager& settings,
+    AlarmDispatcher& alarms) noexcept
 {
     tc_parser_ = &tc_parser;
     furnace_ = &furnace;
     profiles_ = &profiles;
     settings_ = &settings;
-
+    alarms_ = &alarms;
+    
     source_descriptors_[
         static_cast<std::size_t>(DataSource::TcParser)] =
     {
@@ -137,6 +139,10 @@ void DataAggregator::init(
         profile_callback,
         this);
         
+    alarms_->set_notify_callback(
+        alarm_callback,
+        this);
+            
     update_tc_parser();
     update_furnace();
     update_settings();
@@ -201,6 +207,17 @@ void DataAggregator::profile_callback(
     aggregator.update_profile();
 }
 
+void DataAggregator::alarm_callback(
+    void* context,
+    const Notification& notification) noexcept
+{
+    auto& aggregator =
+        *static_cast<DataAggregator*>(context);
+
+    aggregator.add_event(
+        DataSource::Alarm,
+        notification);
+}
 
 void DataAggregator::update_tc_parser() noexcept
 {
@@ -278,6 +295,35 @@ const Profile&
 DataAggregator::profile() const noexcept
 {
     return profile_;
+}
+
+void DataAggregator::add_event(
+    DataSource source,
+    const Notification& notification) noexcept
+{
+    const auto elapsed_s =
+        get_item(
+            static_cast<uint8_t>(DataSource::Furnace),
+            static_cast<uint8_t>(FurnaceItem::ProfileElapsed));
+
+    events_.push_overwrite({
+        elapsed_s,
+        source,
+        notification.type,
+        notification.argument
+    });
+}
+
+std::size_t DataAggregator::event_count() const noexcept
+{
+    return events_.size();
+}
+
+const DataAggregator::Event&
+DataAggregator::event_from_newest(
+    std::size_t index) const noexcept
+{
+    return events_.from_newest(index);
 }
 
 } // namespace app

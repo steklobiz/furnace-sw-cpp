@@ -10,7 +10,6 @@
 #include "scheduler.hpp"
 #include "hal.hpp"
 #include "logger.hpp"
-#include "history.hpp"
 #include "alarm.hpp"
 #include "pid.hpp"
 #include "data_aggregator.hpp"
@@ -62,7 +61,6 @@ public:
             profiles_, 
             settings_, 
             tc_parser_, 
-            history_,
             pid_);
         
         alarm_.init(
@@ -74,7 +72,8 @@ public:
              tc_parser_,
              furnace_, 
              profiles_,
-             settings_);
+             settings_,
+             alarm_);
         
         ui_.init(
             data_aggregator_,
@@ -188,8 +187,6 @@ private:
 
     DataAggregator data_aggregator_;
         
-    History history_;
-    
     Furnace furnace_;
     
     AlarmDispatcher alarm_;
