@@ -112,6 +112,16 @@ Ui::get_edit_profile() const noexcept
     return data_->profile();
 }
 
+std::size_t Ui::event_count() const noexcept
+{
+    return data_->event_count();
+}
+
+const DataAggregator::Event&
+Ui::event_from_newest(std::size_t index) const noexcept
+{
+    return data_->event_from_newest(index);
+}
 
 uint8_t Ui::current_step() const noexcept
 {
@@ -278,6 +288,11 @@ void Ui::reset_furnace(uint16_t) noexcept
     page_ = Page::Main;
 }
 
+void Ui::show_events(uint16_t) noexcept
+{
+    page_ = Page::Events;
+}
+
 void Ui::back(uint16_t) noexcept
 {
     switch (page_)
@@ -302,6 +317,10 @@ void Ui::back(uint16_t) noexcept
             page_ = Page::Main;
             break;
 
+        case Page::Events:
+            page_ = Page::Main;
+            break;    
+            
         case Page::Main:
         case Page::Count:
             break;

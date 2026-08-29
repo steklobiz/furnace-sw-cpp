@@ -29,7 +29,7 @@ static constexpr Tui::Button main_buttons[] =
 {
     {'s', "Start profile", Ui::ActionType::StartProfileSelection,0},
     {'e', "Edit profile",  Ui::ActionType::EditProfileSelection, 0},
-    {'t', "Settings",      Ui::ActionType::Settings,             0},
+    {'t', "Settings",      Ui::ActionType::Settings,             0},     {'v', "Events",        Ui::ActionType::ShowEvents,           0}
 };
 
 
@@ -127,6 +127,11 @@ static constexpr Tui::Button result_buttons[] =
 
 };
 
+static constexpr Tui::Button events_buttons[] =
+{
+    {'q', "Back", Ui::ActionType::Back, 0}
+};
+
 static constexpr Tui::PageDescriptor page_descriptors[] =
 {
     // Main
@@ -174,6 +179,13 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
         std::size(result_labels),
         result_buttons,
         std::size(result_buttons)
+    },
+    // Events
+{
+        nullptr,
+        0,
+        events_buttons,
+        std::size(events_buttons)
     }
 };
 
@@ -221,6 +233,12 @@ void Tui::process() noexcept
         return;
     }
 
+    if (page == Ui::Page::Events)
+    {
+        render_events_page();
+        return;
+    }
+    
     render_page(
         page_descriptors[page_index],
         page);
@@ -242,28 +260,9 @@ void Tui::render_page(
                 ? 3
                 : descriptor.label_count + 4;
 
-        for (std::size_t i = 0;
-             i < descriptor.button_count;
-             ++i)
-        {
-            const auto& button =
-                descriptor.buttons[i];
-
-            std::size_t row =
-                first_button_row + i;
-
-            if (descriptor.label_count == 0 &&
-                i == descriptor.button_count - 1)
-            {
-                ++row;
-            }
-
-            std::printf(
-                "\033[%zu;1H[%c] %s",
-                row,
-                button.key,
-                button.caption);
-        }
+        render_buttons(
+            descriptor,
+            first_button_row);
     }
 
     const auto page_index =
@@ -287,7 +286,7 @@ void Tui::render_page(
         {
             continue;
         }
-        
+
         rendered_values_[page_index][label.field] =
             item;
 
@@ -299,6 +298,34 @@ void Tui::render_page(
     }
 
     page_rendered_ = true;
+}
+
+void Tui::render_buttons(
+    const PageDescriptor& descriptor,
+    std::size_t first_button_row) noexcept
+{
+    for (std::size_t i = 0;
+         i < descriptor.button_count;
+         ++i)
+    {
+        const auto& button =
+            descriptor.buttons[i];
+
+        std::size_t row =
+            first_button_row + i;
+
+        if (descriptor.label_count == 0 &&
+            i == descriptor.button_count - 1)
+        {
+            ++row;
+        }
+
+        std::printf(
+            "\033[%zu;1H[%c] %s",
+            row,
+            button.key,
+            button.caption);
+    }
 }
 
 void Tui::render_profile_content() noexcept
@@ -549,4 +576,131 @@ void Tui::process_numeric_input() noexcept
             static_cast<unsigned>(input_value_));
     }
 }
+
+const char* data_source_name(
+    DataSource source) noexcept
+{
+    switch (source)
+    {
+    case DataSource::TcParser:
+        return "TcParser";
+
+    case DataSource::Furnace:
+        return "Furnace";
+
+    case DataSource::Profile:
+        return "Profile";
+
+    case DataSource::Setting:
+        return "Setting";
+
+    case DataSource::Alarm:
+        return "Alarm";
+
+    case DataSource::Count:
+        break;
+    }
+
+    return "Unknown";
+}
+
+const char* notification_type_name(
+    NotificationType type) noexcept
+{
+    switch (type)
+    {
+    case NotificationType::DataReady:
+        return "DataReady";
+
+    case NotificationType::Error:
+        return "Error";
+
+    case NotificationType::StepStarted:
+        return "StepStarted";
+
+    case NotificationType::ProfileStarted:
+        return "ProfileStarted";
+
+    case NotificationType::ProfileFinished:
+        return "ProfileFinished";
+
+    case NotificationType::EditProfileChanged:
+        return "EditProfileChanged";
+
+    case NotificationType::StartProfileChanged:
+        return "StartProfileChanged";
+
+    case NotificationType::SettingsChanged:
+        return "SettingsChanged";
+    }
+
+    return "Unknown";
+}
+
+
+void Tui::render_events_page() noexcept
+{
+    if (!page_rendered_)
+    {
+        std::printf(
+            "\033[1;1H\033[2KEvents");
+
+        std::printf(
+            "\033[3;1H\033[2KTime       Source     Event              ID");
+        
+        std::printf(
+            "\033[4;1H\033[2K"
+            "----------------------------------------------------");
+    
+        const auto& descriptor =
+            page_descriptors[
+                static_cast<std::size_t>(Ui::Page::Events)];
+
+        render_buttons(
+            descriptor,
+            16);
+    }
+
+    const auto count =
+        ui_->event_count();
+
+    constexpr std::size_t first_row = 5;
+    constexpr std::size_t max_rows = 10;
+
+    for (std::size_t i = 0;
+         i < max_rows;
+         ++i)
+    {
+        const std::size_t row =
+            first_row + i;
+
+        std::printf(
+            "\033[%zu;1H\033[2K",
+            row);
+
+        if (i >= count)
+        {
+            continue;
+        }
+
+        const auto& event =
+            ui_->event_from_newest(i);
+
+        std::printf(
+            "%02u:%02u:%02u  %-10s %-18s %u",
+            static_cast<unsigned>(
+                event.elapsed_s / 3600),
+            static_cast<unsigned>(
+                (event.elapsed_s / 60) % 60),
+            static_cast<unsigned>(
+                event.elapsed_s % 60),
+            data_source_name(event.source),
+            notification_type_name(event.type),
+            static_cast<unsigned>(event.argument));
+    }
+
+    page_rendered_ = true;
+}
+
+
 } // namespace app

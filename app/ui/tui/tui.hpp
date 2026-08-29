@@ -64,6 +64,8 @@ private:
     // Maximum number of fields rendered by any regular page.
     static constexpr std::size_t MaxFieldsPerPage = 10;
 
+    static constexpr std::size_t MaxEventsPerPage = 10;
+    
     // Process user input and execute matching UI actions.
     void process_input() noexcept;
     
@@ -75,12 +77,20 @@ private:
         const PageDescriptor& descriptor,
         Ui::Page page) noexcept;
     
+    // Common button rendering.    
+    void render_buttons(
+        const PageDescriptor& descriptor,
+        std::size_t first_row) noexcept;    
+        
     // Render the current step data of the profile being edited.
     void render_profile_content() noexcept;
     
     // Render the complete ProfileEditor page, including its
     // profile data and buttons.
     void render_profile_editor_page() noexcept;
+    
+    void render_events_page() noexcept;
+    
     
     // UI model used as the source for rendering and input actions.    
     Ui* ui_ = nullptr;

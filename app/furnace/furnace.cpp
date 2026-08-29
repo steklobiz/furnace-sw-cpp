@@ -349,7 +349,6 @@ Furnace::enter_step() noexcept
             });
     }    
         
-    Log::info(tag, "Step started");
 };
 
 // Step's end. Switching from current step to next one

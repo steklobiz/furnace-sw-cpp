@@ -24,6 +24,7 @@ public:
         ProfileEditor,
         Monitor,
         Result,
+        Events,
 
         Count
     };
@@ -61,6 +62,8 @@ public:
         StopFurnace,
         ResetFurnace,
 
+        ShowEvents,
+        
         Back
     };
 
@@ -122,6 +125,11 @@ public:
         uint8_t field) const noexcept;
     
     const Profile& get_edit_profile() const noexcept;
+    
+    const DataAggregator::Event&
+        event_from_newest(std::size_t index) const noexcept;
+
+    std::size_t event_count() const noexcept;
 
     uint8_t current_step() const noexcept;
 
@@ -162,6 +170,8 @@ private:
     
     void stop_furnace(uint16_t) noexcept;
     void reset_furnace(uint16_t) noexcept;
+    
+    void show_events(uint16_t) noexcept;
     
     void back(uint16_t) noexcept;
 
@@ -226,7 +236,10 @@ private:
     
         {Ui::ActionType::ResetFurnace,
             &Ui::reset_furnace},
-    
+
+        {Ui::ActionType::ShowEvents,
+            &Ui::show_events},   
+            
         {Ui::ActionType::Back,
             &Ui::back}
     };
