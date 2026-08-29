@@ -59,15 +59,15 @@ static constexpr Tui::Button monitor_buttons[] =
 static constexpr Tui::Button profile_selection_buttons[] =
 {
     {'0', "Profile 0", Ui::ActionType::SelectProfile, 0},
-    {'1', "Profile 1", Ui::ActionType::SelectProfile, 0},
-    {'2', "Profile 2", Ui::ActionType::SelectProfile, 0},
-    {'3', "Profile 3", Ui::ActionType::SelectProfile, 0},
-    {'4', "Profile 4", Ui::ActionType::SelectProfile, 0},
-    {'5', "Profile 5", Ui::ActionType::SelectProfile, 0},
-    {'6', "Profile 6", Ui::ActionType::SelectProfile, 0},
-    {'7', "Profile 7", Ui::ActionType::SelectProfile, 0},
-    {'8', "Profile 8", Ui::ActionType::SelectProfile,0},
-    {'9', "Profile 9", Ui::ActionType::SelectProfile, 0},
+    {'1', "Profile 1", Ui::ActionType::SelectProfile, 1},
+    {'2', "Profile 2", Ui::ActionType::SelectProfile, 2},
+    {'3', "Profile 3", Ui::ActionType::SelectProfile, 3},
+    {'4', "Profile 4", Ui::ActionType::SelectProfile, 4},
+    {'5', "Profile 5", Ui::ActionType::SelectProfile, 5},
+    {'6', "Profile 6", Ui::ActionType::SelectProfile, 6},
+    {'7', "Profile 7", Ui::ActionType::SelectProfile, 7},
+    {'8', "Profile 8", Ui::ActionType::SelectProfile,8},
+    {'9', "Profile 9", Ui::ActionType::SelectProfile, 9},
     {'q', "Back",    Ui::ActionType::Back, 0}
 };
 /*
@@ -410,23 +410,10 @@ void Tui::render_profile_editor_page() noexcept
             page_descriptors[
                 static_cast<std::size_t>(
                     Ui::Page::ProfileEditor)];
-
-        const std::size_t first_button_row =
-            profile_editor_button_row;
-
-        for (std::size_t i = 0;
-             i < descriptor.button_count;
-             ++i)
-        {
-            const auto& button =
-                descriptor.buttons[i];
-
-            std::printf(
-                "\033[%zu;1H\033[2K[%c] %s",
-                first_button_row + i,
-                button.key,
-                button.caption);
-        }
+    
+        render_buttons(
+            descriptor,
+            profile_editor_button_row);
     }
 
     page_rendered_ = true;
