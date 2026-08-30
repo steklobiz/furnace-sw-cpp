@@ -89,6 +89,8 @@ private:
     // profile data and buttons.
     void render_profile_editor_page() noexcept;
     
+    void render_settings_page() noexcept;
+    
     void render_events_page() noexcept;
     
     
@@ -108,7 +110,7 @@ private:
     // Last profile step rendered by the profile editor.    
     Step rendered_step_{};
     uint8_t rendered_step_index_ = 0xff;
- 
+    
     // Current input mode.
     InputMode input_mode_ = InputMode::Normal;
     // Action associated with the current numeric input.

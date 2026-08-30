@@ -7,28 +7,42 @@
 
 namespace app
 {
-void AlarmDispatcher::init(TcParser& tc_parser, Furnace& furnace)
+void AlarmDispatcher::init(
+    TcParser& tc_parser,
+    Furnace& furnace,
+    SettingManager& settings) noexcept
 {
     tc_parser_ = &tc_parser;
     furnace_ = &furnace;
-}    
-
-void AlarmDispatcher::process()
-{
-    for (uint8_t id = 0; id < tc_parser_->count(); ++id)
-    {
-        if (tc_parser_->status(id) != TcParser::SensorStatus::Valid)
-            raise(AlarmId::TcError);
-    
-        if (tc_parser_->is_overheated(id))
-            raise(AlarmId::OverTemperature);
-    }
-
-    if (has_active())
-        furnace_->error();
-
+    settings_ = &settings;
 }
 
+void AlarmDispatcher::process() noexcept
+{
+    for (uint8_t id = 0;
+         id < tc_parser_->count();
+         ++id)
+    {
+        if (tc_parser_->status(id) !=
+            TcParser::SensorStatus::Valid)
+        {
+            raise(AlarmId::TcError);
+        }
+    }
+
+    if (furnace_->current_temperature() >=
+        settings_->get_max_temperature())
+    {
+        raise(AlarmId::OverTemperature);
+    }
+
+    if (is_active(AlarmId::TcError) ||
+        is_active(AlarmId::OverTemperature) ||
+        is_active(AlarmId::EmergencyStop))
+    {
+        furnace_->error();
+    }
+}
 
 bool AlarmDispatcher::is_active(AlarmId id) const noexcept
 {

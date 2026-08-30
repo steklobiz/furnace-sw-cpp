@@ -13,9 +13,8 @@ SettingManager::view() const noexcept
 Settings&
 SettingManager::edit() noexcept
 {
-    return settings_;
+    return edit_settings_;
 }
-
 
 bool
 SettingManager::open() noexcept
@@ -23,24 +22,40 @@ SettingManager::open() noexcept
     // TODO:
     // Load settings from EEPROM.
 
+    edit_settings_ = settings_;
+     
     return true;
 }
 
 
-bool
-SettingManager::save() noexcept
+bool SettingManager::save() noexcept
 {
+    settings_ = edit_settings_;
+
     // TODO:
-    // Save settings to EEPROM.
+    // Save settings_ to EEPROM.
+
+    settings_changed();
 
     return true;
 }
 
+
+void SettingManager::begin_edit() noexcept
+{
+    edit_settings_ = settings_;
+}
+
+void SettingManager::cancel_edit() noexcept
+{
+    edit_settings_ = settings_;
+}
 
 void
 SettingManager::reset_defaults() noexcept
 {
     settings_ = Settings{};
+    edit_settings_ = settings_;
 }
 
 void SettingManager::set_notify_callback(
@@ -50,6 +65,10 @@ void SettingManager::set_notify_callback(
     notify_callback_ = callback;
     notify_context_ = context;
 }
+
+// -----------------------------------------------------------------------------
+// Committed settings
+// -----------------------------------------------------------------------------
 
 uint16_t 
 SettingManager::get_pid_kp() const noexcept
@@ -70,7 +89,7 @@ SettingManager::get_pid_kd() const noexcept
 }
 
 uint16_t 
-SettingManager::get_max_temperature_c() const noexcept
+SettingManager::get_max_temperature() const noexcept
 {
     return settings_.max_temperature_c;
 }
@@ -81,48 +100,81 @@ SettingManager::get_buzzer_state() const noexcept
     return settings_.buzzer_state ? 1 : 0;
 }
 
-bool SettingManager::set_pid_kp(uint16_t value) noexcept
+// -----------------------------------------------------------------------------
+// Edit settings access
+// -----------------------------------------------------------------------------
+
+uint16_t 
+SettingManager::get_edit_pid_kp() const noexcept
 {
-    settings_.pid_kp = value;
-    settings_changed();
+    return edit_settings_.pid_kp;
+}
+
+uint16_t 
+SettingManager::get_edit_pid_ki() const noexcept
+{
+    return edit_settings_.pid_ki;
+}
+
+uint16_t 
+SettingManager::get_edit_pid_kd() const noexcept
+{
+    return edit_settings_.pid_kd;
+}
+
+uint16_t 
+SettingManager::get_edit_max_temperature() const noexcept
+{
+    return edit_settings_.max_temperature_c;
+}
+
+uint16_t 
+SettingManager::get_edit_buzzer_state() const noexcept
+{
+    return edit_settings_.buzzer_state ? 1 : 0;
+}
+
+// -----------------------------------------------------------------------------
+// Edit settings modification
+// -----------------------------------------------------------------------------
+
+bool SettingManager::set_edit_pid_kp(uint16_t value) noexcept
+{
+    edit_settings_.pid_kp = value;
     return true;
 }
 
 
-bool SettingManager::set_pid_ki(uint16_t value) noexcept
+bool SettingManager::set_edit_pid_ki(uint16_t value) noexcept
 {
-    settings_.pid_ki = value;
-    settings_changed();
-
+    edit_settings_.pid_ki = value;
     return true;
 }
 
-bool SettingManager::set_pid_kd(uint16_t value) noexcept
+bool SettingManager::set_edit_pid_kd(uint16_t value) noexcept
 {
-    settings_.pid_kd = value;
-    settings_changed();
-
+    edit_settings_.pid_kd = value;
     return true;
 }
 
-bool SettingManager::set_max_temperature(uint16_t value) noexcept
+bool SettingManager::set_edit_max_temperature(uint16_t value) noexcept
 {
-    settings_.max_temperature_c = value;
-    settings_changed();
-
+    edit_settings_.max_temperature_c = value;
     return true;
 }
 
-bool SettingManager::set_buzzer_state(uint16_t value) noexcept
+bool SettingManager::set_edit_buzzer_state(uint16_t value) noexcept
 {
     if (value > 1)
         return false;
 
-    settings_.buzzer_state = value;
-    settings_changed();
-
+    edit_settings_.buzzer_state = value;
     return true;
 }
+
+// -----------------------------------------------------------------------------
+// Private helpers
+// -----------------------------------------------------------------------------
 
 void SettingManager::settings_changed() noexcept
 {

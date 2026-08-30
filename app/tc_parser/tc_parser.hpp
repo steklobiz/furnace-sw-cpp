@@ -46,10 +46,6 @@ public:
     // Returns the current status of the specified thermocouple.
     SensorStatus status(uint8_t id) const noexcept;
 
-    // Returns true when the specified thermocouple reports
-    // a temperature above its configured limit.
-    bool is_overheated(uint8_t id) const noexcept;
-
 private:
 
     NotificationCallback notify_callback_ = nullptr;
@@ -57,7 +53,6 @@ private:
 
     std::array<Sample, app::config::tc_count> samples_{};
     std::array<SensorStatus, app::config::tc_count> statuses_{};
-    std::array<bool, app::config::tc_count> overheated_{};
 };
 
 } // namespace app

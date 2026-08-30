@@ -75,7 +75,7 @@ static constexpr SettingMapping setting_mapping[] =
     {SettingItem::PidKp,           &SettingManager::get_pid_kp},
     {SettingItem::PidKi,           &SettingManager::get_pid_ki},
     {SettingItem::PidKd,           &SettingManager::get_pid_kd},
-    {SettingItem::MaxTemperature,  &SettingManager::get_max_temperature_c}
+    {SettingItem::MaxTemperature,  &SettingManager::get_max_temperature}
 };
 
 } // namespace

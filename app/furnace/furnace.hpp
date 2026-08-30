@@ -149,7 +149,11 @@ private:
     // according to the recipe execution rules.
     bool is_step_finished() const noexcept;
 
+    void set_outputs(uint8_t outputs) noexcept;
+    
     int32_t update_pid(int32_t temperature) noexcept;
+    
+    void notify(NotificationType type, uint16_t argument) noexcept;
     
     //------------------------------------------------------
     // FSM tables
@@ -197,6 +201,8 @@ private:
     // Current calculated temperature (update each tick). will be used as a target fo PID later
     int16_t current_temperature_c_ = 0; 
 
+    uint8_t outputs_ = 0;
+    
     uint8_t pid_output_ = 0;
     
     NotificationCallback notify_callback_ = nullptr;

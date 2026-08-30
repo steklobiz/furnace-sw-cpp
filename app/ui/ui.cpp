@@ -193,10 +193,28 @@ void Ui::confirm_edit_profile(uint16_t profile_id) noexcept
     page_ = Page::ProfileEditor;
 }
 
+const Settings& Ui::get_edit_settings() const noexcept
+{
+    return settings_->edit();
+}
+
 
 void Ui::open_settings(uint16_t) noexcept
 {
+    settings_->begin_edit();
     page_ = Page::Settings;
+}
+
+void Ui::save_settings(uint16_t) noexcept
+{
+    settings_->save();
+    page_ = Page::Main;
+}
+
+void Ui::cancel_settings(uint16_t) noexcept
+{
+    settings_->cancel_edit();
+    page_ = Page::Main;
 }
 
 void Ui::next_step(uint16_t) noexcept
@@ -213,27 +231,27 @@ void Ui::next_step(uint16_t) noexcept
 
 void Ui::edit_buzzer(uint16_t value) noexcept
 {
-    settings_->set_buzzer_state(value);    
+    settings_->set_edit_buzzer_state(value);    
 };
 
 void Ui::edit_pid_kp(uint16_t value) noexcept
 {
-    settings_->set_pid_kp(value);
+    settings_->set_edit_pid_kp(value);
 };
 
 void Ui::edit_pid_ki(uint16_t value) noexcept
 {
-    settings_->set_pid_ki(value);    
+    settings_->set_edit_pid_ki(value);    
 };
 
 void Ui::edit_pid_kd(uint16_t value) noexcept
 {
-    settings_->set_pid_kd(value);
+    settings_->set_edit_pid_kd(value);
 };
 
 void Ui::edit_max_temperature(uint16_t value) noexcept
 {
-    settings_->set_max_temperature(value);
+    settings_->set_edit_max_temperature(value);
 };
 
 

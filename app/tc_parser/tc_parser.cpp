@@ -22,7 +22,6 @@ void TcParser::init()
     {
         samples_[i] = 0;
         statuses_[i] = SensorStatus::Fault;
-        overheated_[i] = false;
     }
 }
 
@@ -82,12 +81,6 @@ TcParser::Sample TcParser::average() const noexcept
 TcParser::SensorStatus TcParser::status(uint8_t id) const noexcept
 {
     return statuses_[id];
-}
-
-
-bool TcParser::is_overheated(uint8_t id) const noexcept
-{
- return overheated_[id];
 }
 
 

@@ -65,7 +65,8 @@ public:
         
         alarm_.init(
             tc_parser_,
-            furnace_    
+            furnace_,
+            settings_    
         ); 
                 
         data_aggregator_.init(
@@ -99,7 +100,11 @@ public:
         scheduler_.every<TcParser, &TcParser::update>(
             500,
             tc_parser_);
-    
+            
+        scheduler_.every<AlarmDispatcher, &AlarmDispatcher::process>(
+        500,
+        alarm_);
+        
 /*            
 #ifdef PLATFORM_PC
 

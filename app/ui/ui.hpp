@@ -29,44 +29,49 @@ public:
         Count
     };
 
-
     enum class ActionType : uint8_t
     {
         None,
-
+    
+        // Main / profile selection
         StartProfileSelection,
         EditProfileSelection,
         SelectProfile,
-
+    
         StartProfileConfirm,
         EditProfileConfirm,
-
+    
+        // Settings
         Settings,
-        
         EditBuzzer,
         EditPidKp,
         EditPidKi,
         EditPidKd,
         EditMaxTemperature,
-                
+        SaveSettings,
+        CancelSettings,
+    
+        // Profile editor
         NextStep,
         PreviousStep,
-        
         EditSetpoint,
         EditDuration,
         EditFlags,
-
         SaveProfile,
         CancelProfile,
-
+    
+        // Furnace control
         StopFurnace,
         ResetFurnace,
-
+    
+        // Events
         ShowEvents,
-        
+    
+        // Navigation
         Back
     };
-
+    
+    
     enum class ProfileSelectionMode : uint8_t
     {
         Start,
@@ -125,6 +130,7 @@ public:
         uint8_t field) const noexcept;
     
     const Profile& get_edit_profile() const noexcept;
+    const Settings& get_edit_settings() const noexcept;
     
     const DataAggregator::Event&
         event_from_newest(std::size_t index) const noexcept;
@@ -151,6 +157,8 @@ private:
     void confirm_edit_profile(uint16_t) noexcept;
     
     void open_settings(uint16_t) noexcept;
+    void save_settings(uint16_t) noexcept;
+    void cancel_settings(uint16_t) noexcept;
 
     void edit_buzzer(uint16_t value) noexcept;
     void edit_pid_kp(uint16_t value) noexcept;
@@ -195,6 +203,12 @@ private:
         {Ui::ActionType::Settings,
             &Ui::open_settings},    
        
+        {Ui::ActionType::SaveSettings,
+            &Ui::save_settings},
+
+        {Ui::ActionType::CancelSettings,
+            &Ui::cancel_settings},
+            
         {Ui::ActionType::EditBuzzer,
             &Ui::edit_buzzer},
     

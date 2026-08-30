@@ -157,7 +157,7 @@ private:
     uint8_t edit_profile_id_ = invalid_profile_id;            
             
     Profile start_profile_{};
-    Profile edit_profile_{};
+    Profile edit_profile_{}; 
         
     NotificationCallback notify_callback_ = nullptr;
     void* notify_context_ = nullptr;

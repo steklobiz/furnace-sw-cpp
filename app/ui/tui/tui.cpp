@@ -91,17 +91,26 @@ static constexpr Tui::Label settings_labels[] =
 
 static constexpr Tui::Button settings_buttons[] =
 {
-{'b', "Edit buzzer", Ui::ActionType::EditBuzzer,
-     0, true},
-{'p', "Edit PID Kp", Ui::ActionType::EditPidKp,
-     0, true},
-{'i', "Edit PID Ki", Ui::ActionType::EditPidKi,
-     0, true},
-{'d', "Edit PID Kd", Ui::ActionType::EditPidKd,
-     0, true},
-{'m', "Edit max temperature", Ui::ActionType::EditMaxTemperature,
-     0, true},
-{'q', "Back", Ui::ActionType::Back, 0},
+    {'b', "Edit buzzer",
+        Ui::ActionType::EditBuzzer, 0, true},
+
+    {'p', "Edit PID Kp",
+        Ui::ActionType::EditPidKp, 0, true},
+
+    {'i', "Edit PID Ki",
+        Ui::ActionType::EditPidKi, 0, true},
+
+    {'d', "Edit PID Kd",
+        Ui::ActionType::EditPidKd, 0, true},
+
+    {'m', "Edit max temperature",
+        Ui::ActionType::EditMaxTemperature, 0, true},
+
+    {'s', "Save",
+        Ui::ActionType::SaveSettings, 0},
+    
+    {'c', "Cancel",
+        Ui::ActionType::CancelSettings, 0}
 };
 
 static constexpr Tui::Button profile_editor_buttons[] =
@@ -181,7 +190,7 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
         std::size(result_buttons)
     },
     // Events
-{
+    {
         nullptr,
         0,
         events_buttons,
@@ -233,6 +242,12 @@ void Tui::process() noexcept
         return;
     }
 
+    if (page == Ui::Page::Settings)
+    {
+        render_settings_page();
+        return;
+    }
+    
     if (page == Ui::Page::Events)
     {
         render_events_page();
@@ -414,6 +429,62 @@ void Tui::render_profile_editor_page() noexcept
         render_buttons(
             descriptor,
             profile_editor_button_row);
+    }
+
+    page_rendered_ = true;
+}
+
+void Tui::render_settings_page() noexcept
+{
+    const auto& settings =
+        ui_->get_edit_settings();
+
+    const auto page_index =
+        static_cast<std::size_t>(Ui::Page::Settings);
+
+    if (!page_rendered_)
+    {
+        std::printf(
+            "\033[1;1H\033[2KPage %u",
+            static_cast<unsigned>(Ui::Page::Settings));
+
+        const auto& descriptor =
+            page_descriptors[page_index];
+
+        render_buttons(
+            descriptor,
+            9);
+    }
+
+    const uint16_t values[] =
+    {
+        settings.buzzer_state,
+        settings.pid_kp,
+        settings.pid_ki,
+        settings.pid_kd,
+        settings.max_temperature_c
+    };
+
+    for (std::size_t i = 0;
+         i < std::size(values);
+         ++i)
+    {
+        if (page_rendered_ &&
+            rendered_values_[page_index][i] == values[i])
+        {
+            continue;
+        }
+
+        rendered_values_[page_index][i] = values[i];
+
+        const auto& label =
+            page_descriptors[page_index].labels[i];
+
+        std::printf(
+            "\033[%zu;1H\033[2K%s %u",
+            i + 3,
+            label.caption,
+            static_cast<unsigned>(values[i]));
     }
 
     page_rendered_ = true;
@@ -619,8 +690,14 @@ const char* notification_type_name(
 
     case NotificationType::SettingsChanged:
         return "SettingsChanged";
-    }
 
+    case NotificationType::OutputSet:
+        return "OutputSet";
+        
+    case NotificationType::OutputReset:
+        return "OutputReset";
+    }
+    
     return "Unknown";
 }
 

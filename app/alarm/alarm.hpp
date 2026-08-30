@@ -5,6 +5,7 @@
 #include <array>
 #include "tc_parser.hpp"
 #include "notification.hpp"
+#include "settings.hpp"
 
 namespace app
 {
@@ -24,9 +25,13 @@ enum class AlarmId : uint8_t
 class AlarmDispatcher
 {
 public:
-    void init(TcParser& tc_parser, Furnace& furnace);
 
-    void process();
+    void init(
+        TcParser& tc_parser,
+        Furnace& furnace,
+        SettingManager& settings) noexcept;
+    
+    void process() noexcept;
 
     // Returns true if the specified alarm is currently active.
     bool is_active(AlarmId id) const noexcept;
@@ -44,6 +49,7 @@ public:
 private:
     TcParser* tc_parser_{nullptr};
     Furnace* furnace_{nullptr};
+    SettingManager* settings_{nullptr};    
     
     std::array<bool,
                static_cast<std::size_t>(AlarmId::Count)> alarms_{};    

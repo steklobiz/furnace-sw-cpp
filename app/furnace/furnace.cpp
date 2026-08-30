@@ -69,12 +69,9 @@ void Furnace::process()
 
     // Emit a DataReady notification after all
     // published Furnace data has been updated.
-    if (notify_callback_ != nullptr)
-    {
-        notify_callback_(
-            notify_context_,
-            { this, NotificationType::DataReady, 0 });
-    }
+    notify(
+        NotificationType::DataReady,
+        0);            
 }
 
 const char* 
@@ -158,8 +155,8 @@ Furnace::idle(const Event& event) noexcept
     case Event::Error:
     
         Log::info(tag, "Error occured");
-
-        hal::reset_outputs(); // do i need to reset heaters?
+    
+        set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -179,7 +176,7 @@ Furnace::running(const Event& event) noexcept
     
         Log::info(tag, "Stop rporfile");
     
-        hal::reset_outputs(); // do i need to reset heaters?
+        set_outputs(0); // do i need to reset heaters?
     
         return State::Stopped;
     
@@ -187,7 +184,7 @@ Furnace::running(const Event& event) noexcept
     
         Log::info(tag, "Error occured");
 
-        hal::reset_outputs(); // do i need to reset heaters?
+        set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -212,7 +209,7 @@ Furnace::waiting(const Event& event) noexcept
     
         Log::info(tag, "Stop rporfile");
     
-        hal::reset_outputs(); // do i need to reset heaters?
+        set_outputs(0); // do i need to reset heaters?
     
         return State::Stopped;
                 
@@ -220,7 +217,7 @@ Furnace::waiting(const Event& event) noexcept
     
         Log::info(tag, "Error occured");
 
-        hal::reset_outputs(); // do i need to reset heaters?
+        set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -246,7 +243,7 @@ Furnace::finished(const Event& event) noexcept
     
         Log::info(tag, "Error occured");
 
-        hal::reset_outputs(); // do i need to reset heaters?
+        set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
 
@@ -269,7 +266,7 @@ Furnace::stopped(const Event& event) noexcept
     
         Log::info(tag, "Error occured");
 
-        hal::reset_outputs(); // do i need to reset heaters?
+        set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -313,17 +310,10 @@ Furnace::start_profile() noexcept
 
     step_start_temperature_c_ = ambient_temperature_c_;
 
-    if (notify_callback_ != nullptr)
-    {
-        notify_callback_(
-            notify_context_,
-            {
-                this,
-                NotificationType::ProfileStarted,
-                current_step_
-            });
-    }
-
+    notify(
+        NotificationType::ProfileStarted,
+        current_step_);        
+    
     enter_step();
 }
 
@@ -338,17 +328,9 @@ Furnace::enter_step() noexcept
         
     hal::set_outputs(step.flags);
     
-    if (notify_callback_ != nullptr)
-    {
-        notify_callback_(
-            notify_context_,
-            {
-                this,
-                NotificationType::StepStarted,
-                current_step_
-            });
-    }    
-        
+    notify(
+        NotificationType::StepStarted,
+        current_step_);        
 };
 
 // Step's end. Switching from current step to next one
@@ -372,18 +354,11 @@ Furnace::next_step() noexcept
         Log::info(tag, "Profile finished");
 
         // TODO: Do i need to reset outputs?
+
+        notify(
+                NotificationType::ProfileFinished,
+                0);
                 
-        if (notify_callback_ != nullptr)
-        {
-            notify_callback_(
-                notify_context_,
-                {
-                    this,
-                    NotificationType::ProfileFinished,
-                    0
-                });
-        }        
-        
         return State::Finished;
     }
 
@@ -427,12 +402,63 @@ Furnace::is_step_finished() const noexcept
 }
 
 
+void Furnace::set_outputs(uint8_t outputs) noexcept
+{
+    const uint8_t changed = outputs_ ^ outputs;
+
+    if (changed == 0)
+        return;
+
+    const uint8_t set = changed & outputs;
+    const uint8_t reset = changed & outputs_;
+
+    outputs_ = outputs;
+
+    hal::set_outputs(outputs_);
+
+    for (uint8_t id = 0; id < 8; ++id)
+    {
+        const uint8_t mask =
+            static_cast<uint8_t>(1u << id);
+
+        if (set & mask)
+        {
+            notify(
+                NotificationType::OutputSet,
+                id);
+        }
+
+        if (reset & mask)
+        {
+            notify(
+                NotificationType::OutputReset,
+                id);
+        }
+    }
+}
+
 int32_t Furnace::update_pid(int32_t temperature) noexcept
 {
     return pid_->update(
         setpoint(),
         temperature,
         1000);
+}
+
+void Furnace::notify(
+    NotificationType type,
+    uint16_t argument) noexcept
+{
+    if (notify_callback_ == nullptr)
+        return;
+
+    notify_callback_(
+        notify_context_,
+        {
+            this,
+            type,
+            argument
+        });
 }
 
 //------------------------------------------------------
