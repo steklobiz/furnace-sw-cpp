@@ -84,16 +84,7 @@ static constexpr Tui::Button profile_selection_buttons[] =
     {'9', "Profile 9", Ui::ActionType::SelectProfile, 9},
     {'q', "Back",    Ui::ActionType::Back, 0}
 };
-/*
-static constexpr Tui::Label profile_editor_labels[] =
-{
-    {"Profile:", 0},
-    {"Step:", 1},
-    {"Setpoint, C:", 2},
-    {"Duration, s:", 3},
-    {"Flags:", 4}
-};
-*/
+
 static constexpr Tui::Label settings_labels[] =
 {
     {"Buzzer:",              0},

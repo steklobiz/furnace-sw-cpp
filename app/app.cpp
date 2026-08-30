@@ -126,6 +126,10 @@ void App::ui_command_callback(
         app.reset_furnace();
         break;
 
+    case Ui::ActionType::ContinueFurnace:
+        app.furnace_.start();
+        break;
+        
     default:
         break;
     }
