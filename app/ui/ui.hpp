@@ -50,6 +50,7 @@ public:
         // Furnace control
         StopFurnace,
         ResetFurnace,
+        ContinueFurnace,
     
         // Events
         ShowEvents,
@@ -197,8 +198,10 @@ private:
     void cancel_profile(uint16_t) noexcept;
     
     void stop_furnace(uint16_t) noexcept;
+    // Requests the application to reset the furnace.    
     void request_reset_furnace(uint16_t) noexcept;
-    
+    // Requests the application to continue the furnace process.
+    void request_continue_furnace(uint16_t argument) noexcept;
     void show_events(uint16_t) noexcept;
     
     void back(uint16_t) noexcept;
@@ -271,6 +274,9 @@ private:
         {Ui::ActionType::ResetFurnace,
             &Ui::request_reset_furnace},
 
+        {Ui::ActionType::ContinueFurnace,
+            &Ui::request_continue_furnace},
+            
         {Ui::ActionType::ShowEvents,
             &Ui::show_events},   
             

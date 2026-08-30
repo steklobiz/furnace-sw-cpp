@@ -333,6 +333,22 @@ void Ui::request_reset_furnace(uint16_t argument) noexcept
     page_ = Page::Main;
 }
 
+void Ui::request_continue_furnace(
+    uint16_t) noexcept
+{
+    if (command_callback_ != nullptr)
+    {
+        command_callback_(
+            command_context_,
+            {
+                ActionType::ContinueFurnace,
+                0
+            });
+    }
+
+    page_ = Page::Monitor;
+}
+
 void Ui::show_events(uint16_t) noexcept
 {
     page_ = Page::Events;
