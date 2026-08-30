@@ -317,7 +317,7 @@ void Ui::stop_furnace(uint16_t) noexcept
     page_ = Page::Result;
 }
 
-void Ui::reset_furnace(uint16_t argument) noexcept
+void Ui::request_reset_furnace(uint16_t argument) noexcept
 {
     // Send command to an App
     if (command_callback_ != nullptr)

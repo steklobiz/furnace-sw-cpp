@@ -16,6 +16,20 @@ namespace
 static constexpr std::size_t profile_editor_content_row = 3;
 static constexpr std::size_t profile_editor_input_row   = 8;
 static constexpr std::size_t profile_editor_button_row  = 10;
+
+constexpr std::size_t page_count =
+    static_cast<std::size_t>(Ui::Page::Count);
+
+constexpr const char* page_names[page_count] =
+{
+    "Main",
+    "Profile Selection",
+    "Settings",
+    "Profile Editor",
+    "Monitor",
+    "Result",
+    "Events"
+};
     
 static constexpr Tui::Label main_labels[] =
 {
@@ -267,9 +281,9 @@ void Tui::render_page(
     if (!page_rendered_)
     {
         std::printf(
-            "\033[1;1HPage %u",
-            static_cast<unsigned>(page));
-
+            "\033[1;1H%s",
+            page_name(page));
+    
         const std::size_t first_button_row =
             descriptor.label_count == 0
                 ? 3
@@ -445,9 +459,9 @@ void Tui::render_settings_page() noexcept
     if (!page_rendered_)
     {
         std::printf(
-            "\033[1;1H\033[2KPage %u",
-            static_cast<unsigned>(Ui::Page::Settings));
-
+            "\033[1;1H\033[2K%s",
+            page_name(Ui::Page::Settings));
+    
         const auto& descriptor =
             page_descriptors[page_index];
 
@@ -766,5 +780,10 @@ void Tui::render_events_page() noexcept
     page_rendered_ = true;
 }
 
+const char* Tui::page_name(Ui::Page page) noexcept
+{
+    return page_names[
+        static_cast<std::size_t>(page)];
+}
 
 } // namespace app

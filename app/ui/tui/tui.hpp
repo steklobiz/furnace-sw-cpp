@@ -89,10 +89,14 @@ private:
     // profile data and buttons.
     void render_profile_editor_page() noexcept;
     
+    // Renders the Settings page.
     void render_settings_page() noexcept;
     
+    // Renders the Events page.
     void render_events_page() noexcept;
     
+    // Returns the TUI display name for a page.
+    static const char* page_name(Ui::Page page) noexcept;
     
     // UI model used as the source for rendering and input actions.    
     Ui* ui_ = nullptr;

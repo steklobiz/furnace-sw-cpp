@@ -197,7 +197,7 @@ private:
     void cancel_profile(uint16_t) noexcept;
     
     void stop_furnace(uint16_t) noexcept;
-    void reset_furnace(uint16_t) noexcept;
+    void request_reset_furnace(uint16_t) noexcept;
     
     void show_events(uint16_t) noexcept;
     
@@ -269,7 +269,7 @@ private:
             &Ui::stop_furnace},
     
         {Ui::ActionType::ResetFurnace,
-            &Ui::reset_furnace},
+            &Ui::request_reset_furnace},
 
         {Ui::ActionType::ShowEvents,
             &Ui::show_events},   
