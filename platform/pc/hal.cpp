@@ -29,13 +29,13 @@ void init()
     
 void set_outputs(uint8_t byte)
 {
-    std::cout << "Outs: "<< (byte >> 2 & 1) << "|" << (byte >> 1 & 1) << "|" << (byte >> 0 & 1) << std::endl;
-    
+    // TODO: set ouputs    
+    static_cast<void>(byte);
 }
 
 void reset_outputs()
 {
-    std::cout << "Outs resetting..." << std::endl;
+    // Do I need it?
 }
 
 void delay_ms(uint32_t ms)
