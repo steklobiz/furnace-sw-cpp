@@ -293,6 +293,20 @@ Furnace::error(const Event& event) noexcept
     }        
 };
 
+void Furnace::reset() noexcept
+{
+    fsm_.dispatch(Event::Reset);
+
+    set_outputs(0);
+    hal::set_heater_power(0);
+
+    current_step_ = 0;
+    step_elapsed_s_ = 0;
+    profile_elapsed_s_ = 0;
+    current_temperature_c_ = 0;
+    pid_output_ = 0;
+}
+
 //------------------------------------------------------
 // Helper functions
 //------------------------------------------------------

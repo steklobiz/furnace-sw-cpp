@@ -73,6 +73,15 @@ void Ui::init(
     current_step_ = 0;
 }
 
+void Ui::process() noexcept
+{
+    if (furnace_->state() ==
+        static_cast<uint16_t>(Furnace::State::Error))
+    {
+        page_ = Page::Result;
+    }
+}
+
 Ui::Page Ui::page() const noexcept
 {
     return page_;

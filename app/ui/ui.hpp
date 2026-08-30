@@ -121,6 +121,8 @@ public:
         ProfileManager& profiles,
         SettingManager& settings) noexcept;
 
+    void process() noexcept;     
+    
     void execute(Action action) noexcept;
 
     Page page() const noexcept;

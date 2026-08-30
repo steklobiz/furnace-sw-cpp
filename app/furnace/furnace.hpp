@@ -52,7 +52,7 @@ public:
     void start()   { fsm_.dispatch(Event::Start); }
     void stop()    { fsm_.dispatch(Event::Stop);  }
     void error()   { fsm_.dispatch(Event::Error);  }    
-    void reset()   { fsm_.dispatch(Event::Reset); }
+    void reset() noexcept;
     
     static const char* state_name(State state) noexcept; // only for TUI
     static const char* step_type_name(StepType type) noexcept; // only for TUI
@@ -153,7 +153,7 @@ private:
     
     int32_t update_pid(int32_t temperature) noexcept;
     
-    void notify(NotificationType type, uint16_t argument) noexcept;
+    void notify(NotificationType type,uint16_t argument) noexcept;
     
     //------------------------------------------------------
     // FSM tables
