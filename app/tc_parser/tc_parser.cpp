@@ -21,7 +21,7 @@ void TcParser::init()
     for (std::size_t i = 0; i < count(); ++i)
     {
         samples_[i] = 0;
-        statuses_[i] = SensorStatus::Fault;
+        statuses_[i] = SensorStatus::Valid;
     }
 }
 

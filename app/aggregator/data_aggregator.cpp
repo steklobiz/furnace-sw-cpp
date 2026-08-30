@@ -187,6 +187,8 @@ void DataAggregator::furnace_callback(
 
     case NotificationType::StepStarted:
     case NotificationType::ProfileFinished:
+    case NotificationType::OutputSet:
+    case NotificationType::OutputReset:
         aggregator.add_event(
             DataSource::Furnace,
             notification);

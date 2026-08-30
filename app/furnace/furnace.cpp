@@ -325,12 +325,12 @@ Furnace::enter_step() noexcept
 {   
     const auto& step =
         profiles_->start_profile().steps[current_step_];
-        
-    hal::set_outputs(step.flags);
-    
+            
     notify(
         NotificationType::StepStarted,
         current_step_);        
+        
+    set_outputs(step.flags);    
 };
 
 // Step's end. Switching from current step to next one
