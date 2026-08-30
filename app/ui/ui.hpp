@@ -16,19 +16,6 @@ class Ui
 {
 public:
 
-    enum class Page : uint8_t
-    {
-        Main,
-        ProfileSelection,
-        Settings,
-        ProfileEditor,
-        Monitor,
-        Result,
-        Events,
-
-        Count
-    };
-
     enum class ActionType : uint8_t
     {
         None,
@@ -70,6 +57,30 @@ public:
         // Navigation
         Back
     };
+
+
+    struct Action
+    {
+        ActionType type = ActionType::None;
+        uint16_t argument = 0;
+    };
+
+
+    using CommandCallback =
+        void (*)(void* context, Action action) noexcept;
+
+    enum class Page : uint8_t
+    {
+        Main,
+        ProfileSelection,
+        Settings,
+        ProfileEditor,
+        Monitor,
+        Result,
+        Events,
+
+        Count
+    };
     
     
     enum class ProfileSelectionMode : uint8_t
@@ -94,12 +105,6 @@ public:
         MaxTemperature,
     };
     
-    struct Action
-    {
-        ActionType type = ActionType::None;
-        uint16_t argument = 0;
-    };
-
 
     struct FieldMapping
     {
@@ -114,33 +119,46 @@ public:
         std::size_t field_count;
     };
 
-
+    // Initializes the UI with its data sources and application modules
     void init(
         DataAggregator& data,
         Furnace& furnace,
         ProfileManager& profiles,
         SettingManager& settings) noexcept;
 
+    // Processes periodic UI logic, including page transitions.    
     void process() noexcept;     
     
+    // Executes an action received from the renderer/input layer.
     void execute(Action action) noexcept;
 
+    // Returns the currently active page.
     Page page() const noexcept;
-
+    
+    // Returns the current value of a field on the specified page.
     uint16_t get_field(
         Ui::Page page,
         uint8_t field) const noexcept;
-    
+        
+    // Returns the current profile being edited.
     const Profile& get_edit_profile() const noexcept;
+    // Returns the current settings being edited.
     const Settings& get_edit_settings() const noexcept;
     
+    // Returns an event by its position relative to the newest event.
     const DataAggregator::Event&
         event_from_newest(std::size_t index) const noexcept;
 
+    // Returns the number of stored events.    
     std::size_t event_count() const noexcept;
 
+    // Returns the currently selected profile step.
     uint8_t current_step() const noexcept;
-
+    
+    // Registers the callback used to send application-level commands.        
+    void set_command_callback(
+        CommandCallback callback,
+        void* context) noexcept;
 
 private:
 
@@ -271,6 +289,9 @@ private:
     
     ProfileSelectionMode profile_selection_mode_ =
     ProfileSelectionMode::Start;
+    
+    CommandCallback command_callback_{nullptr};
+    void* command_context_{nullptr};
 };
 
 } // namespace app

@@ -82,11 +82,23 @@ void Ui::process() noexcept
     }
 }
 
+void Ui::execute(Action action) noexcept
+{
+    for (const auto& mapping : action_mapping)
+    {
+        if (mapping.type == action.type)
+        {
+            (this->*mapping.callback)(action.argument);
+            return;
+        }
+    }
+}
+
+
 Ui::Page Ui::page() const noexcept
 {
     return page_;
 }
-
 
     uint16_t Ui::get_field(
         Ui::Page page,
@@ -137,18 +149,14 @@ uint8_t Ui::current_step() const noexcept
     return current_step_;
 }
 
-
-void Ui::execute(Action action) noexcept
+void Ui::set_command_callback(
+    CommandCallback callback,
+    void* context) noexcept
 {
-    for (const auto& mapping : action_mapping)
-    {
-        if (mapping.type == action.type)
-        {
-            (this->*mapping.callback)(action.argument);
-            return;
-        }
-    }
+    command_callback_ = callback;
+    command_context_ = context;
 }
+
 
 void Ui::start_profile_selection(uint16_t) noexcept
 {
@@ -309,9 +317,19 @@ void Ui::stop_furnace(uint16_t) noexcept
     page_ = Page::Result;
 }
 
-void Ui::reset_furnace(uint16_t) noexcept
+void Ui::reset_furnace(uint16_t argument) noexcept
 {
-    furnace_->reset();
+    // Send command to an App
+    if (command_callback_ != nullptr)
+    {
+        command_callback_(
+            command_context_,
+            {
+                ActionType::ResetFurnace,
+                argument
+            });
+    }
+
     page_ = Page::Main;
 }
 

@@ -83,6 +83,12 @@ void AlarmDispatcher::raise(AlarmId id) noexcept
     }
 }
 
+void AlarmDispatcher::clear_all() noexcept
+{
+    for (auto& alarm : alarms_)
+        alarm = false;
+}
+
 void AlarmDispatcher::set_notify_callback(
     NotificationCallback callback,
     void* context) noexcept

@@ -42,6 +42,8 @@ public:
     // Activates the specified alarm.
     void raise(AlarmId id) noexcept;
 
+    void clear_all() noexcept;
+    
     void set_notify_callback(
         NotificationCallback callback,
         void* context) noexcept;
