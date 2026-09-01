@@ -122,7 +122,7 @@ static constexpr Tui::Button profile_editor_buttons[] =
 {
     {'e', "Edit setpoint", Ui::ActionType::EditSetpoint, 0, true},
     {'d', "Edit duration", Ui::ActionType::EditDuration, 0, true},
-    {'f', "Edit flags",    Ui::ActionType::EditFlags,    0, true},
+    {'f', "Edit outputs",    Ui::ActionType::EditFlags,    0, true},
     {'n', "Next",          Ui::ActionType::NextStep,     0},
     {'p', "Previous",      Ui::ActionType::PreviousStep, 0},
     {'s', "Save",          Ui::ActionType::SaveProfile,  0},
@@ -243,7 +243,7 @@ void Tui::process() noexcept
     if (page_index >= std::size(page_descriptors))
         return;
 
-    if (page == Ui::Page::ProfileEditor)
+    if (page == Ui::Page::ProfileEditorOuts)
     {
         render_profile_editor_page();
         return;
@@ -384,7 +384,7 @@ void Tui::render_profile_content() noexcept
     std::printf(
         "\033[%zu;1H\033[2KFlags: %u",
         profile_editor_content_row + 3,
-        static_cast<unsigned>(step.flags));
+        static_cast<unsigned>(step.outputs));
 }
 
 void Tui::render_profile_editor_page() noexcept
@@ -431,7 +431,7 @@ void Tui::render_profile_editor_page() noexcept
         const auto& descriptor =
             page_descriptors[
                 static_cast<std::size_t>(
-                    Ui::Page::ProfileEditor)];
+                    Ui::Page::ProfileEditorOuts)];
     
         render_buttons(
             descriptor,

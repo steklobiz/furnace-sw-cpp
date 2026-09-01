@@ -75,7 +75,8 @@ public:
         Main,
         ProfileSelection,
         Settings,
-        ProfileEditor,
+        ProfileEditorOuts,
+        ProfileEditorVals,        
         Monitor,
         Result,
         Events,
@@ -192,7 +193,7 @@ private:
 
     void edit_setpoint(uint16_t  value) noexcept;
     void edit_duration(uint16_t  value) noexcept;
-    void edit_flags(uint16_t  value) noexcept;
+    void edit_outputs(uint16_t  value) noexcept;
         
     void save_profile(uint16_t) noexcept;
     void cancel_profile(uint16_t) noexcept;
@@ -260,7 +261,7 @@ private:
             &Ui::edit_duration},
         
         {Ui::ActionType::EditFlags,
-            &Ui::edit_flags},            
+            &Ui::edit_outputs},            
             
         {Ui::ActionType::SaveProfile,
             &Ui::save_profile},

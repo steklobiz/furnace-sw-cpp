@@ -338,7 +338,7 @@ Furnace::enter_step() noexcept
         NotificationType::StepStarted,
         current_step_);        
         
-    set_outputs(step.flags);    
+    set_outputs(step.outputs);    
 };
 
 

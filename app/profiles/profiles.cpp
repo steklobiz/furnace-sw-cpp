@@ -121,7 +121,7 @@ bool ProfileManager::set_edit_duration(
     return true;
 }
 
-bool ProfileManager::set_edit_flags(
+bool ProfileManager::set_edit_outputs(
     uint16_t step,
     uint16_t value) noexcept
 {
@@ -131,7 +131,7 @@ bool ProfileManager::set_edit_flags(
         return false;
     }
 
-    edit_profile_.steps[step].flags =
+    edit_profile_.steps[step].outputs =
         static_cast<uint8_t>(value);
 
     edit_profile_changed();

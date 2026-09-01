@@ -18,7 +18,7 @@ struct Step
 {
     uint16_t setpoint_c = 0;
     uint16_t duration = 0;
-    uint8_t flags = 0;
+    uint8_t outputs = 0;
 
     friend constexpr bool operator==(
         const Step& lhs,
@@ -26,7 +26,7 @@ struct Step
     {
         return lhs.setpoint_c == rhs.setpoint_c
             && lhs.duration == rhs.duration
-            && lhs.flags == rhs.flags;
+            && lhs.outputs == rhs.outputs;
     }
 
     friend constexpr bool operator!=(
@@ -139,7 +139,7 @@ public:
     
     bool set_edit_setpoint(uint16_t step, uint16_t value) noexcept;
     bool set_edit_duration(uint16_t step, uint16_t value) noexcept;
-    bool set_edit_flags(uint16_t step, uint16_t value) noexcept;
+    bool set_edit_outputs(uint16_t step, uint16_t value) noexcept;
         
     // Saves the currently edited profile.
     bool save_edit() noexcept;
