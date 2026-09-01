@@ -45,13 +45,14 @@ struct Profile
     static constexpr uint8_t MaxFlags = 135;
     static constexpr uint8_t MaxSteps = 16;
 
+    
+    uint8_t prestep_outputs = 0;
     std::array<Step, MaxSteps> steps{};
     
-    friend bool operator==(
-        const Profile& lhs,
-        const Profile& rhs) noexcept
+    constexpr bool operator==(const Profile& other) const noexcept
     {
-        return lhs.steps == rhs.steps;
+        return prestep_outputs == other.prestep_outputs &&
+               steps == other.steps;
     }
 
     friend bool operator!=(
@@ -71,29 +72,30 @@ inline constexpr uint8_t invalid_profile_id = 0xFF;
 inline constexpr Profile test_profiles[] =
 {
     // Profile 0
-    {
+    {0x01,
         {{
-            {50,  10, 0x01},
             {50,  10, 0x02},
+            {50,  10, 0x03},
             {100, 10, 0x00},
             {100, 10, 0x00},
             {50,  10, 0x00},
+            {0,  0, 0x00},            
         }}
     },
 
     // Profile 1
-    {
+    {0x00,
         {{
-            {50, 60, 0x01},
-            {50, 20, 0x01},
-            {100, 60, 0x02},
+            {50,  60, 0x01},
+            {50,  20, 0x02},
+            {100, 60, 0x03},
             {100, 20, 0x00},
-            {50, 0, 0x00},
+            {0,   0,  0x00},
         }}
     },
 
     // Profile 2
-    {
+    {0x00,
         {{
             {25,  5,  0x01},
             {50,  5,  0x01},
@@ -105,7 +107,6 @@ inline constexpr Profile test_profiles[] =
 
 inline constexpr std::size_t test_profile_count =
     sizeof(test_profiles) / sizeof(test_profiles[0]);
-
 
 
 class ProfileManager

@@ -179,14 +179,9 @@ void DataAggregator::furnace_callback(
         break;
 
     case NotificationType::ProfileStarted:
-        aggregator.clear_history();
-        aggregator.add_event(
-            DataSource::Furnace,
-            notification);
-        break;
-
     case NotificationType::StepStarted:
     case NotificationType::ProfileFinished:
+    case NotificationType::ProfileStopped:
     case NotificationType::OutputSet:
     case NotificationType::OutputReset:
         aggregator.add_event(

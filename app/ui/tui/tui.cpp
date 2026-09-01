@@ -132,7 +132,9 @@ static constexpr Tui::Button profile_editor_buttons[] =
 static constexpr Tui::Label result_labels[] =
 {
     {"State:", 0},
-    {"Temperature, C:", 1}
+    {"Temperature, C:", 1},
+    {"Outputs:",           9}
+
 };
 
 static constexpr Tui::Button result_buttons[] =
@@ -687,6 +689,9 @@ const char* notification_type_name(
     case NotificationType::ProfileFinished:
         return "ProfileFinished";
 
+    case NotificationType::ProfileStopped:
+        return "ProfileStopped";        
+        
     case NotificationType::EditProfileChanged:
         return "EditProfileChanged";
 

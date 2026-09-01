@@ -34,7 +34,6 @@ Furnace::init(
     
     fsm_.init(*this, State::Idle, fsm_tables_);
     
-    Log::info(tag, "Furnace initialized");
 }
         
 void Furnace::set_notify_callback(
@@ -146,16 +145,15 @@ Furnace::idle(const Event& event) noexcept
     {
     case Event::Start:
         
-        Log::info(tag, "Start rporfile");
-
         start_profile();
+        
+        if (profiles_->start_profile().prestep_outputs != 0)
+            return State::Waiting;
 
         return State::Running;
         
     case Event::Error:
-    
-        Log::info(tag, "Error occured");
-    
+        
         set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
@@ -173,17 +171,17 @@ Furnace::running(const Event& event) noexcept
     switch (event)
     {
     case Event::Stop:
-    
-        Log::info(tag, "Stop rporfile");
-    
+        
         set_outputs(0); // do i need to reset heaters?
-    
+        
+        notify(
+            NotificationType::ProfileStopped,
+            current_step_);
+        
         return State::Stopped;
     
     case Event::Error:
     
-        Log::info(tag, "Error occured");
-
         set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
@@ -200,39 +198,38 @@ Furnace::running(const Event& event) noexcept
     }
 }
 
-Furnace::State 
+Furnace::State
 Furnace::waiting(const Event& event) noexcept
 {
     switch (event)
     {
     case Event::Stop:
-    
-        Log::info(tag, "Stop rporfile");
-    
-        set_outputs(0); // do i need to reset heaters?
-    
+
+        set_outputs(0);
+
+        notify(
+        NotificationType::ProfileStopped,
+        current_step_);
+        
         return State::Stopped;
-                
+
     case Event::Error:
-    
-        Log::info(tag, "Error occured");
 
-        set_outputs(0); // do i need to reset heaters?
-            
+        set_outputs(0);
+
         return State::Error;
-        
-    case Event::Start:
 
+    case Event::Reset:
+    
         enter_step();
-        
-        return State::Running;        
+
+        return State::Running;
 
     default:
 
         return State::Waiting;
     }
 }
-
 
 Furnace::State 
 Furnace::finished(const Event& event) noexcept
@@ -241,8 +238,6 @@ Furnace::finished(const Event& event) noexcept
     {
     case Event::Error:
     
-        Log::info(tag, "Error occured");
-
         set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
@@ -264,8 +259,6 @@ Furnace::stopped(const Event& event) noexcept
     {
     case Event::Error:
     
-        Log::info(tag, "Error occured");
-
         set_outputs(0); // do i need to reset heaters?
             
         return State::Error;
@@ -296,15 +289,6 @@ Furnace::error(const Event& event) noexcept
 void Furnace::reset() noexcept
 {
     fsm_.dispatch(Event::Reset);
-
-    set_outputs(0);
-    hal::set_heater_power(0);
-
-    current_step_ = 0;
-    step_elapsed_s_ = 0;
-    profile_elapsed_s_ = 0;
-    current_temperature_c_ = 0;
-    pid_output_ = 0;
 }
 
 //------------------------------------------------------
@@ -326,9 +310,19 @@ Furnace::start_profile() noexcept
 
     notify(
         NotificationType::ProfileStarted,
-        current_step_);        
-    
-    enter_step();
+        current_step_);
+
+    const auto& profile =
+        profiles_->start_profile();
+
+    if (profile.prestep_outputs != 0)
+    {
+        set_outputs(profile.prestep_outputs);
+    }
+    else
+    {
+        enter_step();
+    }
 }
 
 // Step's beginning
@@ -347,6 +341,7 @@ Furnace::enter_step() noexcept
     set_outputs(step.flags);    
 };
 
+
 // Step's end. Switching from current step to next one
 Furnace::State 
 Furnace::next_step() noexcept
@@ -358,16 +353,14 @@ Furnace::next_step() noexcept
     const auto& step =
         profiles_->start_profile().steps[current_step_];    
             
+        
     // Case 1: We reached the maximum number of steps.
     if ((current_step_ >= app::config::profiles::max_steps) ||
         // Case 2: 0-0 marker means end of profile.
         (step.setpoint_c == 0 && step.duration == 0))    
     {
         // Profile is finished.
-
-        Log::info(tag, "Profile finished");
-
-        // TODO: Do i need to reset outputs?
+        set_outputs(0);
 
         notify(
                 NotificationType::ProfileFinished,
@@ -533,8 +526,8 @@ Furnace::step_elapsed() const noexcept
 uint16_t 
 Furnace::outputs() const noexcept
 {
-    return static_cast<uint16_t>(profiles_->start_profile().steps[current_step_].flags);
-};
+    return outputs_;
+}
 
 uint16_t 
 Furnace::power() const noexcept

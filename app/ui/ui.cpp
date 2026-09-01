@@ -42,7 +42,8 @@ static constexpr Ui::FieldMapping settings_fields[] =
 static constexpr Ui::FieldMapping result_fields[] =
 {
     {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::State)},
-    {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::Temperature)}
+    {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::Temperature)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
 static constexpr Ui::PageDescriptor page_descriptors[] =
@@ -75,12 +76,22 @@ void Ui::init(
 
 void Ui::process() noexcept
 {
-    if (furnace_->state() ==
-        static_cast<uint16_t>(Furnace::State::Error))
+    switch (furnace_->state())
     {
+    case static_cast<uint16_t>(Furnace::State::Waiting):
+    case static_cast<uint16_t>(Furnace::State::Finished):
+    case static_cast<uint16_t>(Furnace::State::Stopped):
+    case static_cast<uint16_t>(Furnace::State::Error):
+
         page_ = Page::Result;
+        break;
+
+    default:
+
+        break;
     }
 }
+
 
 void Ui::execute(Action action) noexcept
 {
