@@ -74,6 +74,7 @@ enum class SettingItem : uint8_t
     PidKi,
     PidKd,
     MaxTemperature,
+    PrestepOuts,
 
     Count
 };

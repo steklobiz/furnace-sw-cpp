@@ -35,6 +35,7 @@ public:
         EditPidKi,
         EditPidKd,
         EditMaxTemperature,
+        EditPrestepOuts,
         SaveSettings,
         CancelSettings,
     
@@ -187,6 +188,7 @@ private:
     void edit_pid_ki(uint16_t value) noexcept;
     void edit_pid_kd(uint16_t value) noexcept;
     void edit_max_temperature(uint16_t value) noexcept;
+    void edit_prestep_outs(uint16_t value) noexcept;
         
     void next_step(uint16_t) noexcept;
     void previous_step(uint16_t) noexcept;
@@ -247,6 +249,9 @@ private:
     
         {Ui::ActionType::EditMaxTemperature,
             &Ui::edit_max_temperature},     
+            
+        {Ui::ActionType::EditPrestepOuts,
+            &Ui::edit_prestep_outs},    
             
         {Ui::ActionType::NextStep,
             &Ui::next_step},

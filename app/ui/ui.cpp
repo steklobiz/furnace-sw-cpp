@@ -36,7 +36,8 @@ static constexpr Ui::FieldMapping settings_fields[] =
     {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKp)},
     {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKi)},
     {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKd)},
-    {DataSource::Setting, static_cast<uint8_t>(SettingItem::MaxTemperature)}
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::MaxTemperature)},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PrestepOuts)}
 };
 
 static constexpr Ui::FieldMapping result_fields[] =
@@ -282,6 +283,10 @@ void Ui::edit_max_temperature(uint16_t value) noexcept
     settings_->set_edit_max_temperature(value);
 };
 
+void Ui::edit_prestep_outs(uint16_t value) noexcept
+{
+    settings_->set_edit_prestep_outs(value);
+}
 
 void Ui::previous_step(uint16_t) noexcept
 {
