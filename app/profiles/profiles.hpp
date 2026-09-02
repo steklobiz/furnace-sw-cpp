@@ -16,9 +16,9 @@ namespace app
     
 struct Step
 {
-    uint16_t setpoint_c = 0;
-    uint16_t duration = 0;
-    uint8_t outputs = 0;
+    uint16_t setpoint_c{};
+    uint16_t duration{};
+    uint8_t outs{};
 
     friend constexpr bool operator==(
         const Step& lhs,
@@ -26,7 +26,7 @@ struct Step
     {
         return lhs.setpoint_c == rhs.setpoint_c
             && lhs.duration == rhs.duration
-            && lhs.outputs == rhs.outputs;
+            && lhs.outs == rhs.outs;
     }
 
     friend constexpr bool operator!=(
@@ -37,7 +37,6 @@ struct Step
     }
 };
 
-
 struct Profile
 {
     static constexpr uint16_t MaxSetpointC = 999;
@@ -45,24 +44,27 @@ struct Profile
     static constexpr uint8_t MaxFlags = 135;
     static constexpr uint8_t MaxSteps = 16;
 
-    
-    uint8_t prestep_outputs = 0;
     std::array<Step, MaxSteps> steps{};
-    
-    constexpr bool operator==(const Profile& other) const noexcept
-    {
-        return prestep_outputs == other.prestep_outputs &&
-               steps == other.steps;
-    }
 
-    friend bool operator!=(
+    friend constexpr bool operator==(
         const Profile& lhs,
         const Profile& rhs) noexcept
+    {
+        for (uint8_t i = 0; i < MaxSteps; ++i)
+        {
+            if (lhs.steps[i] != rhs.steps[i])
+                return false;
+        }
+    
+        return true;
+    }
+
+    friend constexpr bool operator!=(
+        const Profile& lhs, const Profile& rhs) noexcept
     {
         return !(lhs == rhs);
     }
 };
-
 
 inline constexpr uint8_t invalid_profile_id = 0xFF;
 
@@ -72,7 +74,7 @@ inline constexpr uint8_t invalid_profile_id = 0xFF;
 inline constexpr Profile test_profiles[] =
 {
     // Profile 0
-    {0x01,
+    { 
         {{
             {50,  10, 0x02},
             {50,  10, 0x03},
@@ -84,7 +86,7 @@ inline constexpr Profile test_profiles[] =
     },
 
     // Profile 1
-    {0x00,
+    {
         {{
             {50,  60, 0x01},
             {50,  20, 0x02},
@@ -95,7 +97,7 @@ inline constexpr Profile test_profiles[] =
     },
 
     // Profile 2
-    {0x00,
+    {
         {{
             {25,  5,  0x01},
             {50,  5,  0x01},
@@ -139,7 +141,7 @@ public:
     
     bool set_edit_setpoint(uint16_t step, uint16_t value) noexcept;
     bool set_edit_duration(uint16_t step, uint16_t value) noexcept;
-    bool set_edit_outputs(uint16_t step, uint16_t value) noexcept;
+    bool set_edit_outs(uint16_t step, uint16_t value) noexcept;
         
     // Saves the currently edited profile.
     bool save_edit() noexcept;

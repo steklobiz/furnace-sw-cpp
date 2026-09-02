@@ -10,13 +10,14 @@
 namespace app {
 
 namespace {
-
+/*
+// Tag for Log()
 constexpr Tag tag
 {
     "FURN",
     Level::Info
 };
-    
+*/  
 
 }
     
@@ -146,15 +147,14 @@ Furnace::idle(const Event& event) noexcept
     case Event::Start:
         
         start_profile();
-        
-        if (profiles_->start_profile().prestep_outputs != 0)
+        if (settings_->get_prestep_outs() != 0)
             return State::Waiting;
 
         return State::Running;
         
     case Event::Error:
         
-        set_outputs(0); // do i need to reset heaters?
+        set_outs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -172,7 +172,7 @@ Furnace::running(const Event& event) noexcept
     {
     case Event::Stop:
         
-        set_outputs(0); // do i need to reset heaters?
+        set_outs(0); // do i need to reset heaters?
         
         notify(
             NotificationType::ProfileStopped,
@@ -182,7 +182,7 @@ Furnace::running(const Event& event) noexcept
     
     case Event::Error:
     
-        set_outputs(0); // do i need to reset heaters?
+        set_outs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -205,7 +205,7 @@ Furnace::waiting(const Event& event) noexcept
     {
     case Event::Stop:
 
-        set_outputs(0);
+        set_outs(0);
 
         notify(
         NotificationType::ProfileStopped,
@@ -215,7 +215,7 @@ Furnace::waiting(const Event& event) noexcept
 
     case Event::Error:
 
-        set_outputs(0);
+        set_outs(0);
 
         return State::Error;
 
@@ -238,7 +238,7 @@ Furnace::finished(const Event& event) noexcept
     {
     case Event::Error:
     
-        set_outputs(0); // do i need to reset heaters?
+        set_outs(0); // do i need to reset heaters?
             
         return State::Error;
 
@@ -259,7 +259,7 @@ Furnace::stopped(const Event& event) noexcept
     {
     case Event::Error:
     
-        set_outputs(0); // do i need to reset heaters?
+        set_outs(0); // do i need to reset heaters?
             
         return State::Error;
         
@@ -312,19 +312,18 @@ Furnace::start_profile() noexcept
         NotificationType::ProfileStarted,
         current_step_);
 
-    const auto& profile =
-        profiles_->start_profile();
+    const uint8_t prestep_outs =
+        settings_->get_prestep_outs();
 
-    if (profile.prestep_outputs != 0)
+    if (prestep_outs != 0)
     {
-        set_outputs(profile.prestep_outputs);
+        set_outs(prestep_outs);
     }
     else
     {
         enter_step();
     }
 }
-
 // Step's beginning
 // - apply outputs
 // - anything common to every step
@@ -338,7 +337,7 @@ Furnace::enter_step() noexcept
         NotificationType::StepStarted,
         current_step_);        
         
-    set_outputs(step.outputs);    
+    set_outs(step.outs);    
 };
 
 
@@ -360,7 +359,7 @@ Furnace::next_step() noexcept
         (step.setpoint_c == 0 && step.duration == 0))    
     {
         // Profile is finished.
-        set_outputs(0);
+        set_outs(0);
 
         notify(
                 NotificationType::ProfileFinished,
@@ -409,19 +408,19 @@ Furnace::is_step_finished() const noexcept
 }
 
 
-void Furnace::set_outputs(uint8_t outputs) noexcept
+void Furnace::set_outs(uint8_t outs) noexcept
 {
-    const uint8_t changed = outputs_ ^ outputs;
+    const uint8_t changed = outs_ ^ outs;
 
     if (changed == 0)
         return;
 
-    const uint8_t set = changed & outputs;
-    const uint8_t reset = changed & outputs_;
+    const uint8_t set = changed & outs;
+    const uint8_t reset = changed & outs_;
 
-    outputs_ = outputs;
+    outs_ = outs;
 
-    hal::set_outputs(outputs_);
+    hal::set_outs(outs_);
 
     for (uint8_t id = 0; id < 8; ++id)
     {
@@ -526,7 +525,7 @@ Furnace::step_elapsed() const noexcept
 uint16_t 
 Furnace::outputs() const noexcept
 {
-    return outputs_;
+    return outs_;
 }
 
 uint16_t 

@@ -303,9 +303,9 @@ void Ui::edit_duration(uint16_t value) noexcept
         value);
 }
 
-void Ui::edit_outputs(uint16_t value) noexcept
+void Ui::edit_outs(uint16_t value) noexcept
 {
-    profiles_->set_edit_outputs(
+    profiles_->set_edit_outs(
         current_step_,
         value);
 }

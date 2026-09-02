@@ -38,6 +38,8 @@ struct Settings
     bool auto_start = false;
 
     bool beep_on_finish = true;
+    
+    uint8_t prestep_outs;
 };
 
 
@@ -75,6 +77,7 @@ public:
     uint16_t get_pid_kd() const noexcept;    
     uint16_t get_max_temperature() const noexcept;
     uint16_t get_buzzer_state() const noexcept;
+    uint16_t get_prestep_outs() const noexcept;
         
     // Access the settings currently being edited. 
     uint16_t get_edit_pid_kp() const noexcept;
@@ -82,6 +85,7 @@ public:
     uint16_t get_edit_pid_kd() const noexcept;
     uint16_t get_edit_max_temperature() const noexcept;
     uint16_t get_edit_buzzer_state() const noexcept;
+    uint16_t get_edit_prestep_outs() const noexcept;
     
     // Modify the settings currently being edited.
     // Changes are committed only by save().    // ui setters    
@@ -90,6 +94,7 @@ public:
     bool set_edit_pid_kd(uint16_t value) noexcept;
     bool set_edit_max_temperature(uint16_t value) noexcept;
     bool set_edit_buzzer_state(uint16_t value) noexcept;
+    bool set_edit_prestep_outs(uint16_t value) noexcept;
     
     
 private:

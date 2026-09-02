@@ -28,7 +28,8 @@ SettingManager::open() noexcept
 }
 
 
-bool SettingManager::save() noexcept
+bool
+SettingManager::save() noexcept
 {
     settings_ = edit_settings_;
 
@@ -41,12 +42,14 @@ bool SettingManager::save() noexcept
 }
 
 
-void SettingManager::begin_edit() noexcept
+void
+SettingManager::begin_edit() noexcept
 {
     edit_settings_ = settings_;
 }
 
-void SettingManager::cancel_edit() noexcept
+void
+SettingManager::cancel_edit() noexcept
 {
     edit_settings_ = settings_;
 }
@@ -100,6 +103,12 @@ SettingManager::get_buzzer_state() const noexcept
     return settings_.buzzer_state ? 1 : 0;
 }
 
+uint16_t 
+SettingManager::get_prestep_outs() const noexcept
+{
+    return settings_.prestep_outs;
+}
+
 // -----------------------------------------------------------------------------
 // Edit settings access
 // -----------------------------------------------------------------------------
@@ -134,36 +143,47 @@ SettingManager::get_edit_buzzer_state() const noexcept
     return edit_settings_.buzzer_state ? 1 : 0;
 }
 
+uint16_t
+SettingManager::get_edit_prestep_outs() const noexcept
+{
+    return edit_settings_.prestep_outs;
+}
+
 // -----------------------------------------------------------------------------
 // Edit settings modification
 // -----------------------------------------------------------------------------
 
-bool SettingManager::set_edit_pid_kp(uint16_t value) noexcept
+bool
+SettingManager::set_edit_pid_kp(uint16_t value) noexcept
 {
     edit_settings_.pid_kp = value;
     return true;
 }
 
 
-bool SettingManager::set_edit_pid_ki(uint16_t value) noexcept
+bool
+SettingManager::set_edit_pid_ki(uint16_t value) noexcept
 {
     edit_settings_.pid_ki = value;
     return true;
 }
 
-bool SettingManager::set_edit_pid_kd(uint16_t value) noexcept
+bool
+SettingManager::set_edit_pid_kd(uint16_t value) noexcept
 {
     edit_settings_.pid_kd = value;
     return true;
 }
 
-bool SettingManager::set_edit_max_temperature(uint16_t value) noexcept
+bool
+SettingManager::set_edit_max_temperature(uint16_t value) noexcept
 {
     edit_settings_.max_temperature_c = value;
     return true;
 }
 
-bool SettingManager::set_edit_buzzer_state(uint16_t value) noexcept
+bool
+SettingManager::set_edit_buzzer_state(uint16_t value) noexcept
 {
     if (value > 1)
         return false;
@@ -172,11 +192,22 @@ bool SettingManager::set_edit_buzzer_state(uint16_t value) noexcept
     return true;
 }
 
+bool
+SettingManager::set_edit_prestep_outs(uint16_t value) noexcept
+{
+    if (value > 0xFF)
+        return false;
+
+    edit_settings_.prestep_outs = value;
+    return true;
+}
+
 // -----------------------------------------------------------------------------
 // Private helpers
 // -----------------------------------------------------------------------------
 
-void SettingManager::settings_changed() noexcept
+void
+SettingManager::settings_changed() noexcept
 {
     if (notify_callback_ != nullptr)
     {

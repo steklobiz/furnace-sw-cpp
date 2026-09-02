@@ -7,10 +7,10 @@ namespace hal {
 
 void init();    
 
-void set_outputs(uint8_t);
+void set_outs(uint8_t);
 
 // resetting outputs to default state
-void reset_outputs();
+void reset_outs();
 
 void delay_ms(uint32_t ms);
 

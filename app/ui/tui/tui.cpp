@@ -122,7 +122,7 @@ static constexpr Tui::Button profile_editor_buttons[] =
 {
     {'e', "Edit setpoint", Ui::ActionType::EditSetpoint, 0, true},
     {'d', "Edit duration", Ui::ActionType::EditDuration, 0, true},
-    {'f', "Edit outputs",    Ui::ActionType::EditFlags,    0, true},
+    {'f', "Edit outputs",    Ui::ActionType::EditOuts,    0, true},
     {'n', "Next",          Ui::ActionType::NextStep,     0},
     {'p', "Previous",      Ui::ActionType::PreviousStep, 0},
     {'s', "Save",          Ui::ActionType::SaveProfile,  0},
@@ -384,7 +384,7 @@ void Tui::render_profile_content() noexcept
     std::printf(
         "\033[%zu;1H\033[2KFlags: %u",
         profile_editor_content_row + 3,
-        static_cast<unsigned>(step.outputs));
+        static_cast<unsigned>(step.outs));
 }
 
 void Tui::render_profile_editor_page() noexcept

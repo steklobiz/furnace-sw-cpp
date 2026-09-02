@@ -149,7 +149,7 @@ private:
     // according to the recipe execution rules.
     bool is_step_finished() const noexcept;
 
-    void set_outputs(uint8_t outputs) noexcept;
+    void set_outs(uint8_t outs) noexcept;
     
     int32_t update_pid(int32_t temperature) noexcept;
     
@@ -201,7 +201,7 @@ private:
     // Current calculated temperature (update each tick). will be used as a target fo PID later
     int16_t current_temperature_c_ = 0; 
 
-    uint8_t outputs_ = 0;
+    uint8_t outs_ = 0;
     
     uint8_t pid_output_ = 0;
     

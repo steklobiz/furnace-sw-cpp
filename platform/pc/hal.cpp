@@ -27,13 +27,13 @@ void init()
 }
     
     
-void set_outputs(uint8_t byte)
+void set_outs(uint8_t byte)
 {
     // TODO: set ouputs    
     static_cast<void>(byte);
 }
 
-void reset_outputs()
+void reset_outs()
 {
     // Do I need it?
 }
