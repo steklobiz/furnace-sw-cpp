@@ -39,7 +39,7 @@ struct Settings
 
     bool beep_on_finish = true;
     
-    uint8_t prestep_outs;
+    uint8_t prestep_outs = 0;
 };
 
 

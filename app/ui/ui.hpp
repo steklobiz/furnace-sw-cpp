@@ -56,6 +56,9 @@ public:
         // Events
         ShowEvents,
     
+        // Events
+        ShowQuestion,
+                
         // Navigation
         Back
     };
@@ -76,11 +79,11 @@ public:
         Main,
         ProfileSelection,
         Settings,
-        ProfileEditorOuts,
-        ProfileEditorVals,        
+        ProfileEditor,
         Monitor,
         Result,
         Events,
+        Question,
 
         Count
     };
@@ -171,7 +174,6 @@ private:
         void (Ui::*callback)(uint16_t) noexcept;
     };    
 
-
     void start_profile_selection(uint16_t) noexcept;
     void edit_profile_selection(uint16_t) noexcept;
     void select_profile(uint16_t) noexcept;
@@ -205,7 +207,10 @@ private:
     void request_reset_furnace(uint16_t) noexcept;
     // Requests the application to continue the furnace process.
     void request_continue_furnace(uint16_t argument) noexcept;
+
     void show_events(uint16_t) noexcept;
+
+    void show_question(uint16_t) noexcept;
     
     void back(uint16_t) noexcept;
 
@@ -285,7 +290,11 @@ private:
             
         {Ui::ActionType::ShowEvents,
             &Ui::show_events},   
-            
+
+        {Ui::ActionType::ShowQuestion,
+            &Ui::show_question},   
+
+                        
         {Ui::ActionType::Back,
             &Ui::back}
     };

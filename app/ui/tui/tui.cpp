@@ -17,6 +17,10 @@ static constexpr std::size_t profile_editor_content_row = 3;
 static constexpr std::size_t profile_editor_input_row   = 8;
 static constexpr std::size_t profile_editor_button_row  = 10;
 
+static constexpr std::size_t settings_content_row  = 3;
+static constexpr std::size_t settings_input_row   = 9;
+static constexpr std::size_t settings_button_row   = 10;
+
 constexpr std::size_t page_count =
     static_cast<std::size_t>(Ui::Page::Count);
 
@@ -91,7 +95,8 @@ static constexpr Tui::Label settings_labels[] =
     {"PID Kp:",              1},
     {"PID Ki:",              2},
     {"PID Kd:",              3},
-    {"Max temperature, C:",  4}
+    {"Max temperature, C:",  4},
+    {"Prestep outputs:",  5}
 };
 
 static constexpr Tui::Button settings_buttons[] =
@@ -111,6 +116,9 @@ static constexpr Tui::Button settings_buttons[] =
     {'m', "Edit max temperature",
         Ui::ActionType::EditMaxTemperature, 0, true},
 
+    {'o', "Edit prestep outputs",
+        Ui::ActionType::EditPrestepOuts, 0, true},
+        
     {'s', "Save",
         Ui::ActionType::SaveSettings, 0},
     
@@ -243,7 +251,7 @@ void Tui::process() noexcept
     if (page_index >= std::size(page_descriptors))
         return;
 
-    if (page == Ui::Page::ProfileEditorOuts)
+    if (page == Ui::Page::ProfileEditor)
     {
         render_profile_editor_page();
         return;
@@ -431,7 +439,7 @@ void Tui::render_profile_editor_page() noexcept
         const auto& descriptor =
             page_descriptors[
                 static_cast<std::size_t>(
-                    Ui::Page::ProfileEditorOuts)];
+                    Ui::Page::ProfileEditor)];
     
         render_buttons(
             descriptor,
@@ -460,7 +468,7 @@ void Tui::render_settings_page() noexcept
 
         render_buttons(
             descriptor,
-            9);
+            settings_button_row);
     }
 
     const uint16_t values[] =
@@ -469,7 +477,8 @@ void Tui::render_settings_page() noexcept
         settings.pid_kp,
         settings.pid_ki,
         settings.pid_kd,
-        settings.max_temperature_c
+        settings.max_temperature_c,         
+        settings.prestep_outs
     };
 
     for (std::size_t i = 0;
@@ -489,7 +498,7 @@ void Tui::render_settings_page() noexcept
 
         std::printf(
             "\033[%zu;1H\033[2K%s %u",
-            i + 3,
+            i + settings_content_row,
             label.caption,
             static_cast<unsigned>(values[i]));
     }
@@ -545,10 +554,6 @@ void Tui::process_input() noexcept
             input_action_ = button.action;
             input_value_ = 0;
             input_has_value_ = false;
-
-        std::printf(
-            "\033[%zu;1H\033[2KEnter value: ",
-            profile_editor_input_row);
     
             return;
         }
@@ -565,6 +570,14 @@ void Tui::process_input() noexcept
 
 void Tui::process_numeric_input() noexcept
 {
+    
+    const auto page = ui_->page();
+
+    const auto input_row =
+        page == Ui::Page::Settings
+            ? settings_input_row
+            : profile_editor_input_row;
+            
     if (!_kbhit())
     {
         return;
@@ -619,7 +632,7 @@ void Tui::process_numeric_input() noexcept
         // Clear numeric input prompt.
         std::printf(
             "\033[%zu;1H\033[2K",
-            profile_editor_input_row);
+            input_row);
     }
     else if (key == '\x1b')
     {
@@ -631,13 +644,13 @@ void Tui::process_numeric_input() noexcept
         // Clear numeric input prompt.
         std::printf(
             "\033[%zu;1H\033[2K",
-            profile_editor_input_row);
+            input_row);
     }
     if (input_mode_ == InputMode::Numeric)
     {
         std::printf(
             "\033[%zu;1H\033[2KEnter value: %u",
-            profile_editor_input_row,
+            input_row,
             static_cast<unsigned>(input_value_));
     }
 }

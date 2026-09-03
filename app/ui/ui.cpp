@@ -219,7 +219,7 @@ void Ui::confirm_edit_profile(uint16_t profile_id) noexcept
         return;
 
     current_step_ = 0;
-    page_ = Page::ProfileEditorOuts;
+    page_ = Page::ProfileEditor;
 }
 
 const Settings& Ui::get_edit_settings() const noexcept
@@ -370,40 +370,28 @@ void Ui::show_events(uint16_t) noexcept
     page_ = Page::Events;
 }
 
+void Ui::show_question(uint16_t) noexcept
+{
+    page_ = Page::Question;
+}
+
+
 void Ui::back(uint16_t) noexcept
 {
     switch (page_)
     {
         case Page::ProfileSelection:
-            page_ = Page::Main;
-            break;
-
-        case Page::Settings:
-            page_ = Page::Main;
-            break;
-            
-        case Page::ProfileEditorVals:
-            page_ = Page::ProfileSelection;
-            break;
-
-       case Page::ProfileEditorOuts:
-            page_ = Page::ProfileSelection;
-            break;
-     
+        case Page::Settings:            
+        case Page::ProfileEditor:     
         case Page::Monitor:
-            page_ = Page::Main;
-            break;
-
         case Page::Result:
-            page_ = Page::Main;
-            break;
-
         case Page::Events:
             page_ = Page::Main;
             break;    
             
         case Page::Main:
         case Page::Count:
+        case Page::Question:        
             break;
     }
 }
