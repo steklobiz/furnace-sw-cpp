@@ -56,8 +56,10 @@ public:
         // Events
         ShowEvents,
     
-        // Events
-        ShowQuestion,
+        // Qustion
+        AskStopProfile,
+        ConfirmQuestion,
+        CancelQuestion,
                 
         // Navigation
         Back
@@ -210,7 +212,9 @@ private:
 
     void show_events(uint16_t) noexcept;
 
-    void show_question(uint16_t) noexcept;
+    void ask_stop_profile(uint16_t) noexcept;
+    void confirm_question(uint16_t) noexcept;
+    void cancel_question(uint16_t) noexcept;
     
     void back(uint16_t) noexcept;
 
@@ -291,9 +295,14 @@ private:
         {Ui::ActionType::ShowEvents,
             &Ui::show_events},   
 
-        {Ui::ActionType::ShowQuestion,
-            &Ui::show_question},   
-
+        {Ui::ActionType::AskStopProfile,
+            &Ui::ask_stop_profile},
+        
+        {Ui::ActionType::ConfirmQuestion,
+            &Ui::confirm_question},
+        
+        {Ui::ActionType::CancelQuestion,
+            &Ui::cancel_question},
                         
         {Ui::ActionType::Back,
             &Ui::back}

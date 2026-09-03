@@ -370,11 +370,20 @@ void Ui::show_events(uint16_t) noexcept
     page_ = Page::Events;
 }
 
-void Ui::show_question(uint16_t) noexcept
+void Ui::ask_stop_profile(uint16_t) noexcept
 {
     page_ = Page::Question;
 }
 
+void Ui::confirm_question(uint16_t) noexcept
+{
+    furnace_->stop();
+}
+
+void Ui::cancel_question(uint16_t) noexcept
+{
+    page_ = Page::Monitor;
+}
 
 void Ui::back(uint16_t) noexcept
 {

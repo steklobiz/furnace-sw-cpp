@@ -95,6 +95,9 @@ private:
     // Renders the Events page.
     void render_events_page() noexcept;
     
+    // Renders the Qestion page.    
+    void render_question_page();
+    
     // Returns the TUI display name for a page.
     static const char* page_name(Ui::Page page) noexcept;
     

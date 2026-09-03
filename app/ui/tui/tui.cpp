@@ -21,6 +21,8 @@ static constexpr std::size_t settings_content_row  = 3;
 static constexpr std::size_t settings_input_row   = 9;
 static constexpr std::size_t settings_button_row   = 10;
 
+static constexpr std::size_t question_button_row = 6;
+
 constexpr std::size_t page_count =
     static_cast<std::size_t>(Ui::Page::Count);
 
@@ -68,7 +70,7 @@ static constexpr Tui::Label monitor_labels[] =
 
 static constexpr Tui::Button monitor_buttons[] =
 {
-    {'s', "Stop", Ui::ActionType::StopFurnace, 0},
+    {'s', "Stop", Ui::ActionType::AskStopProfile, 0},
     {'q', "Back", Ui::ActionType::Back, 0}
 
 };
@@ -156,6 +158,12 @@ static constexpr Tui::Button events_buttons[] =
     {'q', "Back", Ui::ActionType::Back, 0}
 };
 
+static constexpr Tui::Button question_buttons[] =
+{
+    {'o', "OK",     Ui::ActionType::ConfirmQuestion, 0},
+    {'c', "Cancel", Ui::ActionType::CancelQuestion,  0}
+};
+
 static constexpr Tui::PageDescriptor page_descriptors[] =
 {
     // Main
@@ -204,12 +212,21 @@ static constexpr Tui::PageDescriptor page_descriptors[] =
         result_buttons,
         std::size(result_buttons)
     },
+    
     // Events
     {
         nullptr,
         0,
         events_buttons,
         std::size(events_buttons)
+    },
+    
+    // Question
+    {
+        nullptr,
+        0,
+        question_buttons,
+        std::size(question_buttons)
     }
 };
 
@@ -250,28 +267,31 @@ void Tui::process() noexcept
 
     if (page_index >= std::size(page_descriptors))
         return;
-
-    if (page == Ui::Page::ProfileEditor)
-    {
-        render_profile_editor_page();
-        return;
-    }
-
-    if (page == Ui::Page::Settings)
-    {
-        render_settings_page();
-        return;
-    }
+        
+    switch (page)
+        {
+            case Ui::Page::ProfileEditor:
+                render_profile_editor_page();
+                break;
     
-    if (page == Ui::Page::Events)
-    {
-        render_events_page();
-        return;
-    }
+            case Ui::Page::Settings:
+                render_settings_page();
+                break;
     
-    render_page(
-        page_descriptors[page_index],
-        page);
+            case Ui::Page::Events:
+                render_events_page();
+                break;
+    
+            case Ui::Page::Question:
+                render_question_page();
+                break;
+    
+            default:
+                render_page(
+                    page_descriptors[page_index],
+                    page);
+                break;
+        }
 }    
     
 
@@ -345,11 +365,11 @@ void Tui::render_buttons(
             first_button_row + i;
 
         if (descriptor.label_count == 0 &&
+            descriptor.button_count == 1 &&
             i == descriptor.button_count - 1)
         {
             ++row;
         }
-
         std::printf(
             "\033[%zu;1H[%c] %s",
             row,
@@ -785,6 +805,25 @@ void Tui::render_events_page() noexcept
             notification_type_name(event.type),
             static_cast<unsigned>(event.argument));
     }
+
+    page_rendered_ = true;
+}
+
+void Tui::render_question_page()
+{
+    if (page_rendered_)
+        return;
+
+    const auto& descriptor =
+        page_descriptors[
+            static_cast<std::size_t>(Ui::Page::Question)];
+
+    std::printf("Question\n\n");
+    std::printf("Stop current profile?\n");
+
+    render_buttons(
+        descriptor,
+        question_button_row);
 
     page_rendered_ = true;
 }
