@@ -60,6 +60,9 @@ public:
         AskStopProfile,
         ConfirmQuestion,
         CancelQuestion,
+
+        // Samples
+        ShowSamples,
                 
         // Navigation
         Back
@@ -86,6 +89,7 @@ public:
         Result,
         Events,
         Question,
+        Samples,
 
         Count
     };
@@ -159,6 +163,13 @@ public:
 
     // Returns the number of stored events.    
     [[nodiscard]] std::size_t event_count() const noexcept;
+
+    // Returns an sample by its position relative to the newest event.
+    [[nodiscard]] const DataAggregator::FurnaceSample&
+        sample_from_newest(std::size_t index) const noexcept;
+
+    // Returns the number of stored samples.
+    [[nodiscard]] std::size_t sample_count() const noexcept;
 
     // Returns the currently selected profile step.
     [[nodiscard]] uint8_t current_step() const noexcept;
@@ -240,6 +251,9 @@ private:
     void confirm_question(uint16_t) noexcept;
     // Cancels the currently displayed question.
     void cancel_question(uint16_t) noexcept;
+
+    // Opens the samples history page.
+    void show_samples(uint16_t) noexcept;
 
     // Returns to the previous page according to the current navigation context.
     void back(uint16_t) noexcept;
@@ -330,7 +344,10 @@ private:
         
         {Ui::ActionType::CancelQuestion,
             &Ui::cancel_question},
-                        
+
+    {Ui::ActionType::ShowSamples,
+        &Ui::show_samples},
+
         {Ui::ActionType::Back,
             &Ui::back}
     };

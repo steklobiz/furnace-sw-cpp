@@ -151,9 +151,20 @@ std::size_t Ui::event_count() const noexcept
 }
 
 const DataAggregator::Event&
-Ui::event_from_newest(std::size_t index) const noexcept
+Ui::event_from_newest(const std::size_t index) const noexcept
 {
     return data_->event_from_newest(index);
+}
+
+std::size_t Ui::sample_count() const noexcept
+{
+    return data_->sample_count();
+}
+
+const DataAggregator::FurnaceSample&
+Ui::sample_from_newest(const std::size_t index) const noexcept
+{
+    return data_->sample_from_newest(index);
 }
 
 uint8_t Ui::current_step() const noexcept
@@ -385,6 +396,11 @@ void Ui::cancel_question(uint16_t) noexcept
     page_ = Page::Monitor;
 }
 
+void Ui::show_samples(uint16_t) noexcept
+{
+    page_ = Page::Samples;
+}
+
 void Ui::back(uint16_t) noexcept
 {
     switch (page_)
@@ -395,6 +411,7 @@ void Ui::back(uint16_t) noexcept
         case Page::Monitor:
         case Page::Result:
         case Page::Events:
+        case Page::Samples:
             page_ = Page::Main;
             break;    
             

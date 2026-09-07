@@ -49,7 +49,9 @@ constexpr Tui::Button main_buttons[] =
 {
     {'s', "Start profile", Ui::ActionType::StartProfileSelection,0},
     {'e', "Edit profile",  Ui::ActionType::EditProfileSelection, 0},
-    {'t', "Settings",      Ui::ActionType::Settings,             0},     {'v', "Events",        Ui::ActionType::ShowEvents,           0}
+    {'t', "Settings",      Ui::ActionType::Settings,             0},
+    {'v', "Events",        Ui::ActionType::ShowEvents,           0},
+    {'a', "Samples",       Ui::ActionType::ShowSamples,          0}
 };
 
 
@@ -474,7 +476,7 @@ void Tui::render_settings_page() noexcept
     const auto& settings =
         ui_->get_edit_settings();
 
-    const auto page_index =
+    constexpr auto page_index =
         static_cast<std::size_t>(Ui::Page::Settings);
 
     if (!page_rendered_)
@@ -610,7 +612,7 @@ void Tui::process_numeric_input() noexcept
         const auto digit =
             static_cast<uint16_t>(key - '0');
 
-        const auto max =
+        constexpr auto max =
             std::numeric_limits<uint16_t>::max();
 
         if (input_value_ <=
@@ -824,6 +826,71 @@ void Tui::render_question_page()
     render_buttons(
         descriptor,
         question_button_row);
+
+    page_rendered_ = true;
+}
+
+
+    void Tui::render_samples_page() noexcept
+{
+    if (!page_rendered_)
+    {
+        std::printf(
+            "\033[1;1H\033[2KSamples");
+
+        std::printf(
+            "\033[3;1H\033[2KTime       Temperature    Power");
+
+        std::printf(
+            "\033[4;1H\033[2K"
+            "--------------------------------------");
+
+        const auto& descriptor =
+            page_descriptors[
+                static_cast<std::size_t>(Ui::Page::Samples)];
+
+        render_buttons(
+            descriptor,
+            16);
+    }
+
+    const auto count =
+        ui_->sample_count();
+
+    constexpr std::size_t first_row = 5;
+
+    for (std::size_t i = 0;
+         i < MaxEventsPerPage;
+         ++i)
+    {
+        const std::size_t row =
+            first_row + i;
+
+        std::printf(
+            "\033[%zu;1H\033[2K",
+            row);
+
+        if (i >= count)
+        {
+            continue;
+        }
+
+        const auto& sample =
+            ui_->sample_from_newest(i);
+
+        std::printf(
+            "%02u:%02u:%02u  %10d C    %3u %%",
+            static_cast<unsigned>(
+                sample.elapsed_s / 3600),
+            static_cast<unsigned>(
+                (sample.elapsed_s / 60) % 60),
+            static_cast<unsigned>(
+                sample.elapsed_s % 60),
+            static_cast<int>(
+                sample.temperature),
+            static_cast<unsigned>(
+                sample.output));
+    }
 
     page_rendered_ = true;
 }
