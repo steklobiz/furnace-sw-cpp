@@ -4,7 +4,38 @@
 #include <iostream>
 #include "hal.hpp"
 #include "thermal_model.hpp"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
+namespace
+{
+    void enable_vt_processing() noexcept
+    {
+#ifdef _WIN32
+        HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        if (output == INVALID_HANDLE_VALUE)
+        {
+            return;
+        }
+
+        DWORD mode = 0;
+
+        if (!GetConsoleMode(output, &mode))
+        {
+            return;
+        }
+
+        mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+        static_cast<void>(
+            SetConsoleMode(output, mode)
+        );
+#endif
+    }
+
+}
 
 // need to be namespace platform::hal {
 namespace hal {
@@ -24,6 +55,7 @@ namespace hal {
     
 void init()
 {
+    enable_vt_processing();
 }
     
     

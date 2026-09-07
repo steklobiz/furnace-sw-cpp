@@ -10,6 +10,8 @@ bool App::init() noexcept
    
     const Settings& settings = settings_.view();
 
+    hal::init();
+
     pid_.init({
         settings.pid_kp,
         settings.pid_ki,

@@ -424,7 +424,7 @@ void Furnace::set_outs(uint8_t outs) noexcept
 
     for (uint8_t id = 0; id < 8; ++id)
     {
-        const uint8_t mask =
+        const auto mask =
             static_cast<uint8_t>(1u << id);
 
         if (set & mask)
@@ -443,7 +443,7 @@ void Furnace::set_outs(uint8_t outs) noexcept
     }
 }
 
-int32_t Furnace::update_pid(int32_t temperature) noexcept
+int32_t Furnace::update_pid(const int32_t temperature) const noexcept
 {
     return pid_->update(
         setpoint(),

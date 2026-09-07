@@ -4,7 +4,8 @@ CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic \
             -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config -Iapp/tc_parser -Iapp/alarm -Iapp/history -Iapp/furnace -Iapp/aggregator \
             -Icore/log -Icore/log/backends -Icore/pid -Icore/scheduler -Icore/format \
             -Iplatform
-LDFLAGS := -static
+# LDFLAGS := -static
+LDFLAGS :=
 
 SRCDIR   := app
 UIDIR    := app/ui

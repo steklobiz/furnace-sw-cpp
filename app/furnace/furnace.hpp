@@ -151,7 +151,7 @@ private:
 
     void set_outs(uint8_t outs) noexcept;
     
-    int32_t update_pid(int32_t temperature) noexcept;
+    int32_t update_pid(int32_t temperature) const noexcept;
     
     void notify(NotificationType type,uint16_t argument) noexcept;
     
