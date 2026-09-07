@@ -8,7 +8,7 @@ namespace app
 namespace
 {
     
-static constexpr Ui::FieldMapping main_fields[] =
+constexpr Ui::FieldMapping main_fields[] =
 {
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
@@ -16,7 +16,7 @@ static constexpr Ui::FieldMapping main_fields[] =
 };
 
 
-static constexpr Ui::FieldMapping monitor_fields[] =
+constexpr Ui::FieldMapping monitor_fields[] =
 {
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
@@ -30,7 +30,7 @@ static constexpr Ui::FieldMapping monitor_fields[] =
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
-static constexpr Ui::FieldMapping settings_fields[] =
+constexpr Ui::FieldMapping settings_fields[] =
 {
     {DataSource::Setting, static_cast<uint8_t>(SettingItem::Buzzer)},
     {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKp)},
@@ -40,14 +40,14 @@ static constexpr Ui::FieldMapping settings_fields[] =
     {DataSource::Setting, static_cast<uint8_t>(SettingItem::PrestepOuts)}
 };
 
-static constexpr Ui::FieldMapping result_fields[] =
+constexpr Ui::FieldMapping result_fields[] =
 {
     {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::Temperature)},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
-static constexpr Ui::PageDescriptor page_descriptors[] =
+constexpr Ui::PageDescriptor page_descriptors[] =
 {
     {main_fields,    std::size(main_fields)},       // Main page
     {nullptr,        0},                            // ProfileSelection page
@@ -258,32 +258,32 @@ void Ui::next_step(uint16_t) noexcept
     }
 }
 
-void Ui::edit_buzzer(uint16_t value) noexcept
+void Ui::edit_buzzer(const uint16_t value) noexcept
 {
     settings_->set_edit_buzzer_state(value);    
 };
 
-void Ui::edit_pid_kp(uint16_t value) noexcept
+void Ui::edit_pid_kp(const uint16_t value) noexcept
 {
     settings_->set_edit_pid_kp(value);
 };
 
-void Ui::edit_pid_ki(uint16_t value) noexcept
+void Ui::edit_pid_ki(const uint16_t value) noexcept
 {
     settings_->set_edit_pid_ki(value);    
 };
 
-void Ui::edit_pid_kd(uint16_t value) noexcept
+void Ui::edit_pid_kd(const uint16_t value) noexcept
 {
     settings_->set_edit_pid_kd(value);
 };
 
-void Ui::edit_max_temperature(uint16_t value) noexcept
+void Ui::edit_max_temperature(const uint16_t value) noexcept
 {
     settings_->set_edit_max_temperature(value);
 };
 
-void Ui::edit_prestep_outs(uint16_t value) noexcept
+void Ui::edit_prestep_outs(const uint16_t value) noexcept
 {
     settings_->set_edit_prestep_outs(value);
 }
@@ -294,14 +294,14 @@ void Ui::previous_step(uint16_t) noexcept
         --current_step_;
 }
 
-void Ui::edit_setpoint(uint16_t value) noexcept
+void Ui::edit_setpoint(const uint16_t value) noexcept
 {
     profiles_->set_edit_setpoint(
         current_step_,
         value);
 }
 
-void Ui::edit_duration(uint16_t value) noexcept
+void Ui::edit_duration(const uint16_t value) noexcept
 {
     profiles_->set_edit_duration(
         current_step_,

@@ -452,8 +452,8 @@ int32_t Furnace::update_pid(const int32_t temperature) const noexcept
 }
 
 void Furnace::notify(
-    NotificationType type,
-    uint16_t argument) noexcept
+    const NotificationType type,
+    const uint16_t argument) noexcept
 {
     if (notify_callback_ == nullptr)
         return;

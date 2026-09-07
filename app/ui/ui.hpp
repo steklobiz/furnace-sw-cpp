@@ -56,7 +56,7 @@ public:
         // Events
         ShowEvents,
     
-        // Qustion
+        // Question
         AskStopProfile,
         ConfirmQuestion,
         CancelQuestion,
@@ -141,27 +141,27 @@ public:
     void execute(Action action) noexcept;
 
     // Returns the currently active page.
-    Page page() const noexcept;
+    [[nodiscard]] Page page() const noexcept;
     
     // Returns the current value of a field on the specified page.
-    uint16_t get_field(
+    [[nodiscard]] uint16_t get_field(
         Ui::Page page,
         uint8_t field) const noexcept;
         
     // Returns the current profile being edited.
-    const Profile& get_edit_profile() const noexcept;
+    [[nodiscard]] const Profile& get_edit_profile() const noexcept;
     // Returns the current settings being edited.
-    const Settings& get_edit_settings() const noexcept;
+    [[nodiscard]] const Settings& get_edit_settings() const noexcept;
     
     // Returns an event by its position relative to the newest event.
-    const DataAggregator::Event&
+    [[nodiscard]] const DataAggregator::Event&
         event_from_newest(std::size_t index) const noexcept;
 
     // Returns the number of stored events.    
-    std::size_t event_count() const noexcept;
+    [[nodiscard]] std::size_t event_count() const noexcept;
 
     // Returns the currently selected profile step.
-    uint8_t current_step() const noexcept;
+    [[nodiscard]] uint8_t current_step() const noexcept;
     
     // Registers the callback used to send application-level commands.        
     void set_command_callback(
@@ -308,10 +308,10 @@ private:
             &Ui::back}
     };
         
-    DataAggregator* data_;
-    ProfileManager* profiles_;
-    SettingManager* settings_;
-    Furnace* furnace_;
+    DataAggregator*data_ = nullptr;
+    ProfileManager*profiles_ = nullptr;
+    SettingManager*settings_ = nullptr;
+    Furnace*furnace_ = nullptr;
 
     Page page_ = Page::Main;
 

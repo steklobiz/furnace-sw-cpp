@@ -40,7 +40,7 @@ void AlarmDispatcher::process() noexcept
         is_active(AlarmId::OverTemperature) ||
         is_active(AlarmId::EmergencyStop))
     {
-        furnace_->error();
+        furnace_->raise_error();
     }
 }
 
