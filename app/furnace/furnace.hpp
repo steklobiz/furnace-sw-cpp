@@ -51,7 +51,7 @@ public:
 
     void start()   { fsm_.dispatch(Event::Start); }
     void stop()    { fsm_.dispatch(Event::Stop);  }
-    void error()   { fsm_.dispatch(Event::Error);  }    
+    void error()   { fsm_.dispatch(Event::Error);  }
     void reset() noexcept;
     
     static const char* state_name(State state) noexcept; // only for TUI
@@ -110,8 +110,8 @@ private:
     State running(const Event&) noexcept;
     State waiting(const Event&) noexcept;
     State finished(const Event&) noexcept;
-    State stopped(const Event&) noexcept;    
-    State error(const Event&) noexcept;
+    State stopped(const Event&) noexcept;
+    static State error(const Event&) noexcept;
 
     //------------------------------------------------------
     // Optional enter callbacks
