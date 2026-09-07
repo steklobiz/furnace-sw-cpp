@@ -103,7 +103,13 @@ private:
 
     // Returns the TUI display name for a page.
     static const char* page_name(Ui::Page page) noexcept;
-    
+
+    // ANSI terminal helper functions
+    static void move(std::size_t row, std::size_t col) noexcept;
+    static void clear_line(std::size_t row) noexcept;
+    static void clear_screen() noexcept;
+
+
     // UI model used as the source for rendering and input actions.    
     Ui* ui_ = nullptr;
 

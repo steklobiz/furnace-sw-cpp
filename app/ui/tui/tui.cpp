@@ -270,8 +270,7 @@ void Tui::process() noexcept
         rendered_page_ = page;
         page_rendered_ = false;
 
-        // Clear the terminal when switching pages.
-        std::printf("\033[2J\033[H");
+        clear_screen();
     }
 
     const auto page_index =
@@ -317,9 +316,8 @@ void Tui::render_page(
 {
     if (!page_rendered_)
     {
-        std::printf(
-            "\033[1;1H%s",
-            page_name(page));
+        move(1, 1);
+        std::printf("%s", page_name(page));
     
         const std::size_t first_button_row =
             descriptor.label_count == 0
@@ -356,9 +354,11 @@ void Tui::render_page(
         rendered_values_[page_index][label.field] =
             item;
 
+        clear_line(row + 3);
+
+        move(row + 3, 1);
         std::printf(
-            "\033[%zu;1H\033[2K%s %u",
-            row + 3,
+            "%s %u",
             label.caption,
             static_cast<unsigned>(item));
     }
@@ -381,14 +381,15 @@ void Tui::render_buttons(
             first_button_row + i;
 
         if (descriptor.label_count == 0 &&
-            descriptor.button_count == 1 &&
-            i == descriptor.button_count - 1)
+            descriptor.button_count == 1)
         {
             ++row;
         }
+
+        clear_line(row);
+
         std::printf(
-            "\033[%zu;1H[%c] %s",
-            row,
+            "[%c] %s",
             button.key,
             button.caption);
     }
@@ -410,24 +411,24 @@ void Tui::render_profile_content() noexcept
     const auto& step =
         profile.steps[step_index];
 
+    clear_line(profile_editor_content_row);
     std::printf(
-        "\033[%zu;1H\033[2KStep: %u",
-        profile_editor_content_row,
+        "Step: %u",
         static_cast<unsigned>(step_index));
 
+    clear_line(profile_editor_content_row + 1);
     std::printf(
-        "\033[%zu;1H\033[2KSetpoint, C: %u",
-        profile_editor_content_row + 1,
+        "Setpoint, C: %u",
         static_cast<unsigned>(step.setpoint_c));
 
+    clear_line(profile_editor_content_row + 2);
     std::printf(
-        "\033[%zu;1H\033[2KDuration, s: %u",
-        profile_editor_content_row + 2,
+        "Duration, s: %u",
         static_cast<unsigned>(step.duration));
 
+    clear_line(profile_editor_content_row + 3);
     std::printf(
-        "\033[%zu;1H\033[2KFlags: %u",
-        profile_editor_content_row + 3,
+        "Flags: %u",
         static_cast<unsigned>(step.outs));
 }
 
@@ -449,13 +450,11 @@ void Tui::render_profile_editor_page() noexcept
 
     if (!page_rendered_)
     {
-        std::printf(
-            "\033[1;1H\033[2KProfile Editor");
+        clear_line(1);
+        std::printf("%s", page_name(ui_->page()));
 
         // Clear the reserved numeric-input line.
-        std::printf(
-            "\033[%zu;1H\033[2K",
-            profile_editor_input_row);
+        clear_line(profile_editor_input_row);
 
         rendered_step_index_ = 0xff;
     }
@@ -476,7 +475,7 @@ void Tui::render_profile_editor_page() noexcept
             page_descriptors[
                 static_cast<std::size_t>(
                     Ui::Page::ProfileEditor)];
-    
+
         render_buttons(
             descriptor,
             profile_editor_button_row);
@@ -495,10 +494,9 @@ void Tui::render_settings_page() noexcept
 
     if (!page_rendered_)
     {
-        std::printf(
-            "\033[1;1H\033[2K%s",
-            page_name(Ui::Page::Settings));
-    
+        clear_line(1);
+        std::printf("%s", page_name(ui_->page()));
+
         const auto& descriptor =
             page_descriptors[page_index];
 
@@ -513,7 +511,7 @@ void Tui::render_settings_page() noexcept
         settings.pid_kp,
         settings.pid_ki,
         settings.pid_kd,
-        settings.max_temperature_c,         
+        settings.max_temperature_c,
         settings.prestep_outs
     };
 
@@ -532,9 +530,10 @@ void Tui::render_settings_page() noexcept
         const auto& label =
             page_descriptors[page_index].labels[i];
 
+        clear_line(i + settings_content_row);
+
         std::printf(
-            "\033[%zu;1H\033[2K%s %u",
-            i + settings_content_row,
+            "%s %u",
             label.caption,
             static_cast<unsigned>(values[i]));
     }
@@ -606,14 +605,13 @@ void Tui::process_input() noexcept
 
 void Tui::process_numeric_input() noexcept
 {
-    
     const auto page = ui_->page();
 
     const auto input_row =
         page == Ui::Page::Settings
             ? settings_input_row
             : profile_editor_input_row;
-            
+
     if (!_kbhit())
     {
         return;
@@ -654,21 +652,19 @@ void Tui::process_numeric_input() noexcept
         {
             return;
         }
-    
+
         ui_->execute({
             input_action_,
             input_value_
         });
-    
+
         input_mode_ = InputMode::Normal;
         input_action_ = Ui::ActionType::None;
         input_value_ = 0;
         input_has_value_ = false;
-    
+
         // Clear numeric input prompt.
-        std::printf(
-            "\033[%zu;1H\033[2K",
-            input_row);
+        clear_line(input_row);
     }
     else if (key == '\x1b')
     {
@@ -676,17 +672,17 @@ void Tui::process_numeric_input() noexcept
         input_action_ = Ui::ActionType::None;
         input_value_ = 0;
         input_has_value_ = false;
-    
+
         // Clear numeric input prompt.
-        std::printf(
-            "\033[%zu;1H\033[2K",
-            input_row);
+        clear_line(input_row);
     }
+
     if (input_mode_ == InputMode::Numeric)
     {
+        clear_line(input_row);
+
         std::printf(
-            "\033[%zu;1H\033[2KEnter value: %u",
-            input_row,
+            "Enter value: %u",
             static_cast<unsigned>(input_value_));
     }
 }
@@ -760,21 +756,21 @@ const char* notification_type_name(
     return "Unknown";
 }
 
-
 void Tui::render_events_page() noexcept
 {
     if (!page_rendered_)
     {
-        std::printf(
-            "\033[1;1H\033[2KEvents");
+        clear_line(1);
+        std::printf("%s", page_name(ui_->page()));
 
+        clear_line(3);
         std::printf(
-            "\033[3;1H\033[2KTime       Source     Event              ID");
-        
+            "Time       Source     Event              ID");
+
+        clear_line(4);
         std::printf(
-            "\033[4;1H\033[2K"
             "----------------------------------------------------");
-    
+
         const auto& descriptor =
             page_descriptors[
                 static_cast<std::size_t>(Ui::Page::Events)];
@@ -788,18 +784,15 @@ void Tui::render_events_page() noexcept
         ui_->event_count();
 
     constexpr std::size_t first_row = 5;
-    constexpr std::size_t max_rows = 10;
 
     for (std::size_t i = 0;
-         i < max_rows;
+         i < MaxEventsPerPage;
          ++i)
     {
         const std::size_t row =
             first_row + i;
 
-        std::printf(
-            "\033[%zu;1H\033[2K",
-            row);
+        clear_line(row);
 
         if (i >= count)
         {
@@ -825,6 +818,7 @@ void Tui::render_events_page() noexcept
     page_rendered_ = true;
 }
 
+
 void Tui::render_question_page()
 {
     if (page_rendered_)
@@ -834,8 +828,11 @@ void Tui::render_question_page()
         page_descriptors[
             static_cast<std::size_t>(Ui::Page::Question)];
 
-    std::printf("Question\n\n");
-    std::printf("Stop current profile?\n");
+    clear_line(1);
+    std::printf("%s", page_name(ui_->page()));
+
+    clear_line(3);
+    std::printf("Stop current profile?");
 
     render_buttons(
         descriptor,
@@ -845,7 +842,7 @@ void Tui::render_question_page()
 }
 
 
-    void Tui::render_samples_page() noexcept
+void Tui::render_samples_page() noexcept
 {
     if (!page_rendered_)
     {
@@ -913,6 +910,24 @@ const char* Tui::page_name(Ui::Page page) noexcept
 {
     return page_names[
         static_cast<std::size_t>(page)];
+}
+
+void Tui::move(
+    const std::size_t row,
+    const std::size_t col) noexcept
+{
+    std::printf("\033[%zu;%zuH", row, col);
+}
+
+void Tui::clear_line(const std::size_t row) noexcept
+{
+    move(row, 1);
+    std::printf("\033[2K");
+}
+
+void Tui::clear_screen() noexcept
+{
+    std::printf("\033[2J\033[H");
 }
 
 } // namespace app
