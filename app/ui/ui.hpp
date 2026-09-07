@@ -112,7 +112,7 @@ public:
         PidKd,
         MaxTemperature,
     };
-    
+
 
     struct FieldMapping
     {
@@ -176,32 +176,53 @@ private:
         void (Ui::*callback)(uint16_t) noexcept;
     };    
 
+    // Opens profile selection for starting a profile.
     void start_profile_selection(uint16_t) noexcept;
+    // Opens profile selection for editing a profile.
     void edit_profile_selection(uint16_t) noexcept;
+    // Selects a profile according to the current selection mode.
     void select_profile(uint16_t) noexcept;
-    
+
+    // Selects a profile and starts the furnace process.
     void confirm_start_profile(uint16_t) noexcept;
+    // Selects a profile and opens it for editing.
     void confirm_edit_profile(uint16_t) noexcept;
-    
+
+    // Starts a settings editing session.
     void open_settings(uint16_t) noexcept;
+    // Saves the edited settings and leaves the settings page.
     void save_settings(uint16_t) noexcept;
+    // Discards the current settings edits.
     void cancel_settings(uint16_t) noexcept;
 
+    // Updates the edited buzzer state.
     void edit_buzzer(uint16_t value) noexcept;
+    // Updates the edited PID proportional coefficient.
     void edit_pid_kp(uint16_t value) noexcept;
+    // Updates the edited PID integral coefficient.
     void edit_pid_ki(uint16_t value) noexcept;
+    // Updates the edited PID derivative coefficient.
     void edit_pid_kd(uint16_t value) noexcept;
+    // Updates the edited maximum temperature limit.
     void edit_max_temperature(uint16_t value) noexcept;
+    // Updates the edited pre-step output configuration.
     void edit_prestep_outs(uint16_t value) noexcept;
-        
+
+    // Selects the next profile step for editing.
     void next_step(uint16_t) noexcept;
+    // Selects the previous profile step for editing.
     void previous_step(uint16_t) noexcept;
 
+    // Updates the setpoint of the selected profile step.
     void edit_setpoint(uint16_t  value) noexcept;
+    // Updates the duration of the selected profile step.
     void edit_duration(uint16_t  value) noexcept;
+    // Updates the outputs of the selected profile step.
     void edit_outs(uint16_t  value) noexcept;
-        
+
+    // Saves the edited profile.
     void save_profile(uint16_t) noexcept;
+    // Cancels profile editing without saving.
     void cancel_profile(uint16_t) noexcept;
     
     void stop_furnace(uint16_t) noexcept;
@@ -210,14 +231,20 @@ private:
     // Requests the application to continue the furnace process.
     void request_continue_furnace(uint16_t argument) noexcept;
 
+    // Opens the event history page.
     void show_events(uint16_t) noexcept;
 
+    // Opens a confirmation question before stopping the profile.
     void ask_stop_profile(uint16_t) noexcept;
+    // Confirms the currently displayed question.
     void confirm_question(uint16_t) noexcept;
+    // Cancels the currently displayed question.
     void cancel_question(uint16_t) noexcept;
-    
+
+    // Returns to the previous page according to the current navigation context.
     void back(uint16_t) noexcept;
 
+    // Maps UI action types to their corresponding action handler functions.
     static constexpr ActionMapping action_mapping[] =
     {
         {Ui::ActionType::StartProfileSelection,
@@ -316,11 +343,14 @@ private:
     Page page_ = Page::Main;
 
     uint8_t current_step_ = 0;
-    
+
+    // Determines whether profile selection is used for starting or editing a profile.
     ProfileSelectionMode profile_selection_mode_ =
-    ProfileSelectionMode::Start;
-    
+        ProfileSelectionMode::Start;
+
+    // Callback used to send commands from the UI to the application.
     CommandCallback command_callback_{nullptr};
+    // Context passed to the application command callback.
     void* command_context_{nullptr};
 };
 

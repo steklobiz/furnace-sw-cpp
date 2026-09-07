@@ -13,15 +13,15 @@ namespace
 {
     
 // Lfayout constants
-static constexpr std::size_t profile_editor_content_row = 3;
-static constexpr std::size_t profile_editor_input_row   = 8;
-static constexpr std::size_t profile_editor_button_row  = 10;
+constexpr std::size_t profile_editor_content_row = 3;
+constexpr std::size_t profile_editor_input_row   = 8;
+constexpr std::size_t profile_editor_button_row  = 10;
 
-static constexpr std::size_t settings_content_row  = 3;
-static constexpr std::size_t settings_input_row   = 9;
-static constexpr std::size_t settings_button_row   = 10;
+constexpr std::size_t settings_content_row  = 3;
+constexpr std::size_t settings_input_row   = 9;
+constexpr std::size_t settings_button_row   = 10;
 
-static constexpr std::size_t question_button_row = 6;
+constexpr std::size_t question_button_row = 6;
 
 constexpr std::size_t page_count =
     static_cast<std::size_t>(Ui::Page::Count);
