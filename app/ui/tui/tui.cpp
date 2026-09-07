@@ -34,7 +34,9 @@ constexpr const char* page_names[page_count] =
     "Profile Editor",
     "Monitor",
     "Result",
-    "Events"
+    "Events",
+    "Samples",
+    "Question"
 };
     
 constexpr Tui::Label main_labels[] =
@@ -222,7 +224,15 @@ constexpr Tui::PageDescriptor page_descriptors[] =
         events_buttons,
         std::size(events_buttons)
     },
-    
+
+    // Samples
+    {
+        nullptr,
+        0,
+        events_buttons,   // or question_buttons - has the 'q' Back button
+        std::size(events_buttons)
+        },
+
     // Question
     {
         nullptr,
@@ -283,7 +293,11 @@ void Tui::process() noexcept
             case Ui::Page::Events:
                 render_events_page();
                 break;
-    
+
+            case Ui::Page::Samples:
+                render_samples_page();
+                break;
+
             case Ui::Page::Question:
                 render_question_page();
                 break;
