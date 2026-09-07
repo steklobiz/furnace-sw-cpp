@@ -12,7 +12,7 @@ namespace app
 namespace
 {
     
-// Lfayout constants
+// Layout constants
 constexpr std::size_t profile_editor_content_row = 3;
 constexpr std::size_t profile_editor_input_row   = 8;
 constexpr std::size_t profile_editor_button_row  = 10;
@@ -37,7 +37,7 @@ constexpr const char* page_names[page_count] =
     "Events"
 };
     
-static constexpr Tui::Label main_labels[] =
+constexpr Tui::Label main_labels[] =
 {
     {"State:",   0},
     {"Profile:", 1},
@@ -45,7 +45,7 @@ static constexpr Tui::Label main_labels[] =
 };
 
 
-static constexpr Tui::Button main_buttons[] =
+constexpr Tui::Button main_buttons[] =
 {
     {'s', "Start profile", Ui::ActionType::StartProfileSelection,0},
     {'e', "Edit profile",  Ui::ActionType::EditProfileSelection, 0},
@@ -53,7 +53,7 @@ static constexpr Tui::Button main_buttons[] =
 };
 
 
-static constexpr Tui::Label monitor_labels[] =
+constexpr Tui::Label monitor_labels[] =
 {
     {"State:",             0},
     {"Profile:",           1},
@@ -68,7 +68,7 @@ static constexpr Tui::Label monitor_labels[] =
 };
 
 
-static constexpr Tui::Button monitor_buttons[] =
+constexpr Tui::Button monitor_buttons[] =
 {
     {'s', "Stop", Ui::ActionType::AskStopProfile, 0},
     {'q', "Back", Ui::ActionType::Back, 0}
@@ -76,7 +76,7 @@ static constexpr Tui::Button monitor_buttons[] =
 };
 
 
-static constexpr Tui::Button profile_selection_buttons[] =
+constexpr Tui::Button profile_selection_buttons[] =
 {
     {'0', "Profile 0", Ui::ActionType::SelectProfile, 0},
     {'1', "Profile 1", Ui::ActionType::SelectProfile, 1},
@@ -91,7 +91,7 @@ static constexpr Tui::Button profile_selection_buttons[] =
     {'q', "Back",    Ui::ActionType::Back, 0}
 };
 
-static constexpr Tui::Label settings_labels[] =
+constexpr Tui::Label settings_labels[] =
 {
     {"Buzzer:",              0},
     {"PID Kp:",              1},
@@ -101,7 +101,7 @@ static constexpr Tui::Label settings_labels[] =
     {"Prestep outputs:",  5}
 };
 
-static constexpr Tui::Button settings_buttons[] =
+constexpr Tui::Button settings_buttons[] =
 {
     {'b', "Edit buzzer",
         Ui::ActionType::EditBuzzer, 0, true},
@@ -128,7 +128,7 @@ static constexpr Tui::Button settings_buttons[] =
         Ui::ActionType::CancelSettings, 0}
 };
 
-static constexpr Tui::Button profile_editor_buttons[] =
+constexpr Tui::Button profile_editor_buttons[] =
 {
     {'e', "Edit setpoint", Ui::ActionType::EditSetpoint, 0, true},
     {'d', "Edit duration", Ui::ActionType::EditDuration, 0, true},
@@ -139,7 +139,7 @@ static constexpr Tui::Button profile_editor_buttons[] =
     {'c', "Cancel",        Ui::ActionType::CancelProfile, 0}
 };
 
-static constexpr Tui::Label result_labels[] =
+constexpr Tui::Label result_labels[] =
 {
     {"State:", 0},
     {"Temperature, C:", 1},
@@ -147,24 +147,24 @@ static constexpr Tui::Label result_labels[] =
 
 };
 
-static constexpr Tui::Button result_buttons[] =
+constexpr Tui::Button result_buttons[] =
 {
     {'r', "Reset", Ui::ActionType::ResetFurnace, 0}
 
 };
 
-static constexpr Tui::Button events_buttons[] =
+constexpr Tui::Button events_buttons[] =
 {
     {'q', "Back", Ui::ActionType::Back, 0}
 };
 
-static constexpr Tui::Button question_buttons[] =
+constexpr Tui::Button question_buttons[] =
 {
     {'o', "OK",     Ui::ActionType::ConfirmQuestion, 0},
     {'c', "Cancel", Ui::ActionType::CancelQuestion,  0}
 };
 
-static constexpr Tui::PageDescriptor page_descriptors[] =
+constexpr Tui::PageDescriptor page_descriptors[] =
 {
     // Main
     {
