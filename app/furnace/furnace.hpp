@@ -49,28 +49,28 @@ public:
     // Should be executed by scheduler once a second
     void process();
 
-    void start()   { fsm_.dispatch(Event::Start); }
-    void stop()    { fsm_.dispatch(Event::Stop);  }
-    void error()   { fsm_.dispatch(Event::Error);  }    
+    void start()        { fsm_.dispatch(Event::Start); }
+    void stop()         { fsm_.dispatch(Event::Stop);  }
+    void raise_error()  { fsm_.dispatch(Event::Error);  }
     void reset() noexcept;
     
     static const char* state_name(State state) noexcept; // only for TUI
     static const char* step_type_name(StepType type) noexcept; // only for TUI
         
     // UI getters (uint16_t only)
-    uint16_t state() const noexcept;
-    uint16_t step_type() const noexcept;
-    uint16_t current_temperature() const noexcept;
-    uint16_t current_step() const noexcept;
-    uint16_t setpoint() const noexcept;
-    uint16_t profile_elapsed() const noexcept;
-    uint16_t step_elapsed() const noexcept;
-    uint16_t outputs() const noexcept;
-    uint16_t power() const noexcept;
+    [[nodiscard]] uint16_t state() const noexcept;
+    [[nodiscard]] uint16_t step_type() const noexcept;
+    [[nodiscard]] uint16_t current_temperature() const noexcept;
+    [[nodiscard]] uint16_t current_step() const noexcept;
+    [[nodiscard]] uint16_t setpoint() const noexcept;
+    [[nodiscard]] uint16_t profile_elapsed() const noexcept;
+    [[nodiscard]] uint16_t step_elapsed() const noexcept;
+    [[nodiscard]] uint16_t outputs() const noexcept;
+    [[nodiscard]] uint16_t power() const noexcept;
     
     // PID getter        
 #ifdef PLATFORM_PC
-    const core::Pid& pid() const noexcept;
+    [[nodiscard]] const core::Pid& pid() const noexcept;
 #endif
     
     
@@ -110,7 +110,7 @@ private:
     State running(const Event&) noexcept;
     State waiting(const Event&) noexcept;
     State finished(const Event&) noexcept;
-    State stopped(const Event&) noexcept;    
+    State stopped(const Event&) noexcept;
     State error(const Event&) noexcept;
 
     //------------------------------------------------------
@@ -147,11 +147,11 @@ private:
     
     // Returns true when the current step duration has elapsed
     // according to the recipe execution rules.
-    bool is_step_finished() const noexcept;
+    [[nodiscard]] bool is_step_finished() const noexcept;
 
     void set_outs(uint8_t outs) noexcept;
     
-    int32_t update_pid(int32_t temperature) const noexcept;
+    [[nodiscard]] int32_t update_pid(int32_t temperature) const noexcept;
     
     void notify(NotificationType type,uint16_t argument) noexcept;
     
@@ -196,7 +196,7 @@ private:
     uint16_t step_elapsed_s_ = 0;
     
     // Temperature at the beginning of the current step.
-    int16_t step_start_temperature_c_;
+    int16_t step_start_temperature_c_ = 0;
     
     // Current calculated temperature (update each tick). will be used as a target fo PID later
     int16_t current_temperature_c_ = 0; 

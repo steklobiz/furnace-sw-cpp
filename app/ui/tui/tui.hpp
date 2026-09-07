@@ -63,9 +63,9 @@ private:
 
     // Maximum number of fields rendered by any regular page.
     static constexpr std::size_t MaxFieldsPerPage = 10;
-
     static constexpr std::size_t MaxEventsPerPage = 10;
-    
+    static constexpr std::size_t MaxSamplesPerPage = 10;
+
     // Process user input and execute matching UI actions.
     void process_input() noexcept;
     
@@ -78,9 +78,9 @@ private:
         Ui::Page page) noexcept;
     
     // Common button rendering.    
-    void render_buttons(
+    static void render_buttons(
         const PageDescriptor& descriptor,
-        std::size_t first_row) noexcept;    
+        std::size_t first_row) noexcept;
         
     // Render the current step data of the profile being edited.
     void render_profile_content() noexcept;
@@ -97,10 +97,19 @@ private:
     
     // Renders the Qestion page.    
     void render_question_page();
-    
+
+    // Renders the Samples page.
+    void render_samples_page() noexcept;
+
     // Returns the TUI display name for a page.
     static const char* page_name(Ui::Page page) noexcept;
-    
+
+    // ANSI terminal helper functions
+    static void move(std::size_t row, std::size_t col) noexcept;
+    static void clear_line(std::size_t row) noexcept;
+    static void clear_screen() noexcept;
+
+
     // UI model used as the source for rendering and input actions.    
     Ui* ui_ = nullptr;
 

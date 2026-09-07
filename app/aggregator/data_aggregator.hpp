@@ -108,23 +108,24 @@ public:
         AlarmDispatcher& alarms) noexcept;
 
     // Returns the current value of a data item.    
+    [[nodiscard]]
     const uint16_t& get_item(
         uint8_t source,
         uint8_t field) const noexcept;
 
     // Returns the current profile snapshot.    
-    const Profile& profile() const noexcept;
+    [[nodiscard]] const Profile& profile() const noexcept;
 
      // Returns the number of retained events.
-    std::size_t event_count() const noexcept;
+    [[nodiscard]] std::size_t event_count() const noexcept;
     // Returns an event by position, starting with the newest event.
-    const Event& event_from_newest(
+    [[nodiscard]] const Event& event_from_newest(
         std::size_t index) const noexcept;
 
     // Returns the number of retained furnace samples.    
-    std::size_t sample_count() const noexcept;
+    [[nodiscard]] std::size_t sample_count() const noexcept;
     // Returns a furnace sample by position, starting with the newest sample.
-    const FurnaceSample& sample_from_newest(
+    [[nodiscard]] const FurnaceSample& sample_from_newest(
         std::size_t index) const noexcept; 
                
     void collect_sample() noexcept;

@@ -43,7 +43,7 @@ void update(
     items[static_cast<std::size_t>(id)] = value;
 }
 
-static constexpr FurnaceMapping furnace_mapping[] =
+constexpr FurnaceMapping furnace_mapping[] =
 {
     {FurnaceItem::State,          &Furnace::state},
     {FurnaceItem::Step,           &Furnace::current_step},
@@ -57,19 +57,19 @@ static constexpr FurnaceMapping furnace_mapping[] =
 };
 
 
-static constexpr TcParserMapping tc_parser_mapping[] =
+constexpr TcParserMapping tc_parser_mapping[] =
 {
     {TcParserItem::Temperature, &TcParser::average}
 };
 
 
-static constexpr ProfileMapping profile_mapping[] =
+constexpr ProfileMapping profile_mapping[] =
 {
     {ProfileItem::StartProfileId, &ProfileManager::start_profile_id},
     {ProfileItem::EditProfileId,  &ProfileManager::edit_profile_id}
 };
 
-static constexpr SettingMapping setting_mapping[] =
+constexpr SettingMapping setting_mapping[] =
 {
     {SettingItem::Buzzer,          &SettingManager::get_buzzer_state},
     {SettingItem::PidKp,           &SettingManager::get_pid_kp},
@@ -195,6 +195,7 @@ void DataAggregator::furnace_callback(
     }
 }
 
+
 void DataAggregator::settings_callback(
     void* context,
     const Notification& notification) noexcept
@@ -225,6 +226,7 @@ void DataAggregator::profile_callback(
     aggregator.update_profile();
 }
 
+
 void DataAggregator::alarm_callback(
     void* context,
     const Notification& notification) noexcept
@@ -236,6 +238,7 @@ void DataAggregator::alarm_callback(
         DataSource::Alarm,
         notification);
 }
+
 
 void DataAggregator::update_tc_parser() noexcept
 {
@@ -288,8 +291,8 @@ void DataAggregator::update_profile() noexcept
 
 const uint16_t&
 DataAggregator::get_item(
-    uint8_t source,
-    uint8_t field) const noexcept
+    const uint8_t source,
+    const uint8_t field) const noexcept
 {
     if (source >=
         static_cast<uint8_t>(DataSource::Count))
@@ -337,11 +340,21 @@ std::size_t DataAggregator::event_count() const noexcept
     return events_.size();
 }
 
-const DataAggregator::Event&
-DataAggregator::event_from_newest(
-    std::size_t index) const noexcept
+const DataAggregator::Event& DataAggregator::event_from_newest(
+    const std::size_t index) const noexcept
 {
     return events_.from_newest(index);
+}
+
+std::size_t DataAggregator::sample_count() const noexcept
+{
+    return samples_.size();
+}
+
+const DataAggregator::FurnaceSample& DataAggregator::sample_from_newest(
+    const std::size_t index) const noexcept
+{
+    return samples_.from_newest(index);
 }
 
 void DataAggregator::collect_sample() noexcept
@@ -354,13 +367,13 @@ void DataAggregator::collect_sample() noexcept
     if (elapsed_s < next_sample_s_)
         return;
 
-    const int16_t temperature =
+    const auto temperature =
         static_cast<int16_t>(
             get_item(
                 static_cast<uint8_t>(DataSource::Furnace),
                 static_cast<uint8_t>(FurnaceItem::Temperature)));
 
-    const uint8_t output =
+    const auto output =
         static_cast<uint8_t>(
             get_item(
                 static_cast<uint8_t>(DataSource::Furnace),
