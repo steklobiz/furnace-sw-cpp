@@ -23,6 +23,11 @@ constexpr std::size_t settings_button_row   = 10;
 
 constexpr std::size_t question_button_row = 6;
 
+constexpr std::size_t title_row = 1;
+constexpr std::size_t column_header_row = 3;
+constexpr std::size_t divider_row = 4;
+constexpr std::size_t first_data_row = 5;
+
 constexpr std::size_t page_count =
     static_cast<std::size_t>(Ui::Page::Count);
 
@@ -316,7 +321,7 @@ void Tui::render_page(
 {
     if (!page_rendered_)
     {
-        move(1, 1);
+        clear_line(title_row);
         std::printf("%s", page_name(page));
     
         const std::size_t first_button_row =
@@ -450,7 +455,7 @@ void Tui::render_profile_editor_page() noexcept
 
     if (!page_rendered_)
     {
-        clear_line(1);
+        clear_line(title_row);
         std::printf("%s", page_name(ui_->page()));
 
         // Clear the reserved numeric-input line.
@@ -494,7 +499,7 @@ void Tui::render_settings_page() noexcept
 
     if (!page_rendered_)
     {
-        clear_line(1);
+        clear_line(title_row);
         std::printf("%s", page_name(ui_->page()));
 
         const auto& descriptor =
@@ -760,14 +765,14 @@ void Tui::render_events_page() noexcept
 {
     if (!page_rendered_)
     {
-        clear_line(1);
+        clear_line(title_row);
         std::printf("%s", page_name(ui_->page()));
 
-        clear_line(3);
+        clear_line(column_header_row);
         std::printf(
             "Time       Source     Event              ID");
 
-        clear_line(4);
+        clear_line(divider_row);
         std::printf(
             "----------------------------------------------------");
 
@@ -828,10 +833,10 @@ void Tui::render_question_page()
         page_descriptors[
             static_cast<std::size_t>(Ui::Page::Question)];
 
-    clear_line(1);
+    clear_line(title_row);
     std::printf("%s", page_name(ui_->page()));
 
-    clear_line(3);
+    clear_line(column_header_row);
     std::printf("Stop current profile?");
 
     render_buttons(
@@ -846,14 +851,15 @@ void Tui::render_samples_page() noexcept
 {
     if (!page_rendered_)
     {
-        std::printf(
-            "\033[1;1H\033[2KSamples");
+        clear_line(title_row);
+        std::printf("%s", page_name(ui_->page()));
 
+        clear_line(column_header_row);
         std::printf(
-            "\033[3;1H\033[2KTime       Temperature    Power");
+            "Time       Temperature    Power");
 
+        clear_line(divider_row);
         std::printf(
-            "\033[4;1H\033[2K"
             "--------------------------------------");
 
         const auto& descriptor =
@@ -871,15 +877,13 @@ void Tui::render_samples_page() noexcept
     constexpr std::size_t first_row = 5;
 
     for (std::size_t i = 0;
-         i < MaxEventsPerPage;
+         i < MaxSamplesPerPage;
          ++i)
     {
         const std::size_t row =
             first_row + i;
 
-        std::printf(
-            "\033[%zu;1H\033[2K",
-            row);
+        clear_line(row);
 
         if (i >= count)
         {
