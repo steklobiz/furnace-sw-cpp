@@ -38,15 +38,11 @@ Based on 4x3 greed layout
 ## Result screen
 Based on 4x3 greed layout
 +-------------------+-------------------+
-|                   |                   |
 |       [A]         |      [Time]       |
-|      Auto         |                   |
 |                   +-------------------+
-|                   |      [Temp]       |
-|                   |                   |
+|       Auto        |      [Temp]       |
 +-------------------+-------------------+
-|       [Power]     |      [Reset]      |
-|                   |                   |
+|      [Power]      |      [Reset]      |
 +-------------------+-------------------+
 
 ## Events screen
