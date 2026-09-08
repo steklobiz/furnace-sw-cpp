@@ -43,23 +43,26 @@ public:
         bool numeric_input = false;
     };
 
-
-    struct PageDescriptor
-    {
-        const Label* labels;
-        std::size_t label_count;
-
-        const Button* buttons;
-        std::size_t button_count;
-    };
-
-
     void init(Ui& ui) noexcept;
 
     void process() noexcept;
 
 
 private:
+    struct PageDescriptor
+    {
+        const char* name;
+
+        const Label* labels;
+        std::size_t label_count;
+
+        const Button* buttons;
+        std::size_t button_count;
+
+        void (Tui::*render)() noexcept;
+    };
+
+    static const PageDescriptor page_descriptors[];
 
     // Maximum number of fields rendered by any regular page.
     static constexpr std::size_t MaxFieldsPerPage = 10;
@@ -95,14 +98,11 @@ private:
     // Renders the Events page.
     void render_events_page() noexcept;
     
-    // Renders the Qestion page.    
-    void render_question_page();
+    // Renders the Question page.
+    void render_question_page() noexcept;
 
     // Renders the Samples page.
     void render_samples_page() noexcept;
-
-    // Returns the TUI display name for a page.
-    static const char* page_name(Ui::Page page) noexcept;
 
     // ANSI terminal helper functions
     static void move(std::size_t row, std::size_t col) noexcept;
