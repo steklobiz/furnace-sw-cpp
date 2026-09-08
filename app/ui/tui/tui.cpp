@@ -278,7 +278,7 @@ void Tui::init(Ui& ui) noexcept
     rendered_step_index_ = 0xff;
 }
 
-    void Tui::process() noexcept
+void Tui::process() noexcept
 {
     process_input();
 
@@ -316,7 +316,7 @@ void Tui::init(Ui& ui) noexcept
     }
 }
 
-    void Tui::render_page(
+void Tui::render_page(
         const PageDescriptor& descriptor,
         Ui::Page page) noexcept
 {
@@ -438,7 +438,7 @@ void Tui::render_profile_content() noexcept
         static_cast<unsigned>(step.outs));
 }
 
-    void Tui::render_profile_editor_page() noexcept
+void Tui::render_profile_editor_page() noexcept
 {
     const auto& profile =
         ui_->get_edit_profile();
@@ -490,7 +490,7 @@ void Tui::render_profile_content() noexcept
     page_rendered_ = true;
 }
 
-    void Tui::render_settings_page() noexcept
+void Tui::render_settings_page() noexcept
 {
     const auto& settings =
         ui_->get_edit_settings();
@@ -762,7 +762,7 @@ static const char* notification_type_name(
     return "Unknown";
 }
 
-    void Tui::render_events_page() noexcept
+void Tui::render_events_page() noexcept
 {
     constexpr auto page_index =
         static_cast<std::size_t>(Ui::Page::Events);
@@ -825,7 +825,7 @@ static const char* notification_type_name(
 }
 
 
-    void Tui::render_samples_page() noexcept
+void Tui::render_samples_page() noexcept
 {
     constexpr auto page_index =
         static_cast<std::size_t>(Ui::Page::Samples);
@@ -888,7 +888,7 @@ static const char* notification_type_name(
     page_rendered_ = true;
 }
 
-    void Tui::render_question_page() noexcept
+void Tui::render_question_page() noexcept
 {
     if (page_rendered_)
         return;
