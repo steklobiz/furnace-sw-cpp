@@ -23,10 +23,15 @@ constexpr std::size_t settings_button_row   = 10;
 
 constexpr std::size_t question_button_row = 6;
 
+// Page title row
 constexpr std::size_t title_row = 1;
+
+// Starting row for fields
+constexpr std::size_t first_field_row = 3;
+// Startiung row for events and samples
+constexpr std::size_t first_data_row = 5;
 constexpr std::size_t column_header_row = 3;
 constexpr std::size_t divider_row = 4;
-constexpr std::size_t first_data_row = 5;
 
 constexpr std::size_t page_count =
     static_cast<std::size_t>(Ui::Page::Count);
@@ -359,9 +364,9 @@ void Tui::render_page(
         rendered_values_[page_index][label.field] =
             item;
 
-        clear_line(row + 3);
+        clear_line(first_field_row + row);
 
-        move(row + 3, 1);
+        move(first_field_row + row, 1);
         std::printf(
             "%s %u",
             label.caption,
@@ -782,20 +787,18 @@ void Tui::render_events_page() noexcept
 
         render_buttons(
             descriptor,
-            16);
+           first_data_row + MaxEventsPerPage + 1);
     }
 
     const auto count =
         ui_->event_count();
-
-    constexpr std::size_t first_row = 5;
 
     for (std::size_t i = 0;
          i < MaxEventsPerPage;
          ++i)
     {
         const std::size_t row =
-            first_row + i;
+            first_data_row + i;
 
         clear_line(row);
 
@@ -824,29 +827,6 @@ void Tui::render_events_page() noexcept
 }
 
 
-void Tui::render_question_page()
-{
-    if (page_rendered_)
-        return;
-
-    const auto& descriptor =
-        page_descriptors[
-            static_cast<std::size_t>(Ui::Page::Question)];
-
-    clear_line(title_row);
-    std::printf("%s", page_name(ui_->page()));
-
-    clear_line(column_header_row);
-    std::printf("Stop current profile?");
-
-    render_buttons(
-        descriptor,
-        question_button_row);
-
-    page_rendered_ = true;
-}
-
-
 void Tui::render_samples_page() noexcept
 {
     if (!page_rendered_)
@@ -868,20 +848,18 @@ void Tui::render_samples_page() noexcept
 
         render_buttons(
             descriptor,
-            16);
+            first_data_row + MaxSamplesPerPage + 1);
     }
 
     const auto count =
         ui_->sample_count();
-
-    constexpr std::size_t first_row = 5;
 
     for (std::size_t i = 0;
          i < MaxSamplesPerPage;
          ++i)
     {
         const std::size_t row =
-            first_row + i;
+            first_data_row + i;
 
         clear_line(row);
 
@@ -909,6 +887,30 @@ void Tui::render_samples_page() noexcept
 
     page_rendered_ = true;
 }
+
+void Tui::render_question_page()
+{
+    if (page_rendered_)
+        return;
+
+    const auto& descriptor =
+        page_descriptors[
+            static_cast<std::size_t>(Ui::Page::Question)];
+
+    clear_line(title_row);
+    std::printf("%s", page_name(ui_->page()));
+
+    clear_line(first_field_row); //???
+    std::printf("Stop current profile?");
+
+    render_buttons(
+        descriptor,
+        question_button_row);
+
+    page_rendered_ = true;
+}
+
+
 
 const char* Tui::page_name(Ui::Page page) noexcept
 {
