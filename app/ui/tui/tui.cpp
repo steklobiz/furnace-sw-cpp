@@ -169,8 +169,7 @@ constexpr Tui::Button question_buttons[] =
 
 } // namespace
 
-const Tui::PageDescriptor Tui::page_descriptors[
-    static_cast<std::size_t>(Ui::Page::Count)] =
+const Tui::PageDescriptor Tui::page_descriptors[page_count] =
 {
     // Main
     {
