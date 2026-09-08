@@ -697,8 +697,8 @@ void Tui::process_numeric_input() noexcept
     }
 }
 
-const char* data_source_name(
-    DataSource source) noexcept
+static const char* data_source_name(
+    const DataSource source) noexcept
 {
     switch (source)
     {
@@ -724,8 +724,8 @@ const char* data_source_name(
     return "Unknown";
 }
 
-const char* notification_type_name(
-    NotificationType type) noexcept
+static const char* notification_type_name(
+    const NotificationType type) noexcept
 {
     switch (type)
     {
@@ -900,7 +900,7 @@ void Tui::render_question_page()
     clear_line(title_row);
     std::printf("%s", page_name(ui_->page()));
 
-    clear_line(first_field_row); //???
+    clear_line(first_field_row);
     std::printf("Stop current profile?");
 
     render_buttons(
