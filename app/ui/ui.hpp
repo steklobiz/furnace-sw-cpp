@@ -9,6 +9,11 @@
 #include "profiles.hpp"
 #include "settings.hpp"
 
+// Represents the application UI state and navigation.
+// Owns pages, actions, and user interaction logic.
+// Reads application data through the DataAggregator.
+// Independent of the concrete display implementation.
+
 namespace app
 {
 

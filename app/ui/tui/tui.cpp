@@ -23,27 +23,19 @@ constexpr std::size_t settings_button_row   = 10;
 
 constexpr std::size_t question_button_row = 6;
 
+// Page title row
 constexpr std::size_t title_row = 1;
+
+// Starting row for fields.
+constexpr std::size_t first_field_row = 3;
+// Starting row for events and samples.
+constexpr std::size_t first_data_row = 5;
 constexpr std::size_t column_header_row = 3;
 constexpr std::size_t divider_row = 4;
-constexpr std::size_t first_data_row = 5;
 
 constexpr std::size_t page_count =
     static_cast<std::size_t>(Ui::Page::Count);
 
-constexpr const char* page_names[page_count] =
-{
-    "Main",
-    "Profile Selection",
-    "Settings",
-    "Profile Editor",
-    "Monitor",
-    "Result",
-    "Events",
-    "Samples",
-    "Question"
-};
-    
 constexpr Tui::Label main_labels[] =
 {
     {"State:",   0},
@@ -162,7 +154,8 @@ constexpr Tui::Button result_buttons[] =
 
 };
 
-constexpr Tui::Button events_buttons[] =
+// Common buttons set for Events and Samples
+constexpr Tui::Button history_buttons[] =
 {
     {'q', "Back", Ui::ActionType::Back, 0}
 };
@@ -173,81 +166,102 @@ constexpr Tui::Button question_buttons[] =
     {'c', "Cancel", Ui::ActionType::CancelQuestion,  0}
 };
 
-constexpr Tui::PageDescriptor page_descriptors[] =
+
+} // namespace
+
+const Tui::PageDescriptor Tui::page_descriptors[page_count] =
 {
     // Main
     {
+        "Main",
         main_labels,
         std::size(main_labels),
         main_buttons,
-        std::size(main_buttons)
+        std::size(main_buttons),
+        nullptr
     },
 
     // ProfileSelection
     {
+        "Profile Selection",
         nullptr,
         0,
         profile_selection_buttons,
-        std::size(profile_selection_buttons)
+        std::size(profile_selection_buttons),
+        nullptr
     },
 
+    // Settings
     {
-    settings_labels,
-    std::size(settings_labels),
-    settings_buttons,
-    std::size(settings_buttons)
+        "Settings",
+        settings_labels,
+        std::size(settings_labels),
+        settings_buttons,
+        std::size(settings_buttons),
+        &Tui::render_settings_page
     },
-    
+
     // ProfileEditor
     {
+        "Profile Editor",
         nullptr,
         0,
         profile_editor_buttons,
-        std::size(profile_editor_buttons)
+        std::size(profile_editor_buttons),
+        &Tui::render_profile_editor_page
     },
 
     // Monitor
     {
+        "Monitor",
         monitor_labels,
         std::size(monitor_labels),
         monitor_buttons,
-        std::size(monitor_buttons)
+        std::size(monitor_buttons),
+        nullptr
     },
 
     // Result
     {
+        "Result",
         result_labels,
         std::size(result_labels),
         result_buttons,
-        std::size(result_buttons)
+        std::size(result_buttons),
+        nullptr
     },
-    
+
     // Events
     {
+        "Events",
         nullptr,
         0,
-        events_buttons,
-        std::size(events_buttons)
+        history_buttons,
+        std::size(history_buttons),
+        &Tui::render_events_page
     },
 
     // Samples
     {
+        "Samples",
         nullptr,
         0,
-        events_buttons,   // or question_buttons - has the 'q' Back button
-        std::size(events_buttons)
-        },
+        history_buttons,
+        std::size(history_buttons),
+        &Tui::render_samples_page
+    },
 
     // Question
     {
+        "Question",
         nullptr,
         0,
         question_buttons,
-        std::size(question_buttons)
+        std::size(question_buttons),
+        &Tui::render_question_page
     }
 };
 
-} // namespace
 
 void Tui::init(Ui& ui) noexcept
 {
@@ -268,7 +282,8 @@ void Tui::process() noexcept
 {
     process_input();
 
-    const auto page = ui_->page();
+    const auto page =
+        ui_->page();
 
     if (page != rendered_page_)
     {
@@ -282,60 +297,47 @@ void Tui::process() noexcept
         static_cast<std::size_t>(page);
 
     if (page_index >= std::size(page_descriptors))
+    {
         return;
-        
-    switch (page)
-        {
-            case Ui::Page::ProfileEditor:
-                render_profile_editor_page();
-                break;
-    
-            case Ui::Page::Settings:
-                render_settings_page();
-                break;
-    
-            case Ui::Page::Events:
-                render_events_page();
-                break;
+    }
 
-            case Ui::Page::Samples:
-                render_samples_page();
-                break;
+    const auto& descriptor =
+        page_descriptors[page_index];
 
-            case Ui::Page::Question:
-                render_question_page();
-                break;
-    
-            default:
-                render_page(
-                    page_descriptors[page_index],
-                    page);
-                break;
-        }
-}    
-    
+    if (descriptor.render != nullptr)
+    {
+        (this->*descriptor.render)();
+    }
+    else
+    {
+        render_page(
+            descriptor,
+            page);
+    }
+}
 
 void Tui::render_page(
-    const PageDescriptor& descriptor,
-    Ui::Page page) noexcept
+        const PageDescriptor& descriptor,
+        Ui::Page page) noexcept
 {
+    const auto page_index =
+        static_cast<std::size_t>(page);
+
     if (!page_rendered_)
     {
         clear_line(title_row);
-        std::printf("%s", page_name(page));
-    
+        std::printf("%s", descriptor.name);
+
         const std::size_t first_button_row =
             descriptor.label_count == 0
-                ? 3
-                : descriptor.label_count + 4;
+                ? first_field_row
+                : first_field_row +
+                    descriptor.label_count + 1;
 
         render_buttons(
             descriptor,
             first_button_row);
     }
-
-    const auto page_index =
-        static_cast<std::size_t>(page);
 
     for (std::size_t row = 0;
          row < descriptor.label_count;
@@ -359,9 +361,8 @@ void Tui::render_page(
         rendered_values_[page_index][label.field] =
             item;
 
-        clear_line(row + 3);
+        clear_line(first_field_row + row);
 
-        move(row + 3, 1);
         std::printf(
             "%s %u",
             label.caption,
@@ -453,10 +454,15 @@ void Tui::render_profile_editor_page() noexcept
     const auto& step =
         profile.steps[step_index];
 
+    const auto& descriptor =
+        page_descriptors[
+            static_cast<std::size_t>(
+                Ui::Page::ProfileEditor)];
+
     if (!page_rendered_)
     {
         clear_line(title_row);
-        std::printf("%s", page_name(ui_->page()));
+        std::printf("%s", descriptor.name);
 
         // Clear the reserved numeric-input line.
         clear_line(profile_editor_input_row);
@@ -476,11 +482,6 @@ void Tui::render_profile_editor_page() noexcept
 
     if (!page_rendered_)
     {
-        const auto& descriptor =
-            page_descriptors[
-                static_cast<std::size_t>(
-                    Ui::Page::ProfileEditor)];
-
         render_buttons(
             descriptor,
             profile_editor_button_row);
@@ -497,13 +498,13 @@ void Tui::render_settings_page() noexcept
     constexpr auto page_index =
         static_cast<std::size_t>(Ui::Page::Settings);
 
+    const auto& descriptor =
+        page_descriptors[page_index];
+
     if (!page_rendered_)
     {
         clear_line(title_row);
-        std::printf("%s", page_name(ui_->page()));
-
-        const auto& descriptor =
-            page_descriptors[page_index];
+        std::printf("%s", descriptor.name);
 
         render_buttons(
             descriptor,
@@ -533,9 +534,9 @@ void Tui::render_settings_page() noexcept
         rendered_values_[page_index][i] = values[i];
 
         const auto& label =
-            page_descriptors[page_index].labels[i];
+            descriptor.labels[i];
 
-        clear_line(i + settings_content_row);
+        clear_line(settings_content_row + i);
 
         std::printf(
             "%s %u",
@@ -692,8 +693,8 @@ void Tui::process_numeric_input() noexcept
     }
 }
 
-const char* data_source_name(
-    DataSource source) noexcept
+static const char* data_source_name(
+    const DataSource source) noexcept
 {
     switch (source)
     {
@@ -719,8 +720,8 @@ const char* data_source_name(
     return "Unknown";
 }
 
-const char* notification_type_name(
-    NotificationType type) noexcept
+static const char* notification_type_name(
+    const NotificationType type) noexcept
 {
     switch (type)
     {
@@ -763,10 +764,16 @@ const char* notification_type_name(
 
 void Tui::render_events_page() noexcept
 {
+    constexpr auto page_index =
+        static_cast<std::size_t>(Ui::Page::Events);
+
+    const auto& descriptor =
+        page_descriptors[page_index];
+
     if (!page_rendered_)
     {
         clear_line(title_row);
-        std::printf("%s", page_name(ui_->page()));
+        std::printf("%s", descriptor.name);
 
         clear_line(column_header_row);
         std::printf(
@@ -776,26 +783,20 @@ void Tui::render_events_page() noexcept
         std::printf(
             "----------------------------------------------------");
 
-        const auto& descriptor =
-            page_descriptors[
-                static_cast<std::size_t>(Ui::Page::Events)];
-
         render_buttons(
             descriptor,
-            16);
+            first_data_row + MaxEventsPerPage + 1);
     }
 
     const auto count =
         ui_->event_count();
-
-    constexpr std::size_t first_row = 5;
 
     for (std::size_t i = 0;
          i < MaxEventsPerPage;
          ++i)
     {
         const std::size_t row =
-            first_row + i;
+            first_data_row + i;
 
         clear_line(row);
 
@@ -824,35 +825,18 @@ void Tui::render_events_page() noexcept
 }
 
 
-void Tui::render_question_page()
-{
-    if (page_rendered_)
-        return;
-
-    const auto& descriptor =
-        page_descriptors[
-            static_cast<std::size_t>(Ui::Page::Question)];
-
-    clear_line(title_row);
-    std::printf("%s", page_name(ui_->page()));
-
-    clear_line(column_header_row);
-    std::printf("Stop current profile?");
-
-    render_buttons(
-        descriptor,
-        question_button_row);
-
-    page_rendered_ = true;
-}
-
-
 void Tui::render_samples_page() noexcept
 {
+    constexpr auto page_index =
+        static_cast<std::size_t>(Ui::Page::Samples);
+
+    const auto& descriptor =
+        page_descriptors[page_index];
+
     if (!page_rendered_)
     {
         clear_line(title_row);
-        std::printf("%s", page_name(ui_->page()));
+        std::printf("%s", descriptor.name);
 
         clear_line(column_header_row);
         std::printf(
@@ -862,26 +846,20 @@ void Tui::render_samples_page() noexcept
         std::printf(
             "--------------------------------------");
 
-        const auto& descriptor =
-            page_descriptors[
-                static_cast<std::size_t>(Ui::Page::Samples)];
-
         render_buttons(
             descriptor,
-            16);
+            first_data_row + MaxSamplesPerPage + 1);
     }
 
     const auto count =
         ui_->sample_count();
-
-    constexpr std::size_t first_row = 5;
 
     for (std::size_t i = 0;
          i < MaxSamplesPerPage;
          ++i)
     {
         const std::size_t row =
-            first_row + i;
+            first_data_row + i;
 
         clear_line(row);
 
@@ -910,10 +888,26 @@ void Tui::render_samples_page() noexcept
     page_rendered_ = true;
 }
 
-const char* Tui::page_name(Ui::Page page) noexcept
+void Tui::render_question_page() noexcept
 {
-    return page_names[
-        static_cast<std::size_t>(page)];
+    if (page_rendered_)
+        return;
+
+    const auto& descriptor =
+        page_descriptors[
+            static_cast<std::size_t>(Ui::Page::Question)];
+
+    clear_line(title_row);
+    std::printf("%s", descriptor.name);
+
+    clear_line(first_field_row);
+    std::printf("Stop current profile?");
+
+    render_buttons(
+        descriptor,
+        question_button_row);
+
+    page_rendered_ = true;
 }
 
 void Tui::move(
