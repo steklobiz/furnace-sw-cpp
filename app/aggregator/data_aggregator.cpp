@@ -115,10 +115,8 @@ void DataAggregator::init(
         notification_callback,
         this);
 
-    update_tc_parser();
-    update_furnace();
-    update_settings();
-    update_profile();
+    refresh();
+
 }
 
 
@@ -126,38 +124,26 @@ void DataAggregator::notification_callback(
         void* context,
         const Notification& notification) noexcept
 {
-    static_cast<DataAggregator*>(context)->capture(notification);
-}
+    auto* self = static_cast<DataAggregator*>(context);
 
-void DataAggregator::capture(
-        const Notification& notification) noexcept
-{
     switch (notification.type)
     {
         case NotificationType::DataReady:
-            if (notification.context == furnace_)
-            {
-                update_furnace();
-                collect_sample();
-            }
-            else if (notification.context == tc_parser_)
-            {
-                update_tc_parser();
-            }
+            self->refresh();
+
+            if (notification.context == self->furnace_)
+                self->collect_sample();
             break;
 
         case NotificationType::SettingsChanged:
-            update_settings();
-            break;
-
         case NotificationType::StartProfileChanged:
         case NotificationType::EditProfileChanged:
-            update_profile();
+            self->refresh();
             break;
 
         case NotificationType::ProfileStarted:
-            clear_history();
-            add_event(DataSource::Furnace, notification);
+            self->clear_history();
+            self->add_event(DataSource::Furnace, notification);
             break;
 
         case NotificationType::StepStarted:
@@ -165,11 +151,11 @@ void DataAggregator::capture(
         case NotificationType::ProfileStopped:
         case NotificationType::OutputSet:
         case NotificationType::OutputReset:
-            add_event(DataSource::Furnace, notification);
+            self->add_event(DataSource::Furnace, notification);
             break;
 
         case NotificationType::Error:
-            add_event(DataSource::Alarm, notification);
+            self->add_event(DataSource::Alarm, notification);
             break;
 
         default:
@@ -178,7 +164,7 @@ void DataAggregator::capture(
 }
 
 
-void DataAggregator::update_tc_parser() noexcept
+void DataAggregator::refresh() noexcept
 {
     for (const auto& mapping : tc_parser_mapping)
     {
@@ -187,11 +173,7 @@ void DataAggregator::update_tc_parser() noexcept
             (tc_parser_->*mapping.get)(),
             tc_parser_items_);
     }
-}
 
-
-void DataAggregator::update_furnace() noexcept
-{
     for (const auto& mapping : furnace_mapping)
     {
         update(
@@ -199,28 +181,21 @@ void DataAggregator::update_furnace() noexcept
             (furnace_->*mapping.get)(),
             furnace_items_);
     }
-}
 
-void DataAggregator::update_settings() noexcept
-{
-    for (const auto& mapping : setting_mapping)
-    {
-        update(
-            mapping.item,
-            (settings_->*mapping.get)(),
-            setting_items_);
-    }
-}
-
-
-void DataAggregator::update_profile() noexcept
-{
     for (const auto& mapping : profile_mapping)
     {
         update(
             mapping.item,
             (profiles_->*mapping.get)(),
             profile_items_);
+    }
+
+    for (const auto& mapping : setting_mapping)
+    {
+        update(
+            mapping.item,
+            (settings_->*mapping.get)(),
+            setting_items_);
     }
 
     profile_ = profiles_->edit_profile();

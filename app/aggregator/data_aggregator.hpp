@@ -142,16 +142,8 @@ private:
         void* context,
         const Notification& notification) noexcept;
 
-    // Routes notifications to the appropriate snapshot, history,
-    // or sampling operation.
-    void capture(
-        const Notification& notification) noexcept;
-
-    // Refreshes the snapshot for specific source
-    void update_tc_parser() noexcept;
-    void update_furnace() noexcept;
-    void update_settings() noexcept;
-    void update_profile() noexcept;
+    // Refreshes the complete current snapshot from all data sources
+    void refresh() noexcept;
 
     // Adds a notification to the event history.
     void add_event(
