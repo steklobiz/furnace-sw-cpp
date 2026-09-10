@@ -112,7 +112,8 @@ Ui::Page Ui::page() const noexcept
     return page_;
 }
 
-    uint16_t Ui::get_field(
+    
+uint16_t Ui::get_field(
         Ui::Page page,
         uint8_t field) const noexcept    
     {
