@@ -346,10 +346,15 @@ void Tui::render_page(
         const auto& label =
             descriptor.labels[row];
 
-        const auto& item =
-            ui_->get_field(
+        uint16_t item = 0;
+
+        if (!ui_->get_field(
                 page,
-                label.field);
+                label.field,
+                item))
+        {
+            continue;
+        }
 
         if (page_rendered_ &&
             rendered_values_[page_index][label.field] ==
@@ -367,7 +372,8 @@ void Tui::render_page(
             "%s %u",
             label.caption,
             static_cast<unsigned>(item));
-    }
+}
+
 
     page_rendered_ = true;
 }

@@ -94,34 +94,6 @@ void DataAggregator::init(
     profiles_ = &profiles;
     settings_ = &settings;
     alarms_ = &alarms;
-    
-    source_descriptors_[
-        static_cast<std::size_t>(DataSource::TcParser)] =
-    {
-        tc_parser_items_,
-        std::size(tc_parser_items_)
-    };
-
-    source_descriptors_[
-        static_cast<std::size_t>(DataSource::Furnace)] =
-    {
-        furnace_items_,
-        std::size(furnace_items_)
-    };
-
-    source_descriptors_[
-        static_cast<std::size_t>(DataSource::Profile)] =
-    {
-        profile_items_,
-        std::size(profile_items_)
-    };
-
-    source_descriptors_[
-    static_cast<std::size_t>(DataSource::Setting)] =
-    {
-        setting_items_,
-        std::size(setting_items_)
-    };
 
     tc_parser_->set_notify_callback(
         notification_callback,
@@ -190,7 +162,7 @@ void DataAggregator::capture(
 
         case NotificationType::StepStarted:
         case NotificationType::ProfileFinished:
-        case NotificationType::ProfileStopped:s
+        case NotificationType::ProfileStopped:
         case NotificationType::OutputSet:
         case NotificationType::OutputReset:
             add_event(DataSource::Furnace, notification);
@@ -255,27 +227,33 @@ void DataAggregator::update_profile() noexcept
 }
 
 
-const uint16_t&
-DataAggregator::get_item(
-    const uint8_t source,
-    const uint8_t field) const noexcept
+uint16_t DataAggregator::furnace_item(
+        const FurnaceItem item) const noexcept
 {
-    if (source >=
-        static_cast<uint8_t>(DataSource::Count))
-    {
-        return null_item_;
-    }
-
-    const auto& descriptor =
-        source_descriptors_[source];
-
-    if (field >= descriptor.count)
-    {
-        return null_item_;
-    }
-
-    return descriptor.items[field];
+    return furnace_items_[static_cast<std::size_t>(item)];
 }
+
+
+uint16_t DataAggregator::tc_parser_item(
+        const TcParserItem item) const noexcept
+{
+    return tc_parser_items_[static_cast<std::size_t>(item)];
+}
+
+
+uint16_t DataAggregator::profile_item(
+        const ProfileItem item) const noexcept
+{
+    return profile_items_[static_cast<std::size_t>(item)];
+}
+
+
+uint16_t DataAggregator::setting_item(
+        const SettingItem item) const noexcept
+{
+    return setting_items_[static_cast<std::size_t>(item)];
+}
+
 
 
 const Profile&
@@ -288,10 +266,9 @@ void DataAggregator::add_event(
     DataSource source,
     const Notification& notification) noexcept
 {
+
     const auto elapsed_s =
-        get_item(
-            static_cast<uint8_t>(DataSource::Furnace),
-            static_cast<uint8_t>(FurnaceItem::ProfileElapsed));
+        furnace_item(FurnaceItem::ProfileElapsed);
 
     events_.push_overwrite({
         elapsed_s,
@@ -326,24 +303,18 @@ const DataAggregator::FurnaceSample& DataAggregator::sample_from_newest(
 void DataAggregator::collect_sample() noexcept
 {
     const uint16_t elapsed_s =
-        get_item(
-            static_cast<uint8_t>(DataSource::Furnace),
-            static_cast<uint8_t>(FurnaceItem::ProfileElapsed));
+        furnace_item(FurnaceItem::ProfileElapsed);
 
     if (elapsed_s < next_sample_s_)
         return;
 
-    const auto temperature =
+    const int16_t temperature =
         static_cast<int16_t>(
-            get_item(
-                static_cast<uint8_t>(DataSource::Furnace),
-                static_cast<uint8_t>(FurnaceItem::Temperature)));
+            furnace_item(FurnaceItem::Temperature));
 
-    const auto output =
+    const uint8_t output =
         static_cast<uint8_t>(
-            get_item(
-                static_cast<uint8_t>(DataSource::Furnace),
-                static_cast<uint8_t>(FurnaceItem::Power)));
+            furnace_item(FurnaceItem::Power));
 
     samples_.push_overwrite({
         elapsed_s,
@@ -354,6 +325,7 @@ void DataAggregator::collect_sample() noexcept
     next_sample_s_ =
         elapsed_s + config::history::sample_period_s;
 }
+
 
 void DataAggregator::clear_history() noexcept
 {

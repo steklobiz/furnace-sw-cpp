@@ -54,7 +54,10 @@ constexpr Ui::PageDescriptor page_descriptors[] =
     {settings_fields, std::size(settings_fields)},  // Settings page
     {nullptr,        0},                            // ProfileEditor page
     {monitor_fields, std::size(monitor_fields)},    // Monitor page
-    {result_fields,  std::size(result_fields)}      // Result page
+    {result_fields,  std::size(result_fields)},     // Result page
+    {nullptr,        0},                            // Events page
+    {nullptr,        0},                            // Samples page
+    {nullptr,        0}                             // Question page
 };
 
 } // namespace
@@ -112,32 +115,53 @@ Ui::Page Ui::page() const noexcept
     return page_;
 }
 
-    
-uint16_t Ui::get_field(
-        Ui::Page page,
-        uint8_t field) const noexcept    
-    {
+
+bool Ui::get_field(
+            const Page page,
+            const uint8_t field,
+            uint16_t& value) const noexcept
+{
     const auto page_index =
         static_cast<std::size_t>(page);
 
-    if (page_index >= static_cast<std::size_t>(Page::Count))
-        return 0;
+    if (page_index >= std::size(page_descriptors))
+        return false;
 
-    const auto& descriptor =
-        page_descriptors[page_index];
+    const auto& descriptor = page_descriptors[page_index];
 
-    if (descriptor.fields == nullptr ||
-        field >= descriptor.field_count)
+    if (field >= descriptor.field_count)
+        return false;
+
+    const auto& mapping = descriptor.fields[field];
+
+    switch (mapping.source)
     {
-        return 0;
+        case DataSource::TcParser:
+            value = data_->tc_parser_item(
+                static_cast<TcParserItem>(mapping.field));
+            return true;
+
+        case DataSource::Furnace:
+            value = data_->furnace_item(
+                static_cast<FurnaceItem>(mapping.field));
+            return true;
+
+        case DataSource::Profile:
+            value = data_->profile_item(
+                static_cast<ProfileItem>(mapping.field));
+            return true;
+
+        case DataSource::Setting:
+            value = data_->setting_item(
+                static_cast<SettingItem>(mapping.field));
+            return true;
+
+        case DataSource::Alarm:
+        case DataSource::Count:
+            return false;
     }
 
-    const auto& mapping =
-        descriptor.fields[field];
-
-    return data_->get_item(
-        static_cast<uint8_t>(mapping.source),
-        mapping.field);
+    return false;
 }
 
 const Profile&

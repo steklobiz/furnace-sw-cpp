@@ -107,13 +107,20 @@ public:
         SettingManager& settings,
         AlarmDispatcher& alarms) noexcept;
 
-    // Returns the current value of a data item.    
-    [[nodiscard]]
-    const uint16_t& get_item(
-        uint8_t source,
-        uint8_t field) const noexcept;
+    // Returns the current Furnace data item.
+    [[nodiscard]] uint16_t furnace_item(
+        FurnaceItem item) const noexcept;
+    // Returns the current thermocouple parser data item.
+    [[nodiscard]] uint16_t tc_parser_item(
+        TcParserItem item) const noexcept;
+    // Returns the current profile data item.
+    [[nodiscard]] uint16_t profile_item(
+        ProfileItem item) const noexcept;
+    // Returns the current setting data item.
+    [[nodiscard]] uint16_t setting_item(
+        SettingItem item) const noexcept;
 
-    // Returns the current profile snapshot.    
+    // Returns the current profile snapshot.
     [[nodiscard]] const Profile& profile() const noexcept;
 
      // Returns the number of retained events.
@@ -129,12 +136,6 @@ public:
         std::size_t index) const noexcept; 
 
 private:
-
-    struct SourceDescriptor
-    {
-        uint16_t* items;
-        std::size_t count;
-    };
 
     // Static trampoline required by the notification callback interface.
     static void notification_callback(
@@ -182,17 +183,18 @@ private:
         static_cast<std::size_t>(SettingItem::Count)]{};
         
     Profile profile_{};
-
+/*
     uint16_t null_item_{};
-
+*/
     uint32_t next_sample_s_{0};
     
     core::RingBuffer<Event, config::history::event_capacity> events_;
         
     core::RingBuffer<FurnaceSample,config::history::sample_capacity> samples_;    
-    
+/*
     SourceDescriptor source_descriptors_[
         static_cast<std::size_t>(DataSource::Count)]{};
+*/
 };
 
 } // namespace app

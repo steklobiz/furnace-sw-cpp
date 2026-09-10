@@ -151,12 +151,13 @@ public:
 
     // Returns the currently active page.
     [[nodiscard]] Page page() const noexcept;
-    
+
     // Returns the current value of a field on the specified page.
-    [[nodiscard]] uint16_t get_field(
-        Ui::Page page,
-        uint8_t field) const noexcept;
-        
+    bool get_field(
+            Page page,
+            uint8_t field,
+            uint16_t& value) const noexcept;
+
     // Returns the current profile being edited.
     [[nodiscard]] const Profile& get_edit_profile() const noexcept;
     // Returns the current settings being edited.
