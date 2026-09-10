@@ -8,30 +8,11 @@ namespace app
 namespace
 {
 
-struct FurnaceMapping
+template<class Enum, class Source>
+struct Mapping
 {
-    FurnaceItem item;
-    uint16_t (Furnace::*get)() const noexcept;
-};
-
-
-struct TcParserMapping
-{
-    TcParserItem item;
-    uint16_t (TcParser::*get)() const noexcept;
-};
-
-
-struct ProfileMapping
-{
-    ProfileItem item;
-    uint16_t (ProfileManager::*get)() const noexcept;
-};
-
-struct SettingMapping
-{
-    SettingItem item;
-    uint16_t (SettingManager::*get)() const noexcept;
+    Enum item;
+    uint16_t (Source::*get)() const noexcept;
 };
 
 template<class Enum, class T, std::size_t N>
@@ -43,7 +24,23 @@ void update(
     items[static_cast<std::size_t>(id)] = value;
 }
 
-constexpr FurnaceMapping furnace_mapping[] =
+template<class Enum, class Source, std::size_t MappingCount,
+         std::size_t ItemCount>
+void refresh_source(
+    const Source* source,
+    const Mapping<Enum, Source> (&mappings)[MappingCount],
+    uint16_t (&items)[ItemCount]) noexcept
+{
+    for (const auto& mapping : mappings)
+    {
+        update(
+            mapping.item,
+            (source->*mapping.get)(),
+            items);
+    }
+}
+
+constexpr Mapping<FurnaceItem, Furnace> furnace_mapping[]
 {
     {FurnaceItem::State,          &Furnace::state},
     {FurnaceItem::Step,           &Furnace::current_step},
@@ -57,19 +54,19 @@ constexpr FurnaceMapping furnace_mapping[] =
 };
 
 
-constexpr TcParserMapping tc_parser_mapping[] =
+constexpr Mapping<TcParserItem, TcParser> tc_parser_mapping[] =
 {
     {TcParserItem::Temperature, &TcParser::average}
 };
 
 
-constexpr ProfileMapping profile_mapping[] =
+constexpr Mapping<ProfileItem, ProfileManager> profile_mapping[] =
 {
     {ProfileItem::StartProfileId, &ProfileManager::start_profile_id},
     {ProfileItem::EditProfileId,  &ProfileManager::edit_profile_id}
 };
 
-constexpr SettingMapping setting_mapping[] =
+constexpr Mapping<SettingItem, SettingManager> setting_mapping[] =
 {
     {SettingItem::Buzzer,          &SettingManager::get_buzzer_state},
     {SettingItem::PidKp,           &SettingManager::get_pid_kp},
@@ -166,37 +163,10 @@ void DataAggregator::notification_callback(
 
 void DataAggregator::refresh() noexcept
 {
-    for (const auto& mapping : tc_parser_mapping)
-    {
-        update(
-            mapping.item,
-            (tc_parser_->*mapping.get)(),
-            tc_parser_items_);
-    }
-
-    for (const auto& mapping : furnace_mapping)
-    {
-        update(
-            mapping.item,
-            (furnace_->*mapping.get)(),
-            furnace_items_);
-    }
-
-    for (const auto& mapping : profile_mapping)
-    {
-        update(
-            mapping.item,
-            (profiles_->*mapping.get)(),
-            profile_items_);
-    }
-
-    for (const auto& mapping : setting_mapping)
-    {
-        update(
-            mapping.item,
-            (settings_->*mapping.get)(),
-            setting_items_);
-    }
+    refresh_source(tc_parser_, tc_parser_mapping, tc_parser_items_);
+    refresh_source(furnace_, furnace_mapping, furnace_items_);
+    refresh_source(profiles_, profile_mapping, profile_items_);
+    refresh_source(settings_, setting_mapping, setting_items_);
 
     profile_ = profiles_->edit_profile();
 }
