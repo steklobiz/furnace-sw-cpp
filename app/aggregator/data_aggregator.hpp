@@ -175,18 +175,11 @@ private:
         static_cast<std::size_t>(SettingItem::Count)]{};
         
     Profile profile_{};
-/*
-    uint16_t null_item_{};
-*/
     uint32_t next_sample_s_{0};
     
     core::RingBuffer<Event, config::history::event_capacity> events_;
         
     core::RingBuffer<FurnaceSample,config::history::sample_capacity> samples_;    
-/*
-    SourceDescriptor source_descriptors_[
-        static_cast<std::size_t>(DataSource::Count)]{};
-*/
 };
 
 } // namespace app
