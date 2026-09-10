@@ -86,7 +86,7 @@ private:
         std::size_t first_row) noexcept;
         
     // Render the current step data of the profile being edited.
-    void render_profile_content() noexcept;
+    void render_profile_content() const noexcept;
     
     // Render the complete ProfileEditor page, including its
     // profile data and buttons.

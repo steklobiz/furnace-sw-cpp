@@ -407,7 +407,7 @@ void Tui::render_buttons(
     }
 }
 
-void Tui::render_profile_content() noexcept
+void Tui::render_profile_content() const noexcept
 {
     const auto& profile =
         ui_->get_edit_profile();

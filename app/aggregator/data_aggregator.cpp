@@ -308,11 +308,11 @@ void DataAggregator::collect_sample() noexcept
     if (elapsed_s < next_sample_s_)
         return;
 
-    const int16_t temperature =
+    const auto temperature =
         static_cast<int16_t>(
             furnace_item(FurnaceItem::Temperature));
 
-    const uint8_t output =
+    const auto output =
         static_cast<uint8_t>(
             furnace_item(FurnaceItem::Power));
 
