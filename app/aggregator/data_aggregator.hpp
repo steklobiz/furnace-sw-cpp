@@ -127,12 +127,7 @@ public:
     // Returns a furnace sample by position, starting with the newest sample.
     [[nodiscard]] const FurnaceSample& sample_from_newest(
         std::size_t index) const noexcept; 
-               
-    void collect_sample() noexcept;
-        
-    // Clears all retained events and furnace samples.
-    void clear_history() noexcept;        
-                
+
 private:
 
     struct SourceDescriptor
@@ -141,36 +136,33 @@ private:
         std::size_t count;
     };
 
-    
-    static void tc_parser_callback(
+    // Static trampoline required by the notification callback interface.
+    static void notification_callback(
         void* context,
         const Notification& notification) noexcept;
 
-    static void furnace_callback(
-        void* context,
-        const Notification& notification) noexcept;
-        
-    static void settings_callback(
-        void* context,
-        const Notification& notification) noexcept;
-    
-    static void profile_callback(
-        void* context,
+    // Routes notifications to the appropriate snapshot, history,
+    // or sampling operation.
+    void capture(
         const Notification& notification) noexcept;
 
-    static void alarm_callback(
-        void* context,
-        const Notification& notification) noexcept;
-        
+    // Refreshes the snapshot for specific source
     void update_tc_parser() noexcept;
     void update_furnace() noexcept;
     void update_settings() noexcept;
     void update_profile() noexcept;
 
+    // Adds a notification to the event history.
     void add_event(
         DataSource source,
         const Notification& notification) noexcept;
-    
+
+    // Clears all retained events and furnace samples.
+    void clear_history() noexcept;
+
+    // Collects a periodic furnace sample for history.
+    void collect_sample() noexcept;
+
     TcParser* tc_parser_ = nullptr;
     Furnace* furnace_ = nullptr;
     ProfileManager* profiles_ = nullptr;

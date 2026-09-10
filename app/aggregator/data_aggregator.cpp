@@ -123,27 +123,26 @@ void DataAggregator::init(
         std::size(setting_items_)
     };
 
-    
     tc_parser_->set_notify_callback(
-        tc_parser_callback,
+        notification_callback,
         this);
 
     furnace_->set_notify_callback(
-        furnace_callback,
+        notification_callback,
         this);
-        
+
     settings_->set_notify_callback(
-        settings_callback,
+        notification_callback,
         this);
-        
+
     profiles_->set_notify_callback(
-        profile_callback,
+        notification_callback,
         this);
-        
+
     alarms_->set_notify_callback(
-        alarm_callback,
+        notification_callback,
         this);
-            
+
     update_tc_parser();
     update_furnace();
     update_settings();
@@ -151,92 +150,59 @@ void DataAggregator::init(
 }
 
 
-void DataAggregator::tc_parser_callback(
-    void* context,
-    const Notification& notification) noexcept
+void DataAggregator::notification_callback(
+        void* context,
+        const Notification& notification) noexcept
 {
-    if (notification.type != NotificationType::DataReady)
-        return;
-
-    auto& aggregator =
-        *static_cast<DataAggregator*>(context);
-
-    aggregator.update_tc_parser();
+    static_cast<DataAggregator*>(context)->capture(notification);
 }
 
-
-void DataAggregator::furnace_callback(
-    void* context,
-    const Notification& notification) noexcept
+void DataAggregator::capture(
+        const Notification& notification) noexcept
 {
-    auto& aggregator =
-        *static_cast<DataAggregator*>(context);
-
     switch (notification.type)
     {
-    case NotificationType::DataReady:
-        aggregator.update_furnace();
-        aggregator.collect_sample();
-        break;
+        case NotificationType::DataReady:
+            if (notification.context == furnace_)
+            {
+                update_furnace();
+                collect_sample();
+            }
+            else if (notification.context == tc_parser_)
+            {
+                update_tc_parser();
+            }
+            break;
 
-    case NotificationType::ProfileStarted:
-    case NotificationType::StepStarted:
-    case NotificationType::ProfileFinished:
-    case NotificationType::ProfileStopped:
-    case NotificationType::OutputSet:
-    case NotificationType::OutputReset:
-        aggregator.add_event(
-            DataSource::Furnace,
-            notification);
-        break;
+        case NotificationType::SettingsChanged:
+            update_settings();
+            break;
 
-    default:
-        break;
+        case NotificationType::StartProfileChanged:
+        case NotificationType::EditProfileChanged:
+            update_profile();
+            break;
+
+        case NotificationType::ProfileStarted:
+            clear_history();
+            add_event(DataSource::Furnace, notification);
+            break;
+
+        case NotificationType::StepStarted:
+        case NotificationType::ProfileFinished:
+        case NotificationType::ProfileStopped:s
+        case NotificationType::OutputSet:
+        case NotificationType::OutputReset:
+            add_event(DataSource::Furnace, notification);
+            break;
+
+        case NotificationType::Error:
+            add_event(DataSource::Alarm, notification);
+            break;
+
+        default:
+            break;
     }
-}
-
-
-void DataAggregator::settings_callback(
-    void* context,
-    const Notification& notification) noexcept
-{
-    if (notification.type != NotificationType::SettingsChanged)
-        return;
-
-    auto& aggregator =
-        *static_cast<DataAggregator*>(context);
-
-    aggregator.update_settings();
-}
-
-
-void DataAggregator::profile_callback(
-    void* context,
-    const Notification& notification) noexcept
-{
-    if (notification.type != NotificationType::StartProfileChanged &&
-        notification.type != NotificationType::EditProfileChanged)
-    {
-        return;
-    }
-
-    auto& aggregator =
-        *static_cast<DataAggregator*>(context);
-
-    aggregator.update_profile();
-}
-
-
-void DataAggregator::alarm_callback(
-    void* context,
-    const Notification& notification) noexcept
-{
-    auto& aggregator =
-        *static_cast<DataAggregator*>(context);
-
-    aggregator.add_event(
-        DataSource::Alarm,
-        notification);
 }
 
 
