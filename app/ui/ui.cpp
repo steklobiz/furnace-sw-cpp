@@ -282,10 +282,10 @@ void Ui::cancel_settings(uint16_t) noexcept
     page_ = Page::Main;
 }
 
-void Ui::next_step(uint16_t) noexcept
+    void Ui::next_step(uint16_t) noexcept
 {
     const auto& profile =
-        data_->profile();
+        profiles_->edit_profile();
 
     if (static_cast<std::size_t>(current_step_) + 1 <
         profile.steps.size())
