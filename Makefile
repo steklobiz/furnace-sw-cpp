@@ -1,7 +1,7 @@
 CXX      := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic \
             -DPLATFORM_PC \
-            -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config -Iapp/tc_parser -Iapp/alarm -Iapp/history -Iapp/furnace -Iapp/aggregator \
+            -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/lcd -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config -Iapp/tc_parser -Iapp/alarm -Iapp/history -Iapp/furnace -Iapp/aggregator \
             -Icore/log -Icore/log/backends -Icore/pid -Icore/scheduler -Icore/format \
             -Iplatform
 # LDFLAGS := -static
@@ -11,6 +11,7 @@ SRCDIR   := app
 UIDIR    := app/ui
 TUIDIR   := app/ui/tui
 DWINDIR  := app/ui/dwin
+LCDDIR   := app/ui/lcd
 PROFDIR  := app/profiles
 SETDIR   := app/settings
 CONFDIR  := app/config
@@ -32,6 +33,7 @@ APP_SRCS  := $(wildcard $(SRCDIR)/*.cpp)
 UI_SRCS   := $(wildcard $(UIDIR)/*.cpp)
 TUI_SRCS  := $(wildcard $(TUIDIR)/*.cpp)
 DWIN_SRCS := $(wildcard $(DWINDIR)/*.cpp)
+LCD_SRCS  := $(wildcard $(LCDDIR)/*.cpp)
 PROF_SRCS := $(wildcard $(PROFDIR)/*.cpp)
 SET_SRCS  := $(wildcard $(SETDIR)/*.cpp)
 CONF_SRCS := $(wildcard $(CONFDIR)/*.cpp)
@@ -46,11 +48,12 @@ PID_SRCS  := $(wildcard $(PIDDIR)/*.cpp)
 SCHED_SRCS := $(wildcard $(SCHEDDIR)/*.cpp)
 FORM_SRCS  := $(wildcard $(FORMDIR)/*.cpp)
 HAL_SRCS  := $(wildcard $(HALDIR)/*.cpp)
-SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(PROF_SRCS) $(SET_SRCS) $(CONF_SRCS) $(TCP_SRCS) $(ALARM_SRCS) $(HIST_SRCS) $(FURNACE_SRCS) $(AGGREGATOR_SRCS) $(LOG_SRCS) $(LOGB_SRCS) $(PID_SRCS) $(SCHED_SRCS) $(FORM_SRCS) $(HAL_SRCS)
+SRCS      := $(APP_SRCS) $(UI_SRCS) $(TUI_SRCS) $(DWIN_SRCS) $(LCD_SRCS) $(PROF_SRCS) $(SET_SRCS) $(CONF_SRCS) $(TCP_SRCS) $(ALARM_SRCS) $(HIST_SRCS) $(FURNACE_SRCS) $(AGGREGATOR_SRCS) $(LOG_SRCS) $(LOGB_SRCS) $(PID_SRCS) $(SCHED_SRCS) $(FORM_SRCS) $(HAL_SRCS)
 OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
              $(patsubst $(UIDIR)/%.cpp, $(BUILDDIR)/%.o, $(UI_SRCS)) \
              $(patsubst $(TUIDIR)/%.cpp, $(BUILDDIR)/%.o, $(TUI_SRCS)) \
              $(patsubst $(DWINDIR)/%.cpp, $(BUILDDIR)/%.o, $(DWIN_SRCS)) \
+             $(patsubst $(LCDDIR)/%.cpp, $(BUILDDIR)/lcd_%.o, $(LCD_SRCS)) \
              $(patsubst $(PROFDIR)/%.cpp, $(BUILDDIR)/%.o, $(PROF_SRCS)) \
              $(patsubst $(SETDIR)/%.cpp, $(BUILDDIR)/%.o, $(SET_SRCS)) \
              $(patsubst $(CONFDIR)/%.cpp, $(BUILDDIR)/%.o, $(CONF_SRCS)) \
@@ -83,6 +86,9 @@ $(BUILDDIR)/%.o: $(TUIDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/%.o: $(DWINDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
+
+$(BUILDDIR)/lcd_%.o: $(LCDDIR)/%.cpp | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) -Icore -I$(HALDIR) -c -o $@ $<
 
 $(BUILDDIR)/%.o: $(PROFDIR)/%.cpp | $(BUILDDIR)
