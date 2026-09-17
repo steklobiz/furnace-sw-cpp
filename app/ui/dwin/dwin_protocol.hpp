@@ -1,8 +1,28 @@
-//
-// Created by HP on 17.09.2026.
-//
+#pragma once
 
-#ifndef FURNACE_SW_CPP_DWIN_PROTOCOL_HPP
-#define FURNACE_SW_CPP_DWIN_PROTOCOL_HPP
+#include <cstddef>
+#include <cstdint>
 
-#endif //FURNACE_SW_CPP_DWIN_PROTOCOL_HPP
+namespace app
+{
+
+    // Encodes commands using the DWIN/DGUS serial protocol.
+    // Does not know anything about UART or the physical display.
+    class DwinProtocol
+    {
+    public:
+        static constexpr std::size_t MaxPacketSize = 64;
+
+        struct Packet
+        {
+            uint8_t data[MaxPacketSize]{};
+            std::size_t size = 0;
+        };
+
+        DwinProtocol() noexcept = default;
+
+        // Creates a DWIN VP write command containing one 16-bit value.
+        [[nodiscard]] Packet write_word(uint16_t address, uint16_t value) const noexcept;
+    };
+
+} // namespace app
