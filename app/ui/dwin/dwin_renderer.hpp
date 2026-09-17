@@ -33,7 +33,7 @@ namespace app
 
         Ui::Page rendered_page_ = Ui::Page::Count;
 
-        
+
         uint16_t rendered_values_[MaxFieldsPerPage]{};
         bool field_rendered_[MaxFieldsPerPage]{};
     };
