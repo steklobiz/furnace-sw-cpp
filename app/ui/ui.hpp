@@ -106,23 +106,6 @@ public:
         Edit
     };
 
-    enum class ProfileEditField : uint8_t
-    {
-        Setpoint,
-        Duration,
-        Flags
-    };
-    
-    enum class SettingsField : uint8_t
-    {
-        Buzzer,
-        PidKp,
-        PidKi,
-        PidKd,
-        MaxTemperature,
-    };
-
-
     struct FieldMapping
     {
         DataSource source;

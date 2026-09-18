@@ -22,25 +22,6 @@ public:
         int32_t kd;
     };
 
-#ifdef PLATFORM_PC
-
-    struct DebugState
-    {
-        int32_t error;
-        int32_t p;
-        int32_t i;
-        int32_t d;
-        int32_t output;
-    };
-
-    const DebugState& debug() const noexcept
-    {
-        return debug_;
-    }
-    
-#endif
-
-
     Pid() noexcept = default;
 
     void init(const Config& config) noexcept;
@@ -62,13 +43,7 @@ private:
     int32_t previous_error_{0};
 
     bool first_update_{true};
-    
-#ifdef PLATFORM_PC
 
-    DebugState debug_{};
-
-#endif
-    
 };
 
 }

@@ -4,10 +4,6 @@ namespace app {
 
 bool App::init() noexcept
 {
-//     Log::info(
-//         tag,
-//         "Application initialized");
-   
     const Settings& settings = settings_.view();
 
     hal::init();
@@ -73,19 +69,6 @@ bool App::init() noexcept
     500,
     alarm_);
     
-/*            
-#ifdef PLATFORM_PC
-
-        scheduler_.every<App, &App::trace_pid>(
-            1000,
-            *this);
-        
-        scheduler_.every<App, &App::trace_furnace>(
-            1000,
-            *this);
-                            
-#endif    
-  */                  
     scheduler_.every<Ui, &Ui::process>(
         100,
         ui_);

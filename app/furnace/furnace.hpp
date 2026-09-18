@@ -68,12 +68,6 @@ public:
     [[nodiscard]] uint16_t outputs() const noexcept;
     [[nodiscard]] uint16_t power() const noexcept;
     
-    // PID getter        
-#ifdef PLATFORM_PC
-    [[nodiscard]] const core::Pid& pid() const noexcept;
-#endif
-    
-    
 private:
 
     static constexpr uint8_t MAX_RPOFILE_STEPS = 5;      // temporary

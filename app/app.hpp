@@ -14,10 +14,6 @@
 #include "pid.hpp"
 #include "data_aggregator.hpp"
 
-#ifdef PLATFORM_PC
-#include "trace.hpp"
-#endif
-
 namespace app
 {
 
@@ -53,43 +49,7 @@ private:
     void reset_furnace() noexcept;
 
     static constexpr uint32_t loop_delay_ms = 5;
-/*    
-#ifdef PLATFORM_PC
 
-
-    // Records the current PID state in the PID trace buffer.
-    void trace_pid() noexcept
-    {
-        const auto& debug = furnace_.pid().debug();
-        
-        trace_.add_pid({
-            hal::tick_s(),
-            furnace_.setpoint(),
-            furnace_.current_temperature(),
-            debug.error,
-            debug.p,
-            debug.i,
-            debug.d,
-            debug.output
-        });
-    }
-
-    // Records the current furnace state in the furnace trace buffer.
-    void trace_furnace() noexcept
-    {
-        trace_.add_furnace({
-            hal::tick_s(),
-            furnace_.current_temperature(),
-            furnace_.setpoint(),
-            furnace_.power()
-        });
-    }
-    
-        
-#endif
-*/    
-    using Trace = platform::trace::Trace<100, 100>;
-    
 private:
 
     ProfileManager profiles_ ;
@@ -111,11 +71,6 @@ private:
     core::Scheduler scheduler_;
     
     core::Pid pid_;
-/*
-#ifdef PLATFORM_PC
-    Trace trace_;
-#endif
-  */  
 };
 
 } // namespace app
