@@ -101,19 +101,6 @@ int32_t Pid::update(
     previous_error_ = error;
     first_update_ = false;
 
-#ifdef PLATFORM_PC
-
-    debug_ =
-    {
-        error,
-        p,
-        i,
-        d,
-        output
-    };
-
-#endif
-
     return output;
 }
 

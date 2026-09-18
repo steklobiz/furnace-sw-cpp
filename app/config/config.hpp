@@ -29,12 +29,7 @@ namespace app::config
         inline constexpr uint8_t sample_capacity = 60;
         inline constexpr uint32_t sample_period_s = 1; 
     }
-    namespace app::config::trace
-    {
-        inline constexpr std::size_t furnace_capacity = 100;
-        inline constexpr std::size_t pid_capacity = 100;
-    }
-    
+
 inline constexpr uint8_t tc_count      = 2;
 
 inline constexpr uint8_t output_count      = 4;
@@ -42,24 +37,3 @@ inline constexpr uint8_t output_count      = 4;
 inline constexpr uint32_t ui_buffer_size  = 1024;
 inline constexpr uint32_t event_queue_size = 32;
 }
-
-/*
-namespace app::config
-{
-    namespace profiles
-    {
-        inline constexpr uint8_t count = 16;
-        inline constexpr uint8_t max_steps = 32;
-    }
-
-    namespace logging
-    {
-        inline constexpr std::size_t buffer_size = 1024;
-    }
-
-    namespace ui
-    {
-        inline constexpr uint8_t output_count = 4;
-    }
-}
-*/

@@ -534,13 +534,4 @@ Furnace::power() const noexcept
     return static_cast<uint16_t>(pid_output_);
 }
 
-#ifdef PLATFORM_PC
-
-const core::Pid& Furnace::pid() const noexcept
-{
-    return *pid_;
-}
-
-#endif
-
 } // namespace app
