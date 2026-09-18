@@ -137,6 +137,8 @@ void DwinRenderer::process() noexcept
 
     if (page != rendered_page_)
     {
+        set_view_for_page(page);
+
         rendered_page_ = page;
 
         for (std::size_t i = 0; i < MaxRenderedFields; ++i)
@@ -151,6 +153,26 @@ void DwinRenderer::process() noexcept
     render_page(page);
 }
 
+void DwinRenderer::set_view_for_page(Ui::Page page) noexcept
+{
+    switch (page)
+    {
+        case Ui::Page::Monitor:
+            view_ = DwinView::Monitor;
+            break;
+
+        case Ui::Page::Settings:
+            if (view_ != DwinView::SettingsPid &&
+                view_ != DwinView::SettingsOther)
+            {
+                view_ = DwinView::SettingsPid;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
 
 void DwinRenderer::render_page(Ui::Page page) noexcept
 {
@@ -235,14 +257,45 @@ void DwinRenderer::handle_action(DwinAction action) noexcept
         return;
     }
 
-    switch (ui_->page())
+    if (ui_->page() == Ui::Page::Settings)
     {
-        case Ui::Page::Settings:
-            handle_settings_action(action);
-            break;
+        handle_settings_action(action);
 
-        default:
-            break;
+        if (action == DwinAction::Home)
+        {
+            ui_->execute(
+                Ui::Action{
+                    Ui::ActionType::Back,
+                    0U
+                });
+        }
+
+        return;
+    }
+
+    if (ui_->page() == Ui::Page::Monitor)
+    {
+        switch (action)
+        {
+            case DwinAction::Stop:
+                ui_->execute(
+                    Ui::Action{
+                        Ui::ActionType::StopFurnace,
+                        0U
+                    });
+                break;
+
+            case DwinAction::Back:
+                ui_->execute(
+                    Ui::Action{
+                        Ui::ActionType::Back,
+                        0U
+                    });
+                break;
+
+            default:
+                break;
+        }
     }
 }
 

@@ -51,10 +51,14 @@ namespace app
 
         static constexpr std::size_t MaxRenderedFields = 16;
 
+        void set_view_for_page(Ui::Page page) noexcept;
+
         void render_page(Ui::Page page) noexcept;
 
         Ui* ui_ = nullptr;
+
         DwinProtocol protocol_{};
+
         DwinTransport* transport_ = nullptr;
 
         Ui::Page rendered_page_ = Ui::Page::Count;
