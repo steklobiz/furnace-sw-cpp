@@ -6,51 +6,80 @@ namespace app
 namespace
 {
 
-struct Field
+constexpr uint16_t ButtonStop = 0x2000U;
+constexpr uint16_t ButtonBack = 0x2001U;
+constexpr uint16_t ButtonPrevious = 0x2002U;
+constexpr uint16_t ButtonNext = 0x2003U;
+constexpr uint16_t ButtonHome = 0x2004U;
+
+struct FieldMapping
 {
     uint8_t ui_field;
-    uint16_t address;
+    uint16_t vp_address;
 };
 
 struct PageDescriptor
 {
     Ui::Page page;
-    const Field* fields;
+    DwinView view;
+    const FieldMapping* fields;
     std::size_t field_count;
 };
 
-constexpr Field monitor_fields[] = {
-    {0U, 0x1000U},
-    {1U, 0x1001U},
-    {2U, 0x1002U},
-    {3U, 0x1003U},
+constexpr FieldMapping monitor_fields[] = {
+    {0U, 0x1000U}, // State
+    {1U, 0x1001U}, // Profile
+    {2U, 0x1002U}, // Step
+    {3U, 0x1003U}, // Step type
+    {4U, 0x1004U}, // Temperature
+    {5U, 0x1005U}, // Setpoint
+    {6U, 0x1006U}, // Step elapsed
+    {7U, 0x1007U}, // Profile elapsed
+    {8U, 0x1008U}, // Power
+    {9U, 0x1009U}, // Outputs
 };
 
-constexpr Field settings_fields[] = {
-    {0U, 0x1100U},
-    {1U, 0x1101U},
-    {2U, 0x1102U},
-    {3U, 0x1103U},
+constexpr FieldMapping settings_pid_fields[] = {
+    {1U, 0x1100U}, // PID Kp
+    {2U, 0x1101U}, // PID Ki
+    {3U, 0x1102U}, // PID Kd
+};
+
+constexpr FieldMapping settings_other_fields[] = {
+    {0U, 0x1110U}, // Buzzer
+    {4U, 0x1111U}, // Max temperature
+    {5U, 0x1112U}, // Prestep outputs
 };
 
 constexpr PageDescriptor page_descriptors[] = {
     {
         Ui::Page::Monitor,
+        DwinView::Monitor,
         monitor_fields,
-        sizeof(monitor_fields) / sizeof(monitor_fields[0])
+        std::size(monitor_fields)
     },
     {
         Ui::Page::Settings,
-        settings_fields,
-        sizeof(settings_fields) / sizeof(settings_fields[0])
+        DwinView::SettingsPid,
+        settings_pid_fields,
+        std::size(settings_pid_fields)
+    },
+    {
+        Ui::Page::Settings,
+        DwinView::SettingsOther,
+        settings_other_fields,
+        std::size(settings_other_fields)
     },
 };
 
-const PageDescriptor* find_page(Ui::Page page) noexcept
+const PageDescriptor* find_page(
+    Ui::Page page,
+    DwinView view) noexcept
 {
     for (const PageDescriptor& descriptor : page_descriptors)
     {
-        if (descriptor.page == page)
+        if (descriptor.page == page &&
+            descriptor.view == view)
         {
             return &descriptor;
         }
@@ -61,12 +90,16 @@ const PageDescriptor* find_page(Ui::Page page) noexcept
 
 } // namespace
 
-void DwinRenderer::init(Ui& ui) noexcept
+void DwinRenderer::init(
+    Ui& ui,
+    DwinTransport& transport) noexcept
 {
     ui_ = &ui;
+    transport_ = &transport;
+
     rendered_page_ = Ui::Page::Count;
 
-    for (std::size_t i = 0; i < MaxFieldsPerPage; ++i)
+    for (std::size_t i = 0; i < MaxRenderedFields; ++i)
     {
         rendered_values_[i] = 0U;
         field_rendered_[i] = false;
@@ -86,7 +119,7 @@ void DwinRenderer::process() noexcept
     {
         rendered_page_ = page;
 
-        for (std::size_t i = 0; i < MaxFieldsPerPage; ++i)
+        for (std::size_t i = 0; i < MaxRenderedFields; ++i)
         {
             field_rendered_[i] = false;
         }
@@ -100,7 +133,8 @@ void DwinRenderer::process() noexcept
 
 void DwinRenderer::render_page(Ui::Page page) noexcept
 {
-    const PageDescriptor* descriptor = find_page(page);
+    const PageDescriptor* descriptor =
+        find_page(page, view_);
 
     if (descriptor == nullptr)
     {
@@ -109,9 +143,9 @@ void DwinRenderer::render_page(Ui::Page page) noexcept
 
     for (std::size_t i = 0; i < descriptor->field_count; ++i)
     {
-        const Field& field = descriptor->fields[i];
+        const FieldMapping& field = descriptor->fields[i];
 
-        if (field.ui_field >= MaxFieldsPerPage)
+        if (field.ui_field >= MaxRenderedFields)
         {
             continue;
         }
@@ -132,11 +166,50 @@ void DwinRenderer::render_page(Ui::Page page) noexcept
         rendered_values_[field.ui_field] = value;
         field_rendered_[field.ui_field] = true;
 
-        const DwinProtocol::Packet packet =
-            protocol_.write_word(field.address, value);
+        if (transport_ == nullptr)
+        {
+            return;
+        }
 
-        (void)packet;
+        const DwinProtocol::Packet packet =
+            protocol_.write_word(field.vp_address, value);
+
+        transport_->send(packet.data, packet.size);
     }
+}
+
+DwinRenderer::DwinAction DwinRenderer::decode_action(
+    uint16_t address,
+    uint16_t value) const noexcept
+{
+    (void)value;
+
+    switch (address)
+    {
+        case ButtonStop:
+            return DwinAction::Stop;
+
+        case ButtonBack:
+            return DwinAction::Back;
+
+        case ButtonPrevious:
+            return DwinAction::Previous;
+
+        case ButtonNext:
+            return DwinAction::Next;
+
+        case ButtonHome:
+            return DwinAction::Home;
+
+        default:
+            return DwinAction::None;
+    }
+}
+
+
+void DwinRenderer::handle_action(DwinAction action) noexcept
+{
+    (void)action;
 }
 
 } // namespace app

@@ -7,6 +7,8 @@
 #include "tc_parser.hpp"
 #include "ui.hpp"
 #include "tui.hpp"
+#include "dwin_renderer.hpp"
+#include "dwin_transport.hpp"
 #include "scheduler.hpp"
 #include "hal.hpp"
 #include "logger.hpp"
@@ -42,6 +44,8 @@ public:
     
 private:
 
+    void test_dwin() noexcept;
+
     static void ui_command_callback(
         void* context,
         Ui::Action action) noexcept;
@@ -67,7 +71,10 @@ private:
     Ui ui_;
 
     Tui tui_;
-    
+
+    DwinTransport dwin_transport_;
+    DwinRenderer dwin_renderer_;
+
     core::Scheduler scheduler_;
     
     core::Pid pid_;
