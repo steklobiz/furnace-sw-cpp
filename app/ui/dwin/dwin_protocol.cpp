@@ -44,4 +44,42 @@ namespace app
         return packet;
     }
 
+    bool DwinProtocol::decode_touch(
+        const uint8_t* data,
+        std::size_t size,
+        TouchEvent& event) const noexcept
+    {
+        constexpr std::size_t PacketSize = 9U;
+        constexpr uint8_t Header1 = 0x5AU;
+        constexpr uint8_t Header2 = 0xA5U;
+        constexpr uint8_t ReadVp = 0x83U;
+        constexpr uint8_t DataLength = 1U;
+
+        if (data == nullptr || size != PacketSize)
+        {
+            return false;
+        }
+
+        if (data[0] != Header1 ||
+            data[1] != Header2 ||
+            data[2] != 0x06U ||
+            data[3] != ReadVp ||
+            data[6] != DataLength)
+        {
+            return false;
+        }
+
+        event.address =
+            static_cast<uint16_t>(
+                (static_cast<uint16_t>(data[4]) << 8U) |
+                static_cast<uint16_t>(data[5]));
+
+        event.value =
+            static_cast<uint16_t>(
+                (static_cast<uint16_t>(data[7]) << 8U) |
+                static_cast<uint16_t>(data[8]));
+
+        return true;
+    }
+
 } // namespace app

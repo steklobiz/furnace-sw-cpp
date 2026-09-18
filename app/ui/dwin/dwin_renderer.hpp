@@ -47,6 +47,7 @@ namespace app
             uint16_t value) const noexcept;
 
         void handle_action(DwinAction action) noexcept;
+        void handle_settings_action(DwinAction action) noexcept;
 
         static constexpr std::size_t MaxRenderedFields = 16;
 

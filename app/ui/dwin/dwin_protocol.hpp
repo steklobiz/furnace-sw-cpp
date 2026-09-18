@@ -38,6 +38,7 @@ public:
         const uint8_t* data,
         std::size_t size,
         TouchEvent& event) const noexcept;
+
 };
 
 } // namespace app

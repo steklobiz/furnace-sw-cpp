@@ -106,11 +106,31 @@ void DwinRenderer::init(
     }
 }
 
+
 void DwinRenderer::process() noexcept
 {
-    if (ui_ == nullptr)
+    if (ui_ == nullptr || transport_ == nullptr)
     {
         return;
+    }
+
+    uint8_t data[DwinProtocol::MaxPacketSize]{};
+    std::size_t size = 0U;
+
+    if (transport_->receive(data, sizeof(data), size))
+    {
+        DwinProtocol::TouchEvent event{};
+
+        if (protocol_.decode_touch(data, size, event))
+        {
+            const DwinAction action =
+                decode_action(event.address, event.value);
+
+            if (action != DwinAction::None)
+            {
+                handle_action(action);
+            }
+        }
     }
 
     const Ui::Page page = ui_->page();
@@ -130,6 +150,7 @@ void DwinRenderer::process() noexcept
 
     render_page(page);
 }
+
 
 void DwinRenderer::render_page(Ui::Page page) noexcept
 {
@@ -209,7 +230,45 @@ DwinRenderer::DwinAction DwinRenderer::decode_action(
 
 void DwinRenderer::handle_action(DwinAction action) noexcept
 {
-    (void)action;
+    if (ui_ == nullptr)
+    {
+        return;
+    }
+
+    switch (ui_->page())
+    {
+        case Ui::Page::Settings:
+            handle_settings_action(action);
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void DwinRenderer::handle_settings_action(
+    DwinAction action) noexcept
+{
+    switch (action)
+    {
+        case DwinAction::Previous:
+        case DwinAction::Next:
+            if (view_ == DwinView::SettingsPid)
+            {
+                view_ = DwinView::SettingsOther;
+            }
+            else
+            {
+                view_ = DwinView::SettingsPid;
+            }
+
+            rendered_page_ = Ui::Page::Count;
+            break;
+
+        default:
+            break;
+    }
 }
 
 } // namespace app
