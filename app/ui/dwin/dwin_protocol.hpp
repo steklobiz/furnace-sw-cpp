@@ -3,6 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 
+// Encodes DWIN/DGUS protocol packets for display output
+// and decodes touch-response packets received from the display.
+// Does not handle transport or UART communication.
+// Protocol-specific addresses and application mappings belong elsewhere.
+
 namespace app
 {
 

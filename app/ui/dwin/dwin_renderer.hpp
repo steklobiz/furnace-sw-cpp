@@ -7,6 +7,11 @@
 #include <cstddef>
 #include <cstdint>
 
+// Renders application UI state on a DWIN display.
+// Converts display-independent Ui data into DWIN-specific presentation.
+// Translates DWIN touch events into application UI actions.
+// Does not own application state or communicate with the display directly.
+
 namespace app
 {
 

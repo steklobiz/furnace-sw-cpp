@@ -7,152 +7,139 @@ namespace core
 
 // Fixed-capacity FIFO container.
 //
-// RingBuffer stores elements in a circular buffer whose capacity
-// is known at compile time. Memory is allocated statically and
-// no dynamic allocation is performed.
+// RingBuffer stores elements in a statically allocated circular buffer.
+// No dynamic allocation is performed.
 //
-// The container is intended for embedded applications where
-// deterministic execution time and fixed memory usage are required.
+// push() and pop() support a single-producer/single-consumer usage,
+// such as an interrupt producer and a main-context consumer.
 //
-// All operations execute in constant time.
+// The implementation reserves one internal slot to distinguish
+// full and empty states, so the public capacity remains exactly Capacity.
 //
-// This implementation is not thread-safe. Concurrent access from
-// interrupts and the main context must be synchronized externally.
+// push_overwrite(), clear(), from_newest(), and size() are intended
+// for single-context use and are not part of the ISR/main-context
+// producer/consumer contract.
+//
+// No general thread-safety or multi-producer/multi-consumer support
+// is provided.
 template<
     class T,
     std::size_t Capacity>
 class RingBuffer
 {
-    static_assert(
-        Capacity > 0,
-        "RingBuffer capacity must be greater than zero.");
+    static_assert(Capacity > 0, "RingBuffer capacity must be greater than zero.");
+
+    static constexpr std::size_t StorageSize = Capacity + 1U;
 
 public:
-
     RingBuffer() noexcept = default;
 
-    // Inserts an element at the end of the buffer.
+    // Adds an element.
     //
-    // Returns false if the buffer is full.
+    // SPSC-safe when called only by the producer.
+    // Returns false when the buffer is full.
     bool push(const T& value) noexcept
     {
-        if (size_ == Capacity)
+        const std::size_t next_write = next_index(write_index_);
+
+        if (next_write == read_index_)
         {
             return false;
         }
 
         buffer_[write_index_] = value;
-
-        write_index_ = next_index(write_index_);
-
-        ++size_;
+        write_index_ = next_write;
 
         return true;
     }
-    
-    // Inserts an element at the end of the buffer.
+
+    // Adds an element, discarding the oldest element when full.
     //
-    // Always succeeds. If the buffer is full, the oldest element
-    // is removed and replaced by the new element.
-    //
-    // This operation keeps the buffer size unchanged when full.
-    bool push_overwrite(const T& value) noexcept  // Always succeeds, overwrites oldest if full
+    // Single-context operation.
+    bool push_overwrite(const T& value) noexcept
     {
-        if (size_ == Capacity) 
+        const std::size_t next_write = next_index(write_index_);
+
+        if (next_write == read_index_)
         {
-            read_index_ = next_index(read_index_);  // Drop oldest
-        } else 
-        {
-            ++size_;
+            read_index_ = next_index(read_index_);
         }
 
         buffer_[write_index_] = value;
-        
-        write_index_ = next_index(write_index_);
-        
+        write_index_ = next_write;
+
         return true;
     }
 
-
-    // Removes the oldest element from the buffer.
+    // Removes the oldest element.
     //
-    // Returns false if the buffer is empty.
+    // SPSC-safe when called only by the consumer.
+    // Returns false when the buffer is empty.
     bool pop(T& value) noexcept
     {
-        if (size_ == 0)
+        if (read_index_ == write_index_)
         {
             return false;
         }
 
         value = buffer_[read_index_];
-
         read_index_ = next_index(read_index_);
-
-        --size_;
 
         return true;
     }
 
-    // Resets the logical state of the buffer.
+    // Clears the buffer.
     //
-    // Existing values remain stored internally and will be
-    // overwritten by future push() operations.
+    // Single-context operation.
     void clear() noexcept
     {
-        read_index_ = 0;
-        write_index_ = 0;
-        size_ = 0;
+        read_index_ = 0U;
+        write_index_ = 0U;
     }
 
-
-    // Returns an element by its position relative to the newest element.
+    // Returns an element relative to the newest element.
     //
-    // Index 0 refers to the newest element.
-    // Index 1 refers to the previous element, and so on.
+    // index == 0 refers to the newest element.
+    // Caller must provide index < size().
     //
-    // The caller must ensure index < size().
+    // Single-context operation.
     const T& from_newest(std::size_t index) const noexcept
     {
         const std::size_t idx =
-            (write_index_ + Capacity - 1 - index) % Capacity;
-    
+            (write_index_ + StorageSize - 1U - index) % StorageSize;
+
         return buffer_[idx];
     }
-    
-    
+
     // Returns the current number of stored elements.
+    //
+    // This is a snapshot and is intended for single-context/history use.
     std::size_t size() const noexcept
     {
-        return size_;
+        if (write_index_ >= read_index_)
+        {
+            return write_index_ - read_index_;
+        }
+
+        return StorageSize - read_index_ + write_index_;
     }
 
-    // Returns the maximum number of elements the buffer can hold.
     static constexpr std::size_t capacity() noexcept
     {
         return Capacity;
     }
 
 private:
-
-    // Advances an index and wraps around at the end of the buffer.
-    static constexpr std::size_t next_index(
-        std::size_t index) noexcept
+    static constexpr std::size_t next_index(std::size_t index) noexcept
     {
-        return (index + 1) % Capacity;
+        return (index + 1U) % StorageSize;
     }
 
-private:
+    T buffer_[StorageSize];
 
-    T buffer_[Capacity];
-
-    // Index where the next element will be written.
-    std::size_t write_index_ = 0;
-
-    // Index of the next element to be read.
-    std::size_t read_index_ = 0;
-
-    // Current number of stored elements.
-    std::size_t size_ = 0;
+    // These indices may be accessed from main context and an ISR.
+    volatile std::size_t write_index_ = 0U;
+    volatile std::size_t read_index_ = 0U;
 };
 
 } // namespace core
