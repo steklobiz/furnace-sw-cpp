@@ -7,8 +7,12 @@ CXXFLAGS := -std=c++17 -Wall -Wextra -Wconversion \
             -I$(ROOTDIR)/core
 LDFLAGS  := -static
 
-TARGET    := dwin_transport_test.exe
-OBJS      := dwin_transport_test.o dwin_transport_pc.o
+TARGET := dwin_transport_test.exe
+
+OBJS := \
+    dwin_transport_test.o \
+    dwin_transport.o \
+    hal_pc.o
 
 .PHONY: all clean run
 
@@ -20,7 +24,10 @@ $(TARGET): $(OBJS)
 dwin_transport_test.o: dwin_transport_test.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-dwin_transport_pc.o: $(ROOTDIR)/platform/pc/dwin_transport.cpp
+dwin_transport.o: $(ROOTDIR)/app/ui/dwin/dwin_transport.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+hal_pc.o: $(ROOTDIR)/platform/pc/hal.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:

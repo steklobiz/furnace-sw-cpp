@@ -1,26 +1,16 @@
 #include "dwin_transport.hpp"
 
-#include "ring_buffer.hpp"
+#include "hal.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-
-namespace
-{
-
-    constexpr std::size_t RxCapacity = 128U;
-
-    core::RingBuffer<uint8_t, RxCapacity> rx_buffer;
-
-} // namespace
 
 namespace app
 {
 
 void DwinTransport::init() noexcept
 {
-    rx_buffer.clear();
     packet_size_ = 0U;
     packet_expected_ = 0U;
 }
@@ -34,12 +24,7 @@ void DwinTransport::send(
         return;
     }
 
-    for (std::size_t i = 0U; i < size; ++i)
-    {
-        std::printf("%02X ", static_cast<unsigned int>(data[i]));
-    }
-
-    std::printf("\n");
+    hal::dwin_send(data, size);
 }
 
 bool DwinTransport::receive(
@@ -54,10 +39,21 @@ bool DwinTransport::receive(
         return false;
     }
 
-    uint8_t byte = 0U;
+    uint8_t rx_data[MaxPacketSize]{};
+    std::size_t rx_size = 0U;
 
-    while (rx_buffer.pop(byte))
+    if (!hal::dwin_receive(
+            rx_data,
+            sizeof(rx_data),
+            rx_size))
     {
+        return false;
+    }
+
+    for (std::size_t i = 0U; i < rx_size; ++i)
+    {
+        const uint8_t byte = rx_data[i];
+
         if (packet_size_ == 0U)
         {
             if (byte == 0x5AU)
@@ -76,7 +72,6 @@ bool DwinTransport::receive(
             }
             else if (byte == 0x5AU)
             {
-                // Possible new packet header.
                 packet_[0] = byte;
             }
             else
@@ -108,9 +103,9 @@ bool DwinTransport::receive(
 
         if (packet_size_ == packet_expected_)
         {
-            for (std::size_t i = 0U; i < packet_size_; ++i)
+            for (std::size_t j = 0U; j < packet_size_; ++j)
             {
-                data[i] = packet_[i];
+                data[j] = packet_[j];
             }
 
             size = packet_size_;
@@ -126,23 +121,3 @@ bool DwinTransport::receive(
 }
 
 } // namespace app
-
-namespace app::test
-{
-
-    void feed_dwin_bytes(
-        const uint8_t* data,
-        std::size_t size) noexcept
-    {
-        if (data == nullptr)
-        {
-            return;
-        }
-
-        for (std::size_t i = 0U; i < size; ++i)
-        {
-            (void)rx_buffer.push(data[i]);
-        }
-    }
-
-} // namespace app::test

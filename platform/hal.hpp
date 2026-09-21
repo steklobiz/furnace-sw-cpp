@@ -36,4 +36,8 @@ bool dwin_receive(
     std::size_t capacity,
     std::size_t& size) noexcept;
 
+void test_feed_dwin_bytes(
+    const uint8_t* data,
+    std::size_t size) noexcept;
+
 } // namespace hal

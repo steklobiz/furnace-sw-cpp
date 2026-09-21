@@ -34,6 +34,11 @@ namespace
         );
 #endif
     }
+constexpr std::size_t DwinRxBufferSize = 256U;
+
+uint8_t dwin_rx_buffer[DwinRxBufferSize]{};
+std::size_t dwin_rx_read = 0U;
+std::size_t dwin_rx_write = 0U;
 
 }
 
@@ -103,5 +108,61 @@ void update()
     model.update(current_duty);
 };
 
+void dwin_send(
+    const uint8_t* data,
+    std::size_t size) noexcept
+{
+    // PC simulation: nothing to transmit yet.
+    static_cast<void>(data);
+    static_cast<void>(size);
+}
+
+bool dwin_receive(
+    uint8_t* data,
+    std::size_t capacity,
+    std::size_t& size) noexcept
+{
+    size = 0U;
+
+    if (data == nullptr || capacity == 0U)
+    {
+        return false;
+    }
+
+    while (size < capacity && dwin_rx_read != dwin_rx_write)
+    {
+        data[size] = dwin_rx_buffer[dwin_rx_read];
+
+        dwin_rx_read =
+            (dwin_rx_read + 1U) % DwinRxBufferSize;
+
+        ++size;
+    }
+
+    return size > 0U;
+}
+
+void test_feed_dwin_bytes(
+    const uint8_t* data,
+    std::size_t size) noexcept {
+    if (data == nullptr)
+    {
+        return;
+    }
+
+    for (std::size_t i = 0U; i < size; ++i)
+    {
+        const std::size_t next =
+            (dwin_rx_write + 1U) % DwinRxBufferSize;
+
+        if (next == dwin_rx_read)
+        {
+            break;
+        }
+
+        dwin_rx_buffer[dwin_rx_write] = data[i];
+        dwin_rx_write = next;
+    }
+}
 
 } // namespace hal
