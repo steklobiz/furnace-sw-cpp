@@ -1,11 +1,14 @@
 CXX      := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic \
+CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic -g\
             -DPLATFORM_PC \
             -Iapp -Iapp/ui -Iapp/ui/tui -Iapp/ui/lcd -Iapp/ui/dwin -Iapp/profiles -Iapp/settings -Iapp/config -Iapp/tc_parser -Iapp/alarm -Iapp/history -Iapp/furnace -Iapp/aggregator \
             -Icore/log -Icore/log/backends -Icore/pid -Icore/scheduler -Icore/format \
             -Iplatform
 # LDFLAGS := -static
-LDFLAGS :=
+# LDFLAGS :=
+LDFLAGS := -static-libgcc -static-libstdc++
+
+MINGW_BIN := C:/Users/Alexander/AppData/Local/Microsoft/WinGet/Packages/BrechtSanders.WinLibs.POSIX.MSVCRT_Microsoft.Winget.Source_8wekyb3d8bbwe/mingw64/bin
 
 SRCDIR   := app
 UIDIR    := app/ui
@@ -69,9 +72,13 @@ OBJS      := $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(APP_SRCS)) \
              $(patsubst $(FORMDIR)/%.cpp, $(BUILDDIR)/fmt_%.o, $(FORM_SRCS)) \
              $(patsubst $(HALDIR)/%.cpp, $(BUILDDIR)/%.o, $(HAL_SRCS))
 
-.PHONY: all clean compiledb run
+.PHONY: all clean compiledb run copy-dlls
 
-all: $(TARGET)
+all: $(TARGET) copy-dlls
+
+copy-dlls: $(TARGET)
+	mkdir -p $(BUILDDIR)
+	cp "$(MINGW_BIN)/libwinpthread-1.dll" "$(BUILDDIR)/"
 
 $(TARGET): $(OBJS) | $(BUILDDIR)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
