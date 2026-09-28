@@ -5,12 +5,15 @@ namespace app
 
 namespace
 {
-
-constexpr uint16_t ButtonStop = 0x2000U;
-constexpr uint16_t ButtonBack = 0x2001U;
-constexpr uint16_t ButtonPrevious = 0x2002U;
-constexpr uint16_t ButtonNext = 0x2003U;
-constexpr uint16_t ButtonHome = 0x2004U;
+constexpr uint16_t ButtonStart      = 0x2000U;
+constexpr uint16_t ButtonStop       = 0x2001U;
+constexpr uint16_t ButtonBack       = 0x2002U;
+constexpr uint16_t ButtonSettings   = 0x2003U;
+constexpr uint16_t ButtonEvents     = 0x2004U;
+constexpr uint16_t ButtonReset      = 0x2005U;
+constexpr uint16_t ButtonPrevious   = 0x2006U;
+constexpr uint16_t ButtonNext       = 0x2007U;
+constexpr uint16_t ButtonHome       = 0x2008U;
 
 struct FieldMapping
 {
@@ -26,32 +29,46 @@ struct PageDescriptor
     std::size_t field_count;
 };
 
-constexpr FieldMapping monitor_fields[] = {
+constexpr FieldMapping main_fields[] = {
     {0U, 0x1000U}, // State
     {1U, 0x1001U}, // Profile
-    {2U, 0x1002U}, // Step
-    {3U, 0x1003U}, // Step type
-    {4U, 0x1004U}, // Temperature
-    {5U, 0x1005U}, // Setpoint
-    {6U, 0x1006U}, // Step elapsed
-    {7U, 0x1007U}, // Profile elapsed
-    {8U, 0x1008U}, // Power
-    {9U, 0x1009U}, // Outputs
+    {2U, 0x1002U}, // Temperature
+//    {2U, 0x1002U}, // Step
+//    {8U, 0x1003U}, // Power
+};
+
+constexpr FieldMapping monitor_fields[] = {
+    {0U, 0x1100U}, // State
+    {1U, 0x1101U}, // Profile
+    {2U, 0x1102U}, // Step
+    {3U, 0x1103U}, // Step type
+    {4U, 0x1104U}, // Temperature
+    {5U, 0x1105U}, // Setpoint
+    {6U, 0x1106U}, // Step elapsed
+    {7U, 0x1107U}, // Profile elapsed
+    {8U, 0x1108U}, // Power
+    {9U, 0x1109U}, // Outputs
 };
 
 constexpr FieldMapping settings_pid_fields[] = {
-    {1U, 0x1100U}, // PID Kp
-    {2U, 0x1101U}, // PID Ki
-    {3U, 0x1102U}, // PID Kd
+    {1U, 0x1200U}, // PID Kp
+    {2U, 0x1201U}, // PID Ki
+    {3U, 0x1202U}, // PID Kd
 };
 
 constexpr FieldMapping settings_other_fields[] = {
-    {0U, 0x1110U}, // Buzzer
-    {4U, 0x1111U}, // Max temperature
-    {5U, 0x1112U}, // Prestep outputs
+    {0U, 0x1210U}, // Buzzer
+    {4U, 0x1211U}, // Max temperature
+    {5U, 0x1212U}, // Prestep outputs
 };
 
 constexpr PageDescriptor page_descriptors[] = {
+    {
+        Ui::Page::Main,
+        DwinView::Main,
+        main_fields,
+        std::size(main_fields)
+    },
     {
         Ui::Page::Monitor,
         DwinView::Monitor,
@@ -157,6 +174,10 @@ void DwinRenderer::set_view_for_page(Ui::Page page) noexcept
 {
     switch (page)
     {
+        case Ui::Page::Main:
+            view_ = DwinView::Main;
+            break;
+
         case Ui::Page::Monitor:
             view_ = DwinView::Monitor;
             break;
@@ -229,11 +250,23 @@ DwinRenderer::DwinAction DwinRenderer::decode_action(
 
     switch (address)
     {
+        case ButtonStart:
+            return DwinAction::Start;
+
         case ButtonStop:
             return DwinAction::Stop;
 
         case ButtonBack:
             return DwinAction::Back;
+
+        case ButtonReset:
+            return DwinAction::Reset;
+
+        case ButtonSettings:
+            return DwinAction::Settings;
+
+        case ButtonEvents:
+            return DwinAction::Events;
 
         case ButtonPrevious:
             return DwinAction::Previous;

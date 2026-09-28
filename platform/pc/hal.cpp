@@ -39,6 +39,11 @@ constexpr std::size_t DwinRxBufferSize = 256U;
 uint8_t dwin_rx_buffer[DwinRxBufferSize]{};
 std::size_t dwin_rx_read = 0U;
 std::size_t dwin_rx_write = 0U;
+constexpr uint8_t DwinHeader1 = 0x5AU;
+constexpr uint8_t DwinHeader2 = 0xA5U;
+constexpr uint8_t DwinCommandWriteVp = 0x82U;
+constexpr uint8_t DwinWriteWordPayload = 5U;
+constexpr std::size_t DwinWriteWordSize = 8U;
 
 }
 
@@ -112,9 +117,43 @@ void dwin_send(
     const uint8_t* data,
     std::size_t size) noexcept
 {
-    // PC simulation: nothing to transmit yet.
-    static_cast<void>(data);
-    static_cast<void>(size);
+    if (data == nullptr)
+    {
+        return;
+    }
+
+    if (size == DwinWriteWordSize &&
+        data[0] == DwinHeader1 &&
+        data[1] == DwinHeader2 &&
+        data[2] == DwinWriteWordPayload &&
+        data[3] == DwinCommandWriteVp)
+    {
+        const unsigned int address =
+            (static_cast<unsigned int>(data[4]) << 8U) |
+             static_cast<unsigned int>(data[5]);
+
+        const unsigned int value =
+            (static_cast<unsigned int>(data[6]) << 8U) |
+             static_cast<unsigned int>(data[7]);
+
+        std::printf(
+            "DWIN VP 0x%04X = %u\n",
+            address,
+            value);
+
+        return;
+    }
+
+    std::printf("DWIN RAW:");
+
+    for (std::size_t i = 0U; i < size; ++i)
+    {
+        std::printf(
+            " %02X",
+            static_cast<unsigned int>(data[i]));
+    }
+
+    std::printf("\n");
 }
 
 bool dwin_receive(

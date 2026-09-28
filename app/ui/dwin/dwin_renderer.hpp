@@ -17,6 +17,7 @@ namespace app
 
     enum class DwinView : uint8_t
     {
+        Main,
         Monitor,
         SettingsPid,
         SettingsOther
@@ -40,7 +41,11 @@ namespace app
         enum class DwinAction : uint8_t
         {
             None,
+            Start,
             Stop,
+            Reset,
+            Settings,
+            Events,
             Back,
             Previous,
             Next,
