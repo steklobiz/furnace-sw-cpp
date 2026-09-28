@@ -44,29 +44,29 @@ std::size_t dwin_rx_write = 0U;
 
 // need to be namespace platform::hal {
 namespace hal {
-    
+
     simulator::ThermalParams params{
-        10000, 
-        1000, 
+        10000,
+        1000,
         2
     };
-        
+
     simulator::ThermalModel model(params,
          25,
          25
     );
-    
-    uint8_t current_duty = 0; 
-    
+
+    uint8_t current_duty = 0;
+
 void init()
 {
     enable_vt_processing();
 }
-    
-    
+
+
 void set_outs(uint8_t byte)
 {
-    // TODO: set ouputs    
+    // TODO: set ouputs
     static_cast<void>(byte);
 }
 

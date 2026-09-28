@@ -10,26 +10,12 @@
 #include "dwin_renderer.hpp"
 #include "dwin_transport.hpp"
 #include "scheduler.hpp"
-#include "hal.hpp"
-#include "logger.hpp"
 #include "alarm.hpp"
 #include "pid.hpp"
 #include "data_aggregator.hpp"
 
 namespace app
 {
-
-// Define tag
-namespace
-{
-
-constexpr Tag tag
-{
-    "App",
-    Level::Info
-};
-
-}
 
     
 class App

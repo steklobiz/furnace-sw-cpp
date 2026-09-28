@@ -1,34 +1,75 @@
-# Build artifacts
+# ---- Build directories ----
+cmake-build-*/
+build/
+out/
+cmake-build*/
+CMakeUserPresets.json
+
+# ---- CMake / Ninja ----
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+install_manifest.txt
+compile_commands.json
+build.ninja
+.ninja_deps
+.ninja_log
+rules.ninja
+CMakeUserPresets.json
+
+# ---- Compiled objects / binaries ----
 *.o
 *.obj
-*.exe
-*.out
-*.app
-*.elf
-*.hex
-*.bin
-*.map
-*.d
 *.a
 *.lib
 *.so
-*.dll
 *.dylib
+*.dll
+*.exe
+*.gch
+*.pch
 
-# Generated build files
-.cache/
-compile_commands.json
+# ---- Embedded firmware artifacts ----
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.su
+*.lst
 
-# IDE / editor
-.vscode/
-.idea/
+# ---- Toolchain ----
+*.launch
+
+# ---- IDE: CLion / IntelliJ ----
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/shelf/
+
+# ---- IDE: VS / VS Code ----
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+*.user
+*.suo
+
+# ---- Logs & runtime ----
+*.log
+*.tmp
+*.temp
+*.bak
 *.swp
-*.swo
 *~
 .DS_Store
 Thumbs.db
 
-# Build directories (uncomment/adjust as needed)
-# build/
-# out/
-# bin/
+# ---- Test / coverage output ----
+*.gcda
+*.gcno
+*.gcov
+coverage/
+Testing/

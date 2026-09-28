@@ -1,4 +1,5 @@
 #include "app.hpp"
+#include "hal.hpp"
 
 namespace app {
 
@@ -47,12 +48,11 @@ bool App::init() noexcept
         &App::ui_command_callback,
         this);
         
-#ifdef PLATFORM_PC
+#ifdef UI_BACKEND_TUI
 
-    tui_.init(
-        ui_);
+    tui_.init(ui_);
 
-#else
+#elif defined(UI_BACKEND_DWIN)
 
     dwin_transport_.init();
 
@@ -60,8 +60,11 @@ bool App::init() noexcept
         ui_,
         dwin_transport_);
 
-#endif
+#else
 
+    #error "No UI backend selected"
+
+#endif
 
 
     // Registration order defines execution order.
@@ -86,23 +89,22 @@ bool App::init() noexcept
         100,
         ui_);
 
-#ifdef PLATFORM_PC
+#ifdef UI_BACKEND_TUI
 
     scheduler_.every<Tui, &Tui::process>(
         100,
         tui_);
 
-#else
+#elif defined(UI_BACKEND_DWIN)
 
     scheduler_.every<DwinRenderer, &DwinRenderer::process>(
         100,
         dwin_renderer_);
 
-#endif
+#else
 
-// Temporary
-#ifdef PLATFORM_PC
-    test_dwin();
+    #error "No UI backend selected"
+
 #endif
 
     return true; // replace with false if anything fails    
@@ -118,17 +120,6 @@ void App::run() noexcept
          
         hal::delay_ms(loop_delay_ms);
     }
-}
-
-void App::test_dwin() noexcept
-{
-    dwin_transport_.init();
-
-    dwin_renderer_.init(
-        ui_,
-        dwin_transport_);
-
-    dwin_renderer_.process();
 }
 
 void App::reset_furnace() noexcept

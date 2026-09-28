@@ -5,7 +5,7 @@
 
 namespace hal {
 
-void init();    
+void init();
 
 void set_outs(uint8_t);
 

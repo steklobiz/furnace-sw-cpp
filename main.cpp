@@ -4,8 +4,6 @@
 
 int main()
 {
-    hal::init();
-     
     app::App myapp;
 
     if (!myapp.init())
@@ -14,8 +12,8 @@ int main()
         {
         }
     }
-        
+
     myapp.run();
-    
+
     return 0;
 }

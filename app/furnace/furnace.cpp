@@ -4,23 +4,10 @@
 #include "furnace.hpp"
 #include "tc_parser.hpp"
 #include "hal.hpp"
-#include "logger.hpp"
 #include "pid.hpp"
 
 namespace app {
 
-namespace {
-/*
-// Tag for Log()
-constexpr Tag tag
-{
-    "FURN",
-    Level::Info
-};
-*/  
-
-}
-    
 void 
 Furnace::init(
     ProfileManager& profiles, 
