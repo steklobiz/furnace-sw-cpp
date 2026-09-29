@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstdint>
+#include <cstdio>
 
 #include "alarm.hpp"
 #include "data_aggregator.hpp"
@@ -118,5 +119,7 @@ int main()
 
     assert(ui.page() == app::Ui::Page::Settings);
 
+    std::printf("DWIN renderer test: PASS\n");
+    
     return 0;
 }

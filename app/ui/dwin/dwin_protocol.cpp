@@ -5,7 +5,6 @@ namespace app
 
     namespace
     {
-
         constexpr uint8_t Header1 = 0x5AU;
         constexpr uint8_t Header2 = 0xA5U;
 
@@ -48,6 +47,27 @@ DwinProtocol::Packet DwinProtocol::write_word(
 
     return packet;
 }
+
+DwinProtocol::Packet DwinProtocol::switch_page(uint16_t page) const noexcept
+    {
+        Packet packet{};
+
+        // 5A A5 07 82 00 84 5A 01 [page]
+        packet.data[0] = Header1;
+        packet.data[1] = Header2;
+        packet.data[2] = 7U;
+        packet.data[3] = WriteVp;
+        packet.data[4] = 0x00U;
+        packet.data[5] = 0x84U;
+        packet.data[6] = 0x5AU;
+        packet.data[7] = 0x01U;
+        packet.data[8] = static_cast<uint8_t>(page >> 8U);
+        packet.data[9] = static_cast<uint8_t>(page & 0xFFU);
+        packet.size = 10U;
+
+        return packet;
+    }
+
 
 bool DwinProtocol::decode_touch(
     const uint8_t* data,

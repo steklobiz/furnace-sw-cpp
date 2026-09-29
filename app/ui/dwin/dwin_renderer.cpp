@@ -205,6 +205,73 @@ void DwinRenderer::set_view_for_page(Ui::Page page) noexcept
     }
 }
 
+void DwinRenderer::enter_view(const ViewDescriptor& view) noexcept
+{
+    if (view.dwin_page != rendered_dwin_page_)
+    {
+        const DwinProtocol::Packet packet =
+            protocol_.switch_page(view.dwin_page);
+        transport_->send(packet.data, packet.size);
+        rendered_dwin_page_ = view.dwin_page;
+    }
+
+    if (view.on_enter != nullptr)
+    {
+        (this->*view.on_enter)();
+    }
+
+    for (std::size_t i = 0; i < MaxRenderedFields; ++i)
+    {
+        field_rendered_[i] = false;
+    }
+
+    render_view(view);
+}
+
+void DwinRenderer::render_view(const ViewDescriptor& view) noexcept
+{
+    for (std::size_t i = 0; i < view.field_count; ++i)
+    {
+        const FieldMapping& field = view.fields[i];
+
+        if (field.ui_field >= MaxRenderedFields)
+        {
+            continue;
+        }
+
+        uint16_t value = 0U;
+
+        if (!ui_->get_field(view.page, field.ui_field, value))
+        {
+            continue;
+        }
+
+        if (field_rendered_[field.ui_field] &&
+            rendered_values_[field.ui_field] == value)
+        {
+            continue;
+        }
+
+        rendered_values_[field.ui_field] = value;
+        field_rendered_[field.ui_field] = true;
+
+        const DwinProtocol::Packet packet =
+            protocol_.write_word(field.vp_address, value);
+
+        transport_->send(packet.data, packet.size);
+    }
+}
+
+void DwinRenderer::on_enter_settings_pid() noexcept
+{
+    // Reserved for Settings/PID-specific initialization.
+}
+
+void DwinRenderer::on_enter_settings_other() noexcept
+{
+    // Reserved for Settings/Other-specific initialization.
+}
+
 
 void DwinRenderer::handle_action(DwinAction action) noexcept
 {
@@ -254,7 +321,6 @@ void DwinRenderer::handle_action(DwinAction action) noexcept
         }
     }
 
-
     if (ui_->page() == Ui::Page::Settings)
     {
         handle_settings_action(action);
@@ -297,26 +363,16 @@ void DwinRenderer::handle_action(DwinAction action) noexcept
     }
 }
 
-
-void DwinRenderer::handle_settings_action(
-    DwinAction action) noexcept
+void DwinRenderer::handle_settings_action(DwinAction action) noexcept
 {
     switch (action)
     {
         case DwinAction::Previous:
         case DwinAction::Next:
-            if (view_ == DwinView::SettingsPid)
-            {
-                view_ = DwinView::SettingsOther;
-            }
-            else
-            {
-                view_ = DwinView::SettingsPid;
-            }
-
-            rendered_page_ = Ui::Page::Count;
+            view_ = (view_ == DwinView::SettingsPid)
+                ? DwinView::SettingsOther
+                : DwinView::SettingsPid;
             break;
-
         default:
             break;
     }

@@ -37,6 +37,9 @@ public:
         uint16_t address,
         uint16_t value) const noexcept;
 
+    // Creates a DWIN page-switch command for the specified page ID.
+    [[nodiscard]] Packet switch_page(uint16_t page) const noexcept;
+
     // Decodes a DWIN touch/event packet.
     // Returns true when the packet contains a valid touch event.
     [[nodiscard]] bool decode_touch(
