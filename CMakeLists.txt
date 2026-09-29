@@ -141,3 +141,7 @@ elseif(TARGET_PLATFORM STREQUAL "STM32")
 else()
     message(FATAL_ERROR "Unknown TARGET_PLATFORM: ${TARGET_PLATFORM}")
 endif()
+
+if(TARGET_PLATFORM STREQUAL "PC")
+    add_subdirectory(tests/dwin_renderer)
+endif()
