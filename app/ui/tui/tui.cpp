@@ -38,9 +38,12 @@ constexpr std::size_t page_count =
 
 constexpr Tui::Label main_labels[] =
 {
-    {"State:",   0},
-    {"Profile:", 1},
-    {"Temperature, C:", 2}
+    {"State:",          0},
+    {"Profile:",        1},
+    {"Step:",           2},
+    {"Temperature, C:", 3},
+    {"Power, %:",       4},
+    {"Outputs:",        5}
 };
 
 

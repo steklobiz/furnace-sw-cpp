@@ -7,13 +7,14 @@ namespace
 {
 constexpr uint16_t ButtonStart      = 0x2000U;
 constexpr uint16_t ButtonStop       = 0x2001U;
-constexpr uint16_t ButtonBack       = 0x2002U;
-constexpr uint16_t ButtonSettings   = 0x2003U;
-constexpr uint16_t ButtonEvents     = 0x2004U;
-constexpr uint16_t ButtonReset      = 0x2005U;
-constexpr uint16_t ButtonPrevious   = 0x2006U;
-constexpr uint16_t ButtonNext       = 0x2007U;
-constexpr uint16_t ButtonHome       = 0x2008U;
+constexpr uint16_t ButtonEdit       = 0x2002U;
+constexpr uint16_t ButtonBack       = 0x2003U;
+constexpr uint16_t ButtonSettings   = 0x2004U;
+constexpr uint16_t ButtonEvents     = 0x2005U;
+constexpr uint16_t ButtonReset      = 0x2006U;
+constexpr uint16_t ButtonPrevious   = 0x2007U;
+constexpr uint16_t ButtonNext       = 0x2008U;
+constexpr uint16_t ButtonHome       = 0x2009U;
 
 struct FieldMapping
 {
@@ -35,6 +36,7 @@ constexpr FieldMapping main_fields[] = {
     {2U, 0x1002U}, // Temperature
 //    {2U, 0x1002U}, // Step
 //    {8U, 0x1003U}, // Power
+    // Outputs
 };
 
 constexpr FieldMapping monitor_fields[] = {
@@ -244,7 +246,7 @@ void DwinRenderer::render_page(Ui::Page page) noexcept
 
 DwinRenderer::DwinAction DwinRenderer::decode_action(
     uint16_t address,
-    uint16_t value) const noexcept
+    uint16_t value) noexcept
 {
     (void)value;
 
@@ -255,6 +257,9 @@ DwinRenderer::DwinAction DwinRenderer::decode_action(
 
         case ButtonStop:
             return DwinAction::Stop;
+
+        case ButtonEdit:
+            return DwinAction::Edit;
 
         case ButtonBack:
             return DwinAction::Back;
@@ -289,6 +294,48 @@ void DwinRenderer::handle_action(DwinAction action) noexcept
     {
         return;
     }
+
+    if (ui_->page() == Ui::Page::Main)
+    {
+        switch (action)
+        {
+            case DwinAction::Start:
+                ui_->execute(
+                    Ui::Action{
+                        Ui::ActionType::StartProfileSelection,
+                        0U
+                    });
+                break;
+
+            case DwinAction::Edit:
+                ui_->execute(
+                    Ui::Action{
+                        Ui::ActionType::EditProfileSelection,
+                        0U
+                    });
+                break;
+
+            case DwinAction::Settings:
+                ui_->execute(
+                    Ui::Action{
+                        Ui::ActionType::Settings,
+                        0U
+                    });
+                break;
+
+            case DwinAction::Events:
+                ui_->execute(
+                    Ui::Action{
+                        Ui::ActionType::ShowEvents,
+                        0U
+                    });
+                break;
+
+            default:
+                break;
+        }
+    }
+
 
     if (ui_->page() == Ui::Page::Settings)
     {

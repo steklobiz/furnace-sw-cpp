@@ -12,7 +12,10 @@ constexpr Ui::FieldMapping main_fields[] =
 {
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId)},
-    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature)}
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Power)},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
 
@@ -44,7 +47,7 @@ constexpr Ui::FieldMapping result_fields[] =
 {
     {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::State)},
     {DataSource::Furnace,static_cast<uint8_t>(FurnaceItem::Temperature)},
-    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)},
 };
 
 constexpr Ui::PageDescriptor page_descriptors[] =

@@ -43,6 +43,7 @@ namespace app
             None,
             Start,
             Stop,
+            Edit,
             Reset,
             Settings,
             Events,
@@ -54,7 +55,7 @@ namespace app
 
         DwinAction decode_action(
             uint16_t address,
-            uint16_t value) const noexcept;
+            uint16_t value) noexcept;
 
         void handle_action(DwinAction action) noexcept;
         void handle_settings_action(DwinAction action) noexcept;
@@ -72,7 +73,7 @@ namespace app
         DwinTransport* transport_ = nullptr;
 
         Ui::Page rendered_page_ = Ui::Page::Count;
-        DwinView view_ = DwinView::Monitor;
+        DwinView view_ = DwinView::Main;
 
         uint16_t rendered_values_[MaxRenderedFields]{};
         bool field_rendered_[MaxRenderedFields]{};
