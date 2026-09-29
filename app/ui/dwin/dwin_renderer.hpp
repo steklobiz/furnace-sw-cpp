@@ -20,7 +20,8 @@ namespace app
         Main,
         Monitor,
         SettingsPid,
-        SettingsOther
+        SettingsOther,
+        Count
     };
 
     // DWIN display renderer.
@@ -53,6 +54,24 @@ namespace app
             Home
         };
 
+        struct FieldMapping
+        {
+            uint8_t ui_field;
+            uint16_t vp_address;
+        };
+
+        using EnterCallback = void (DwinRenderer::*)() noexcept;
+
+        struct ViewDescriptor
+        {
+            Ui::Page page;
+            DwinView view;
+            uint16_t dwin_page;
+            const FieldMapping* fields;
+            std::size_t field_count;
+            EnterCallback on_enter;
+        };
+
         DwinAction decode_action(
             uint16_t address,
             uint16_t value) noexcept;
@@ -60,20 +79,36 @@ namespace app
         void handle_action(DwinAction action) noexcept;
         void handle_settings_action(DwinAction action) noexcept;
 
-        static constexpr std::size_t MaxRenderedFields = 16;
-
         void set_view_for_page(Ui::Page page) noexcept;
 
-        void render_page(Ui::Page page) noexcept;
+        void enter_view(const ViewDescriptor& view) noexcept;
+        void render_view(
+            const ViewDescriptor& view) noexcept;
+
+        void on_enter_settings_pid() noexcept;
+        void on_enter_settings_other() noexcept;
+
+        [[nodiscard]] const ViewDescriptor* find_view(
+            Ui::Page page,
+            DwinView view) const noexcept;
+
+        static constexpr std::size_t MaxRenderedFields = 16;
+
+        static const FieldMapping main_fields[];
+        static const FieldMapping monitor_fields[];
+        static const FieldMapping settings_pid_fields[];
+        static const FieldMapping settings_other_fields[];
+        static const ViewDescriptor view_descriptors[];
 
         Ui* ui_ = nullptr;
-
         DwinProtocol protocol_{};
-
         DwinTransport* transport_ = nullptr;
 
         Ui::Page rendered_page_ = Ui::Page::Count;
+        DwinView rendered_view_ = DwinView::Count;
         DwinView view_ = DwinView::Main;
+
+        uint16_t rendered_dwin_page_ = 0xFFFFU;
 
         uint16_t rendered_values_[MaxRenderedFields]{};
         bool field_rendered_[MaxRenderedFields]{};
