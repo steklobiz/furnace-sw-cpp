@@ -106,7 +106,7 @@ bool ProfileManager::set_edit_setpoint(
     uint16_t step,
     uint16_t value) noexcept
 {
-    if (step >= Profile::MaxSteps ||
+    if (step >= config::profiles::max_steps ||
         value > Profile::MaxSetpointC)
     {
         return false;
@@ -122,7 +122,7 @@ bool ProfileManager::set_edit_duration(
     uint16_t step,
     uint16_t value) noexcept
 {
-    if (step >= Profile::MaxSteps ||
+    if (step >= config::profiles::max_steps ||
         value > Profile::MaxDurationS)
     {
         return false;
@@ -138,7 +138,7 @@ bool ProfileManager::set_edit_outs(
     uint16_t step,
     uint16_t value) noexcept
 {
-    if (step >= Profile::MaxSteps ||
+    if (step >= config::profiles::max_steps ||
         value > Profile::MaxFlags)
     {
         return false;

@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include "notification.hpp"
+#include "config.hpp"
 
 // Profile data and profile management.
 // Provides runtime and editing profile copies.
@@ -42,15 +43,14 @@ struct Profile
     static constexpr uint16_t MaxSetpointC = 999;
     static constexpr uint16_t MaxDurationS = 999;
     static constexpr uint8_t MaxFlags = 135;
-    static constexpr uint8_t MaxSteps = 16;
 
-    std::array<Step, MaxSteps> steps{};
+    std::array<Step, config::profiles::max_steps> steps{};
 
     friend constexpr bool operator==(
         const Profile& lhs,
         const Profile& rhs) noexcept
     {
-        for (uint8_t i = 0; i < MaxSteps; ++i)
+        for (uint8_t i = 0; i < config::profiles::max_steps; ++i)
         {
             if (lhs.steps[i] != rhs.steps[i])
                 return false;
@@ -71,7 +71,7 @@ inline constexpr uint8_t invalid_profile_id = 0xFF;
 // Temporary test profiles.
 // TODO: Remove when persistent profile storage is implemented.
 
-inline constexpr Profile test_profiles[] =
+inline constexpr Profile test_profiles[config::profiles::count] =
 {
     // Profile 0
     { 
@@ -114,6 +114,7 @@ inline constexpr std::size_t test_profile_count =
 class ProfileManager
 {
 public:
+    static constexpr std::size_t MaxProfiles = 25;
 
     ProfileManager() = default;
 

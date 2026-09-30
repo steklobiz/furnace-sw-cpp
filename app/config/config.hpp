@@ -11,7 +11,7 @@ namespace app::config
 {
     namespace profiles
     {
-        inline constexpr uint8_t count = 10;
+        inline constexpr uint8_t count = 25;
         inline constexpr uint8_t max_steps = 10;
     }
     namespace pid

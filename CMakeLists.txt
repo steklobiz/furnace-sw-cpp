@@ -144,4 +144,5 @@ endif()
 
 if(TARGET_PLATFORM STREQUAL "PC")
     add_subdirectory(tests/dwin_renderer)
+    add_subdirectory(tests/ui)
 endif()

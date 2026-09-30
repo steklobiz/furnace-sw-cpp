@@ -78,6 +78,7 @@ void Ui::init(
 
     page_ = Page::Main;
     current_step_ = 0;
+    profile_selection_page_ = 0;
 }
 
 void Ui::process() noexcept
@@ -259,14 +260,14 @@ void Ui::edit_profile_selection(uint16_t) noexcept
 
 void Ui::select_profile(const uint16_t slot) noexcept
 {
+    if (slot >= ProfilesPerPage)
+        return;
+
     const auto profile_id =
         profile_selection_page_ * ProfilesPerPage + slot;
 
-    if (slot >= ProfilesPerPage ||
-        profile_id >= profiles_->profile_count())
-    {
+    if (profile_id >= profiles_->profile_count())
         return;
-    }
 
     if (profile_selection_mode_ ==
         ProfileSelectionMode::Start)
@@ -326,37 +327,44 @@ void Ui::cancel_settings(uint16_t) noexcept
 
 void Ui::previous_step() noexcept
 {
-    if (current_step_ > 0)
+    if (current_step_ == 0)
+        current_step_ = config::profiles::max_steps - 1;
+    else
         --current_step_;
 }
 
 void Ui::next_step() noexcept
 {
-    const auto& profile =
-        profiles_->edit_profile();
-
-    if (static_cast<std::size_t>(current_step_) + 1 <
-        profile.steps.size())
-    {
+    if (static_cast<std::size_t>(current_step_) + 1 >= config::profiles::max_steps)
+        current_step_ = 0;
+    else
         ++current_step_;
-    }
+}
+
+void Ui::previous_profile_selection_page() noexcept
+{
+    const auto page_count = profile_selection_page_count();
+
+    if (page_count == 0)
+        return;
+
+    if (profile_selection_page_ == 0)
+        profile_selection_page_ = page_count - 1;
+    else
+        --profile_selection_page_;
 }
 
 void Ui::next_profile_selection_page() noexcept
 {
     const auto page_count = profile_selection_page_count();
 
-    if (page_count > 0 &&
-        profile_selection_page_ + 1 < page_count)
-    {
-        ++profile_selection_page_;
-    }
-}
+    if (page_count == 0)
+        return;
 
-void Ui::previous_profile_selection_page() noexcept
-{
-    if (profile_selection_page_ > 0)
-        --profile_selection_page_;
+    if (profile_selection_page_ + 1 == page_count)
+        profile_selection_page_ = 0;
+    else
+        ++profile_selection_page_;
 }
 
 void Ui::edit_buzzer(const uint16_t value) noexcept
