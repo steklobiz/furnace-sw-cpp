@@ -5,7 +5,6 @@ namespace app
 
     namespace
     {
-
         constexpr uint8_t Header1 = 0x5AU;
         constexpr uint8_t Header2 = 0xA5U;
 

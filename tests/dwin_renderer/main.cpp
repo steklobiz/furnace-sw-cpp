@@ -14,18 +14,26 @@
 #include "tc_parser.hpp"
 #include "ui.hpp"
 
+// Process the input flow:
+//
+// DWIN packet
+//     -> DwinTransport
+//     -> DwinRenderer
+//     -> Ui::Action
+//     -> Ui::Page::Settings
+
+
 namespace
 {
+constexpr uint16_t ButtonBack       = 0x2003U;
+constexpr uint16_t ButtonSettings   = 0x2004U;
 
-constexpr uint16_t ButtonSettings = 0x2004U;
-
-void feed_settings_touch()
+void feed_settings_touch(uint16_t button)
 {
-    // DWIN touch packet:
+    // DWIN touch packet example:
     //
     // 5A A5 06 83 20 04 01 00 01
-    //
-    // 0x2004 = Settings button
+    // 0x2004 = button
     // value  = 1
     const uint8_t packet[] =
     {
@@ -33,8 +41,8 @@ void feed_settings_touch()
         0xA5,
         0x06,
         0x83,
-        static_cast<uint8_t>(ButtonSettings >> 8U),
-        static_cast<uint8_t>(ButtonSettings & 0xFFU),
+        static_cast<uint8_t>(button >> 8U),
+        static_cast<uint8_t>(button & 0xFFU),
         0x01,
         0x00,
         0x01
@@ -105,19 +113,22 @@ int main()
 
     assert(ui.page() == app::Ui::Page::Main);
 
-    // Simulate pressing the Settings button on the DWIN display.
-    feed_settings_touch();
+    // Press Settings on the DWIN display
 
-    // Process the input flow:
-    //
-    // DWIN packet
-    //     -> DwinTransport
-    //     -> DwinRenderer
-    //     -> Ui::Action
-    //     -> Ui::Page::Settings
+    feed_settings_touch(ButtonSettings);
+
     renderer.process();
 
     assert(ui.page() == app::Ui::Page::Settings);
+
+    // Press Back on the DWIN display
+
+    feed_settings_touch(ButtonBack);
+
+    renderer.process();
+
+    assert(ui.page() == app::Ui::Page::Main);
+
 
     std::printf("DWIN renderer test: PASS\n");
     

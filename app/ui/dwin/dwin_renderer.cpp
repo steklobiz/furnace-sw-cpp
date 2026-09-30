@@ -275,92 +275,67 @@ void DwinRenderer::on_enter_settings_other() noexcept
 
 void DwinRenderer::handle_action(DwinAction action) noexcept
 {
-    if (ui_ == nullptr)
+    switch (ui_->page())
     {
-        return;
-    }
+        case Ui::Page::Main:
+            handle_main_action(action);
+            break;
 
-    if (ui_->page() == Ui::Page::Main)
+        case Ui::Page::Monitor:
+            handle_monitor_action(action);
+            break;
+
+        case Ui::Page::Settings:
+            handle_settings_action(action);
+            break;
+
+        case Ui::Page::Events:
+            handle_events_action(action);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void DwinRenderer::handle_main_action(DwinAction action) noexcept
+{
+    switch (action)
     {
-        switch (action)
-        {
-            case DwinAction::Start:
-                ui_->execute(
-                    Ui::Action{
-                        Ui::ActionType::StartProfileSelection,
-                        0U
-                    });
-                break;
-
-            case DwinAction::Edit:
-                ui_->execute(
-                    Ui::Action{
-                        Ui::ActionType::EditProfileSelection,
-                        0U
-                    });
-                break;
-
-            case DwinAction::Settings:
-                ui_->execute(
-                    Ui::Action{
-                        Ui::ActionType::Settings,
-                        0U
-                    });
-                break;
-
-            case DwinAction::Events:
-                ui_->execute(
-                    Ui::Action{
-                        Ui::ActionType::ShowEvents,
-                        0U
-                    });
-                break;
-
-            default:
-                break;
-        }
+        case DwinAction::Start:
+            ui_->execute({Ui::ActionType::StartProfileSelection, 0U});
+            break;
+        case DwinAction::Edit:
+            ui_->execute({Ui::ActionType::EditProfileSelection, 0U});
+            break;
+        case DwinAction::Settings:
+            ui_->execute({Ui::ActionType::Settings, 0U});
+            break;
+        case DwinAction::Events:
+            ui_->execute({Ui::ActionType::ShowEvents, 0U});
+            break;
+        default:
+            break;
     }
+}
 
-    if (ui_->page() == Ui::Page::Settings)
+void DwinRenderer::handle_monitor_action(DwinAction action) noexcept
+{
+    switch (action)
     {
-        handle_settings_action(action);
-
-        if (action == DwinAction::Home)
-        {
-            ui_->execute(
-                Ui::Action{
-                    Ui::ActionType::Back,
-                    0U
-                });
-        }
-
-        return;
+        case DwinAction::Stop:
+            ui_->execute({Ui::ActionType::StopFurnace, 0U});
+            break;
+        case DwinAction::Back:
+            ui_->execute({Ui::ActionType::Back, 0U});
+            break;
+        default:
+            break;
     }
+}
 
-    if (ui_->page() == Ui::Page::Monitor)
-    {
-        switch (action)
-        {
-            case DwinAction::Stop:
-                ui_->execute(
-                    Ui::Action{
-                        Ui::ActionType::StopFurnace,
-                        0U
-                    });
-                break;
-
-            case DwinAction::Back:
-                ui_->execute(
-                    Ui::Action{
-                        Ui::ActionType::Back,
-                        0U
-                    });
-                break;
-
-            default:
-                break;
-        }
-    }
+void DwinRenderer::handle_events_action(DwinAction action) noexcept
+{
 }
 
 void DwinRenderer::handle_settings_action(DwinAction action) noexcept
@@ -373,6 +348,11 @@ void DwinRenderer::handle_settings_action(DwinAction action) noexcept
                 ? DwinView::SettingsOther
                 : DwinView::SettingsPid;
             break;
+
+        case DwinAction::Back:
+            ui_->execute({Ui::ActionType::Back, 0U});
+            break;
+
         default:
             break;
     }

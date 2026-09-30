@@ -78,6 +78,9 @@ namespace app
 
         void handle_action(DwinAction action) noexcept;
         void handle_settings_action(DwinAction action) noexcept;
+        void handle_main_action(DwinAction action) noexcept;
+        void handle_monitor_action(DwinAction action) noexcept;
+        void handle_events_action(DwinAction action) noexcept;
 
         void set_view_for_page(Ui::Page page) noexcept;
 
