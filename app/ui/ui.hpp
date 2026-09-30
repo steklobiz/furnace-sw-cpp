@@ -45,8 +45,6 @@ public:
         CancelSettings,
     
         // Profile editor
-        NextStep,
-        PreviousStep,
         EditSetpoint,
         EditDuration,
         EditOuts,
@@ -70,6 +68,8 @@ public:
         ShowSamples,
                 
         // Navigation
+        Previous,
+        Next,
         Back
     };
 
@@ -141,6 +141,19 @@ public:
             uint8_t field,
             uint16_t& value) const noexcept;
 
+    static constexpr std::size_t ProfilesPerPage = 10;
+
+    // Returns the current profile-selection page.
+    [[nodiscard]] std::size_t profile_selection_page() const noexcept;
+
+    // Returns the number of profile-selection pages.
+    [[nodiscard]] std::size_t profile_selection_page_count() const noexcept;
+
+    // Returns the profile displayed in a physical slot on the current page.
+    // Returns nullptr when the slot is empty.
+    [[nodiscard]] const Profile*
+    profile_at_slot(std::size_t slot) const noexcept;
+
     // Returns the current profile being edited.
     [[nodiscard]] const Profile& get_edit_profile() const noexcept;
     // Returns the current settings being edited.
@@ -209,9 +222,13 @@ private:
     void edit_prestep_outs(uint16_t value) noexcept;
 
     // Selects the next profile step for editing.
-    void next_step(uint16_t) noexcept;
+    void next_step() noexcept;
     // Selects the previous profile step for editing.
-    void previous_step(uint16_t) noexcept;
+    void previous_step() noexcept;
+    // Moves to the next profile selection page, if one exists.
+    void next_profile_selection_page() noexcept;
+    // Moves to the previous profile selection page, if one exists.
+    void previous_profile_selection_page() noexcept;
 
     // Updates the setpoint of the selected profile step.
     void edit_setpoint(uint16_t  value) noexcept;
@@ -243,6 +260,12 @@ private:
 
     // Opens the samples history page.
     void show_samples(uint16_t) noexcept;
+
+    // Performs the previous navigation operation for the current UI context.
+    void previous(uint16_t) noexcept;
+
+    // Performs the next navigation operation for the current UI context.
+    void next(uint16_t) noexcept;
 
     // Returns to the previous page according to the current navigation context.
     void back(uint16_t) noexcept;
@@ -291,13 +314,7 @@ private:
             
         {Ui::ActionType::EditPrestepOuts,
             &Ui::edit_prestep_outs},    
-            
-        {Ui::ActionType::NextStep,
-            &Ui::next_step},
-    
-        {Ui::ActionType::PreviousStep,
-            &Ui::previous_step},
-    
+
         {Ui::ActionType::EditSetpoint,
             &Ui::edit_setpoint},
         
@@ -334,8 +351,14 @@ private:
         {Ui::ActionType::CancelQuestion,
             &Ui::cancel_question},
 
-    {Ui::ActionType::ShowSamples,
-        &Ui::show_samples},
+        {Ui::ActionType::ShowSamples,
+            &Ui::show_samples},
+
+        {Ui::ActionType::Previous,
+            &Ui::previous},
+
+        {Ui::ActionType::Next,
+            &Ui::next},
 
         {Ui::ActionType::Back,
             &Ui::back}
@@ -358,6 +381,9 @@ private:
     CommandCallback command_callback_{nullptr};
     // Context passed to the application command callback.
     void* command_context_{nullptr};
+
+    // Current profile-selection page.
+    std::size_t profile_selection_page_ = 0;
 };
 
 } // namespace app

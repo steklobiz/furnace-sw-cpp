@@ -18,7 +18,6 @@ constexpr Ui::FieldMapping main_fields[] =
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs)}
 };
 
-
 constexpr Ui::FieldMapping monitor_fields[] =
 {
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::State)},
@@ -167,6 +166,36 @@ bool Ui::get_field(
     return false;
 }
 
+std::size_t Ui::profile_selection_page() const noexcept
+{
+    return profile_selection_page_;
+}
+
+std::size_t Ui::profile_selection_page_count() const noexcept
+{
+    const auto count = profiles_->profile_count();
+
+    if (count == 0)
+        return 0;
+
+    return (count + ProfilesPerPage - 1) / ProfilesPerPage;
+}
+
+const Profile*
+Ui::profile_at_slot(const std::size_t slot) const noexcept
+{
+    if (slot >= ProfilesPerPage)
+        return nullptr;
+
+    const auto profile_id =
+        profile_selection_page_ * ProfilesPerPage + slot;
+
+    if (profile_id >= profiles_->profile_count())
+        return nullptr;
+
+    return &profiles_->profile(profile_id);
+}
+
 const Profile&
 Ui::get_edit_profile() const noexcept
 {
@@ -214,6 +243,7 @@ void Ui::start_profile_selection(uint16_t) noexcept
     profile_selection_mode_ =
         ProfileSelectionMode::Start;
 
+    profile_selection_page_ = 0;
     page_ = Page::ProfileSelection;
 }
 
@@ -223,22 +253,31 @@ void Ui::edit_profile_selection(uint16_t) noexcept
     profile_selection_mode_ =
         ProfileSelectionMode::Edit;
 
+    profile_selection_page_ = 0;
     page_ = Page::ProfileSelection;
 }
 
-void Ui::select_profile(uint16_t id) noexcept
+void Ui::select_profile(const uint16_t slot) noexcept
 {
     const auto profile_id =
-        static_cast<uint8_t>(id);
+        profile_selection_page_ * ProfilesPerPage + slot;
+
+    if (slot >= ProfilesPerPage ||
+        profile_id >= profiles_->profile_count())
+    {
+        return;
+    }
 
     if (profile_selection_mode_ ==
         ProfileSelectionMode::Start)
     {
-        confirm_start_profile(profile_id);
+        confirm_start_profile(
+            static_cast<uint16_t>(profile_id));
     }
     else
     {
-        confirm_edit_profile(profile_id);
+        confirm_edit_profile(
+            static_cast<uint16_t>(profile_id));
     }
 }
 
@@ -285,7 +324,13 @@ void Ui::cancel_settings(uint16_t) noexcept
     page_ = Page::Main;
 }
 
-    void Ui::next_step(uint16_t) noexcept
+void Ui::previous_step() noexcept
+{
+    if (current_step_ > 0)
+        --current_step_;
+}
+
+void Ui::next_step() noexcept
 {
     const auto& profile =
         profiles_->edit_profile();
@@ -295,6 +340,23 @@ void Ui::cancel_settings(uint16_t) noexcept
     {
         ++current_step_;
     }
+}
+
+void Ui::next_profile_selection_page() noexcept
+{
+    const auto page_count = profile_selection_page_count();
+
+    if (page_count > 0 &&
+        profile_selection_page_ + 1 < page_count)
+    {
+        ++profile_selection_page_;
+    }
+}
+
+void Ui::previous_profile_selection_page() noexcept
+{
+    if (profile_selection_page_ > 0)
+        --profile_selection_page_;
 }
 
 void Ui::edit_buzzer(const uint16_t value) noexcept
@@ -325,12 +387,6 @@ void Ui::edit_max_temperature(const uint16_t value) noexcept
 void Ui::edit_prestep_outs(const uint16_t value) noexcept
 {
     settings_->set_edit_prestep_outs(value);
-}
-
-void Ui::previous_step(uint16_t) noexcept
-{
-    if (current_step_ > 0)
-        --current_step_;
 }
 
 void Ui::edit_setpoint(const uint16_t value) noexcept
@@ -427,6 +483,40 @@ void Ui::cancel_question(uint16_t) noexcept
 void Ui::show_samples(uint16_t) noexcept
 {
     page_ = Page::Samples;
+}
+
+void Ui::previous(uint16_t) noexcept
+{
+    switch (page_)
+    {
+        case Page::ProfileSelection:
+            previous_profile_selection_page();
+            break;
+
+        case Page::ProfileEditor:
+            previous_step();
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Ui::next(uint16_t) noexcept
+{
+    switch (page_)
+    {
+        case Page::ProfileSelection:
+            next_profile_selection_page();
+            break;
+
+        case Page::ProfileEditor:
+            next_step();
+            break;
+
+        default:
+            break;
+    }
 }
 
 void Ui::back(uint16_t) noexcept
