@@ -3,6 +3,19 @@
 
 namespace app {
 
+std::size_t
+
+ProfileManager::profile_count() const noexcept
+{
+    return test_profile_count;
+}
+
+const Profile&
+ProfileManager::profile(std::size_t profile_id) const noexcept
+{
+    return test_profiles[profile_id];
+}
+
 const Profile&
 ProfileManager::start_profile() const noexcept
 {

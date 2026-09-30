@@ -117,6 +117,13 @@ public:
 
     ProfileManager() = default;
 
+    // Returns the number of available profiles.
+    [[nodiscard]] std::size_t profile_count() const noexcept;
+
+    // Returns a stored profile by its profile ID.
+    [[nodiscard]] const Profile&
+    profile(std::size_t profile_id) const noexcept;
+
     // Runtime profile used by Furnace.
     const Profile& start_profile() const noexcept;
 
