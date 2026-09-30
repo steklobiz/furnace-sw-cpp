@@ -70,6 +70,15 @@ const DwinRenderer::ViewDescriptor DwinRenderer::view_descriptors[] = {
         std::size(settings_other_fields),
         &DwinRenderer::on_enter_settings_other
     },
+    {
+        Ui::Page::ProfileSelection,
+        DwinView::ProfileSelection,
+        4U,
+        settings_other_fields,
+        std::size(settings_other_fields),
+        nullptr
+    },
+
 };
 
 DwinRenderer::DwinAction DwinRenderer::decode_action(

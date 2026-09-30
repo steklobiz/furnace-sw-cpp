@@ -145,7 +145,7 @@ public:
     [[nodiscard]] const Profile& get_edit_profile() const noexcept;
     // Returns the current settings being edited.
     [[nodiscard]] const Settings& get_edit_settings() const noexcept;
-    
+
     // Returns an event by its position relative to the newest event.
     [[nodiscard]] const DataAggregator::Event&
         event_from_newest(std::size_t index) const noexcept;

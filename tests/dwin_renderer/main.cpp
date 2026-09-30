@@ -25,8 +25,10 @@
 
 namespace
 {
+constexpr uint16_t ButtonStart      = 0x2000U;
 constexpr uint16_t ButtonBack       = 0x2003U;
 constexpr uint16_t ButtonSettings   = 0x2004U;
+
 
 void feed_settings_touch(uint16_t button)
 {
@@ -113,18 +115,31 @@ int main()
 
     assert(ui.page() == app::Ui::Page::Main);
 
-    // Press Settings on the DWIN display
+    // Press Run on Main
+    std::printf("\nMain->Profile selection\n");
+
+    feed_settings_touch(ButtonStart);
+    renderer.process();
+
+    assert(ui.page() == app::Ui::Page::ProfileSelection);
+
+    // Select profile 0 on Profile selection page
+
+    // Press Back to return to the Main page
+
+    // Press Settings on Main page
+    std::printf("\nMain->Settings\n");
 
     feed_settings_touch(ButtonSettings);
-
     renderer.process();
 
     assert(ui.page() == app::Ui::Page::Settings);
 
+
     // Press Back on the DWIN display
+    std::printf("\nSettings->Main\n");
 
     feed_settings_touch(ButtonBack);
-
     renderer.process();
 
     assert(ui.page() == app::Ui::Page::Main);

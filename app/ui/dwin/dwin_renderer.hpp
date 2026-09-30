@@ -19,6 +19,7 @@ namespace app
     {
         Main,
         Monitor,
+        ProfileSelection,
         SettingsPid,
         SettingsOther,
         Count
