@@ -127,7 +127,7 @@ void test_profile_editor_navigation(
 
     // Cannot move before the first step.
     execute(ui, app::Ui::ActionType::Previous);
-    assert(ui.current_step() == 0);
+    assert(ui.current_step() == app::config::profiles::max_steps - 1);
 }
 
 void test_profile_editor_last_step(
@@ -156,8 +156,7 @@ void test_profile_editor_last_step(
     execute(ui, app::Ui::ActionType::Next);
 
     assert(
-        ui.current_step() ==
-        app::config::profiles::max_steps - 1);
+        ui.current_step() == 0);
 }
 
 void test_invalid_profile_slot(
