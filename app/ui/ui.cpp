@@ -126,8 +126,8 @@ bool Ui::get_field(
             uint16_t& value) const noexcept
 {
 
-    // Profile selection fields are derived from the current
-    // collection page rather than DataAggregator data.
+    // TODO: Refactor method. It's too long
+
     if (context == Context::ProfileSelection)
     {
         const auto profile_id =
@@ -142,6 +142,37 @@ bool Ui::get_field(
         return true;
     }
 
+
+    if (context == Context::ProfileEditor)
+    {
+        if (current_step_ >= config::profiles::max_steps)
+            return false;
+
+        const auto& step =
+            profiles_->edit_profile().steps[current_step_];
+
+        switch (field)
+        {
+            case 0U:
+                value = static_cast<uint16_t>(current_step_);
+                return true;
+
+            case 1U:
+                value = step.setpoint_c;
+                return true;
+
+            case 2U:
+                value = step.duration;
+                return true;
+
+            case 3U:
+                value = step.outs;
+                return true;
+
+            default:
+                return false;
+        }
+    }
 
     const auto page_index =
         static_cast<std::size_t>(context);

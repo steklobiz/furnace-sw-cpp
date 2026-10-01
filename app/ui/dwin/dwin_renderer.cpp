@@ -50,6 +50,15 @@ const DwinRenderer::FieldMapping DwinRenderer::profile_selection_fields[] = {
     {9U, 0x1309U}, // Profile slot 9
 };
 
+
+    const DwinRenderer::FieldMapping
+    DwinRenderer::profile_editor_fields[] = {
+        {0U, 0x1400U}, // Step
+        {1U, 0x1401U}, // Setpoint
+        {2U, 0x1402U}, // Duration
+        {3U, 0x1403U}, // Flags
+    };
+
 const DwinRenderer::ScreenDescriptor DwinRenderer::screen_descriptors[] = {
     {
         Ui::Context::Main,
@@ -89,6 +98,14 @@ const DwinRenderer::ScreenDescriptor DwinRenderer::screen_descriptors[] = {
         4U,
         profile_selection_fields,
         std::size(profile_selection_fields),
+        nullptr
+    },
+    {
+        Ui::Context::ProfileEditor,
+        DwinScreen::ProfileEditor,
+        5U,
+        profile_editor_fields,
+        std::size(profile_editor_fields),
         nullptr
     },
 };
@@ -238,6 +255,10 @@ void DwinRenderer::set_screen_for_context(Ui::Context context) noexcept
             screen_ = DwinScreen::ProfileSelection;
             break;
 
+        case Ui::Context::ProfileEditor:
+            screen_ = DwinScreen::ProfileEditor;
+            break;
+
         default:
             break;
     }
@@ -311,8 +332,7 @@ void DwinRenderer::on_enter_settings_other() noexcept
     // Reserved for Settings/Other-specific initialization.
 }
 
-
-    void DwinRenderer::handle_action(DwinAction action) noexcept
+void DwinRenderer::handle_action(DwinAction action) noexcept
 {
     switch (ui_->context())
     {
@@ -334,6 +354,10 @@ void DwinRenderer::on_enter_settings_other() noexcept
 
         case Ui::Context::Events:
             handle_events_action(action);
+            break;
+
+        case Ui::Context::ProfileEditor:
+            handle_profile_editor_action(action);
             break;
 
         default:
@@ -452,6 +476,28 @@ void DwinRenderer::handle_settings_action(DwinAction action) noexcept
             screen_ = (screen_ == DwinScreen::SettingsPid)
                 ? DwinScreen::SettingsOther
                 : DwinScreen::SettingsPid;
+            break;
+
+        case DwinAction::Back:
+            ui_->execute({Ui::ActionType::Back, 0U});
+            break;
+
+        default:
+            break;
+    }
+}
+
+void DwinRenderer::handle_profile_editor_action(
+    const DwinAction action) noexcept
+{
+    switch (action)
+    {
+        case DwinAction::Previous:
+            ui_->execute({Ui::ActionType::Previous, 0U});
+            break;
+
+        case DwinAction::Next:
+            ui_->execute({Ui::ActionType::Next, 0U});
             break;
 
         case DwinAction::Back:

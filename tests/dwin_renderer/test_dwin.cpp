@@ -30,7 +30,9 @@ constexpr uint16_t ButtonBack       = 0x2003U;
 constexpr uint16_t ButtonSettings   = 0x2004U;
 constexpr uint16_t ProfileSlot0     = 0x2010U;
 constexpr uint16_t ProfileSlot1     = 0x2011U;
-constexpr uint16_t ButtonEdit       = 0x2002U;
+constexpr uint16_t ButtonEdit       = 0x2002U;;
+constexpr uint16_t ButtonPrevious   = 0x2007U;;
+constexpr uint16_t ButtonNext       = 0x2008U;;
 
 void feed_touch(uint16_t button)
 {
@@ -117,45 +119,105 @@ int main()
 
     assert(ui.context() == app::Ui::Context::Main);
 
-    std::printf("\nMain->Profile selection\n");
     // Main → ProfileSelection
+    std::printf("\nMain->Profile selection\n");
     feed_touch(ButtonStart);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::ProfileSelection);
     assert(ui.profile_selection_page() == 0);
 
-    
+    // Next: page 0 -> page 1.
+    std::printf("\nNext: page 0 -> page 1\n");
+    feed_touch(ButtonNext);
+    renderer.process();
 
-    std::printf("\nProfile selection->Monitor\n");
+    assert(ui.context() == app::Ui::Context::ProfileSelection);
+    assert(ui.profile_selection_page() == 1U);
+
+    // Next: page 1 -> page 2.
+    std::printf("\nNext: page 1 -> page 2\n");
+    feed_touch(ButtonNext);
+    renderer.process();
+
+    assert(ui.profile_selection_page() == 2U);
+
+    // Next: page 2 -> page 0.
+    std::printf("\nNext: page 2 -> page 0\n");
+    feed_touch(ButtonNext);
+    renderer.process();
+
+    assert(ui.profile_selection_page() == 0U);
+
     // ProfileSelection → Monitor
+    std::printf("\nProfile selection->Monitor\n");
     feed_touch(ProfileSlot0);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::Monitor);
 
-    std::printf("\nMonitor->Main\n");
     // Monitor → Main
+    std::printf("\nMonitor->Main\n");
     feed_touch(ButtonBack);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::Main);
 
-    std::printf("\nMain->Profile selection\n");
     // Main → ProfileSelection
+    std::printf("\nMain->Profile selection\n");
     feed_touch(ButtonEdit);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::ProfileSelection);
     assert(ui.profile_selection_page() == 0);
 
-    std::printf("\nProfile selection->Profile editor\n");
     // ProfileSelection → ProfileEditor
+    std::printf("\nProfile selection->Profile editor\n");
     feed_touch(ProfileSlot0);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::ProfileEditor);
     assert(ui.current_step() == 0);
+
+    // Next: page 0 -> page 1.
+    std::printf("\nNext: step 0 -> step 1\n");
+    feed_touch(ButtonNext);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::ProfileEditor);
+    assert(ui.current_step() == 1U);
+
+    // Previous: step 1 -> step 0.
+    std::printf("\nPrevious: step 1 -> step 0\n");
+    feed_touch(ButtonPrevious);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::ProfileEditor);
+    assert(ui.current_step() == 0U);
+
+    // Previous: step 0 -> step 9.
+    std::printf("\nPrevious: step 0 -> last step\n");
+    feed_touch(ButtonPrevious);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::ProfileEditor);
+    assert(ui.current_step() == app::config::profiles::max_steps - 1);
+
+    // Next: step 15 -> step 0.
+    std::printf("\nNext: last step -> step 0\n");
+    feed_touch(ButtonNext);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::ProfileEditor);
+    assert(ui.current_step() == 0U);
+
+    // Profile edit → Main
+    std::printf("\nProfile edit->Main\n");
+    feed_touch(ButtonBack);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::Main);
+
 
     std::printf("DWIN renderer test: PASS\n");
     

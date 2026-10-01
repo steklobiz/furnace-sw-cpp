@@ -20,6 +20,7 @@ namespace app
         Main,
         Monitor,
         ProfileSelection,
+        ProfileEditor,
         SettingsPid,
         SettingsOther,
         Count
@@ -95,6 +96,7 @@ namespace app
         void handle_monitor_action(DwinAction action) noexcept;
         void handle_events_action(DwinAction action) noexcept;
         void handle_profile_selection_action(DwinAction action) noexcept;
+        void handle_profile_editor_action(DwinAction action) noexcept;
 
         // Selects the DWIN screen corresponding to the current UI context.
         void set_screen_for_context(Ui::Context context) noexcept;
@@ -117,6 +119,7 @@ namespace app
         static const FieldMapping settings_pid_fields[];
         static const FieldMapping settings_other_fields[];
         static const FieldMapping profile_selection_fields[];
+        static const FieldMapping profile_editor_fields[];
 
         static const ScreenDescriptor screen_descriptors[];
 
