@@ -4,7 +4,6 @@
 namespace app {
 
 std::size_t
-
 ProfileManager::profile_count() const noexcept
 {
     return test_profile_count;

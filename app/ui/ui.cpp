@@ -76,7 +76,7 @@ void Ui::init(
     settings_ = &settings;
     furnace_ = &furnace;
 
-    page_ = Page::Main;
+    context_ = Context::Main;
     current_step_ = 0;
     profile_selection_page_ = 0;
 }
@@ -90,7 +90,7 @@ void Ui::process() noexcept
     case static_cast<uint16_t>(Furnace::State::Stopped):
     case static_cast<uint16_t>(Furnace::State::Error):
 
-        page_ = Page::Result;
+        context_ = Context::Result;
         break;
 
     default:
@@ -113,14 +113,14 @@ void Ui::execute(Action action) noexcept
 }
 
 
-Ui::Page Ui::page() const noexcept
+Ui::Context Ui::context() const noexcept
 {
-    return page_;
+    return context_;
 }
 
 
 bool Ui::get_field(
-            const Page page,
+            const Context page,
             const uint8_t field,
             uint16_t& value) const noexcept
 {
@@ -208,6 +208,21 @@ std::size_t Ui::event_count() const noexcept
     return data_->event_count();
 }
 
+std::size_t Ui::event_page() const noexcept
+{
+    return event_page_;
+}
+
+std::size_t Ui::event_page_count() const noexcept
+{
+    const auto count = event_count();
+
+    if (count == 0)
+        return 0;
+
+    return (count + EventsPerPage - 1) / EventsPerPage;
+}
+
 const DataAggregator::Event&
 Ui::event_from_newest(const std::size_t index) const noexcept
 {
@@ -245,7 +260,7 @@ void Ui::start_profile_selection(uint16_t) noexcept
         ProfileSelectionMode::Start;
 
     profile_selection_page_ = 0;
-    page_ = Page::ProfileSelection;
+    context_ = Context::ProfileSelection;
 }
 
 
@@ -255,7 +270,7 @@ void Ui::edit_profile_selection(uint16_t) noexcept
         ProfileSelectionMode::Edit;
 
     profile_selection_page_ = 0;
-    page_ = Page::ProfileSelection;
+    context_ = Context::ProfileSelection;
 }
 
 void Ui::select_profile(const uint16_t slot) noexcept
@@ -288,7 +303,7 @@ void Ui::confirm_start_profile(uint16_t profile_id) noexcept
         return;
 
     furnace_->start();
-    page_ = Page::Monitor;
+    context_ = Context::Monitor;
 }
 
 
@@ -298,7 +313,7 @@ void Ui::confirm_edit_profile(uint16_t profile_id) noexcept
         return;
 
     current_step_ = 0;
-    page_ = Page::ProfileEditor;
+    context_ = Context::ProfileEditor;
 }
 
 const Settings& Ui::get_edit_settings() const noexcept
@@ -310,19 +325,19 @@ const Settings& Ui::get_edit_settings() const noexcept
 void Ui::open_settings(uint16_t) noexcept
 {
     settings_->begin_edit();
-    page_ = Page::Settings;
+    context_ = Context::Settings;
 }
 
 void Ui::save_settings(uint16_t) noexcept
 {
     settings_->save();
-    page_ = Page::Main;
+    context_ = Context::Main;
 }
 
 void Ui::cancel_settings(uint16_t) noexcept
 {
     settings_->cancel_edit();
-    page_ = Page::Main;
+    context_ = Context::Main;
 }
 
 void Ui::previous_step() noexcept
@@ -421,19 +436,19 @@ void Ui::edit_outs(uint16_t value) noexcept
 void Ui::save_profile(uint16_t) noexcept
 {
     profiles_->save_edit();
-    page_ = Page::Main;
+    context_ = Context::Main;
 }
 
 
 void Ui::cancel_profile(uint16_t) noexcept
 {
-    page_ = Page::ProfileSelection;
+    context_ = Context::ProfileSelection;
 }
 
 void Ui::stop_furnace(uint16_t) noexcept
 {
     furnace_->stop();
-    page_ = Page::Result;
+    context_ = Context::Result;
 }
 
 void Ui::request_reset_furnace(uint16_t argument) noexcept
@@ -449,7 +464,7 @@ void Ui::request_reset_furnace(uint16_t argument) noexcept
             });
     }
 
-    page_ = Page::Main;
+    context_ = Context::Main;
 }
 
 void Ui::request_continue_furnace(
@@ -465,17 +480,44 @@ void Ui::request_continue_furnace(
             });
     }
 
-    page_ = Page::Monitor;
+    context_ = Context::Monitor;
 }
 
 void Ui::show_events(uint16_t) noexcept
 {
-    page_ = Page::Events;
+    event_page_ = 0;
+    context_ = Context::Events;
+}
+
+void Ui::next_event_page() noexcept
+{
+    const auto page_count = event_page_count();
+
+    if (page_count == 0)
+        return;
+
+    if (event_page_ + 1 >= page_count)
+        event_page_ = 0;
+    else
+        ++event_page_;
+}
+
+void Ui::previous_event_page() noexcept
+{
+    const auto page_count = event_page_count();
+
+    if (page_count == 0)
+        return;
+
+    if (event_page_ == 0)
+        event_page_ = page_count - 1;
+    else
+        --event_page_;
 }
 
 void Ui::ask_stop_profile(uint16_t) noexcept
 {
-    page_ = Page::Question;
+    context_ = Context::Question;
 }
 
 void Ui::confirm_question(uint16_t) noexcept
@@ -485,24 +527,28 @@ void Ui::confirm_question(uint16_t) noexcept
 
 void Ui::cancel_question(uint16_t) noexcept
 {
-    page_ = Page::Monitor;
+    context_ = Context::Monitor;
 }
 
 void Ui::show_samples(uint16_t) noexcept
 {
-    page_ = Page::Samples;
+    context_ = Context::Samples;
 }
 
 void Ui::previous(uint16_t) noexcept
 {
-    switch (page_)
+    switch (context_)
     {
-        case Page::ProfileSelection:
+        case Context::ProfileSelection:
             previous_profile_selection_page();
             break;
 
-        case Page::ProfileEditor:
+        case Context::ProfileEditor:
             previous_step();
+            break;
+
+        case Context::Events:
+            previous_event_page();
             break;
 
         default:
@@ -512,14 +558,18 @@ void Ui::previous(uint16_t) noexcept
 
 void Ui::next(uint16_t) noexcept
 {
-    switch (page_)
+    switch (context_)
     {
-        case Page::ProfileSelection:
+        case Context::ProfileSelection:
             next_profile_selection_page();
             break;
 
-        case Page::ProfileEditor:
+        case Context::ProfileEditor:
             next_step();
+            break;
+
+        case Context::Events:
+            next_event_page();
             break;
 
         default:
@@ -529,21 +579,21 @@ void Ui::next(uint16_t) noexcept
 
 void Ui::back(uint16_t) noexcept
 {
-    switch (page_)
+    switch (context_)
     {
-        case Page::ProfileSelection:
-        case Page::Settings:            
-        case Page::ProfileEditor:     
-        case Page::Monitor:
-        case Page::Result:
-        case Page::Events:
-        case Page::Samples:
-            page_ = Page::Main;
+        case Context::ProfileSelection:
+        case Context::Settings:
+        case Context::ProfileEditor:
+        case Context::Monitor:
+        case Context::Result:
+        case Context::Events:
+        case Context::Samples:
+            context_ = Context::Main;
             break;    
             
-        case Page::Main:
-        case Page::Count:
-        case Page::Question:        
+        case Context::Main:
+        case Context::Count:
+        case Context::Question:
             break;
     }
 }

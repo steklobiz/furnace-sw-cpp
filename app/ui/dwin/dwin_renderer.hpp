@@ -15,7 +15,7 @@
 namespace app
 {
 
-    enum class DwinView : uint8_t
+    enum class DwinScreen : uint8_t
     {
         Main,
         Monitor,
@@ -63,10 +63,10 @@ namespace app
 
         using EnterCallback = void (DwinRenderer::*)() noexcept;
 
-        struct ViewDescriptor
+        struct ScreenDescriptor
         {
-            Ui::Page page;
-            DwinView view;
+            Ui::Context context;
+            DwinScreen screen;
             uint16_t dwin_page;
             const FieldMapping* fields;
             std::size_t field_count;
@@ -83,18 +83,18 @@ namespace app
         void handle_monitor_action(DwinAction action) noexcept;
         void handle_events_action(DwinAction action) noexcept;
 
-        void set_view_for_page(Ui::Page page) noexcept;
+        void set_screen_for_context(Ui::Context context) noexcept;
 
-        void enter_view(const ViewDescriptor& view) noexcept;
-        void render_view(
-            const ViewDescriptor& view) noexcept;
+        void enter_screen(const ScreenDescriptor& descriptor) noexcept;
+        void render_screen(
+            const ScreenDescriptor& descriptor) noexcept;
 
         void on_enter_settings_pid() noexcept;
         void on_enter_settings_other() noexcept;
 
-        [[nodiscard]] const ViewDescriptor* find_view(
-            Ui::Page page,
-            DwinView view) const noexcept;
+        [[nodiscard]] const ScreenDescriptor* find_screen(
+            Ui::Context context,
+            DwinScreen screen) const noexcept;
 
         static constexpr std::size_t MaxRenderedFields = 16;
 
@@ -102,17 +102,20 @@ namespace app
         static const FieldMapping monitor_fields[];
         static const FieldMapping settings_pid_fields[];
         static const FieldMapping settings_other_fields[];
-        static const ViewDescriptor view_descriptors[];
+        static const ScreenDescriptor screen_descriptors[];
 
         Ui* ui_ = nullptr;
         DwinProtocol protocol_{};
         DwinTransport* transport_ = nullptr;
 
-        Ui::Page rendered_page_ = Ui::Page::Count;
-        DwinView rendered_view_ = DwinView::Count;
-        DwinView view_ = DwinView::Main;
-
-        uint16_t rendered_dwin_page_ = 0xFFFFU;
+        // Last UI context represented on the DWIN display.
+        Ui::Context rendered_context_ = Ui::Context::Count;
+        // Last DWIN screen actually rendered.
+        DwinScreen rendered_screen_ = DwinScreen::Count;
+        // DWIN screen currently selected by the renderer.
+        DwinScreen screen_ = DwinScreen::Main;
+        // Last DWIN page number actually rendered on the display.
+        uint16_t rendered_dwin_page_id_ = 0xFFFFU;
 
         uint16_t rendered_values_[MaxRenderedFields]{};
         bool field_rendered_[MaxRenderedFields]{};

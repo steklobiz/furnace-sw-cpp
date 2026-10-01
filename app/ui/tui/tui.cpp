@@ -34,7 +34,7 @@ constexpr std::size_t column_header_row = 3;
 constexpr std::size_t divider_row = 4;
 
 constexpr std::size_t page_count =
-    static_cast<std::size_t>(Ui::Page::Count);
+    static_cast<std::size_t>(Ui::Context::Count);
 
 constexpr Tui::Label main_labels[] =
 {
@@ -270,7 +270,7 @@ void Tui::init(Ui& ui) noexcept
 {
     ui_ = &ui;
 
-    rendered_page_ = Ui::Page::Count;
+    rendered_page_ = Ui::Context::Count;
     page_rendered_ = false;
 
     input_mode_ = InputMode::Normal;
@@ -286,7 +286,7 @@ void Tui::process() noexcept
     process_input();
 
     const auto page =
-        ui_->page();
+        ui_->context();
 
     if (page != rendered_page_)
     {
@@ -321,7 +321,7 @@ void Tui::process() noexcept
 
 void Tui::render_page(
         const PageDescriptor& descriptor,
-        Ui::Page page) noexcept
+        Ui::Context page) noexcept
 {
     const auto page_index =
         static_cast<std::size_t>(page);
@@ -466,7 +466,7 @@ void Tui::render_profile_editor_page() noexcept
     const auto& descriptor =
         page_descriptors[
             static_cast<std::size_t>(
-                Ui::Page::ProfileEditor)];
+                Ui::Context::ProfileEditor)];
 
     if (!page_rendered_)
     {
@@ -505,7 +505,7 @@ void Tui::render_settings_page() noexcept
         ui_->get_edit_settings();
 
     constexpr auto page_index =
-        static_cast<std::size_t>(Ui::Page::Settings);
+        static_cast<std::size_t>(Ui::Context::Settings);
 
     const auto& descriptor =
         page_descriptors[page_index];
@@ -573,7 +573,7 @@ void Tui::process_input() noexcept
         static_cast<char>(_getch());
 
     const auto page =
-        ui_->page();
+        ui_->context();
 
     const auto page_index =
         static_cast<std::size_t>(page);
@@ -620,10 +620,10 @@ void Tui::process_input() noexcept
 
 void Tui::process_numeric_input() noexcept
 {
-    const auto page = ui_->page();
+    const auto page = ui_->context();
 
     const auto input_row =
-        page == Ui::Page::Settings
+        page == Ui::Context::Settings
             ? settings_input_row
             : profile_editor_input_row;
 
@@ -774,7 +774,7 @@ static const char* notification_type_name(
 void Tui::render_events_page() noexcept
 {
     constexpr auto page_index =
-        static_cast<std::size_t>(Ui::Page::Events);
+        static_cast<std::size_t>(Ui::Context::Events);
 
     const auto& descriptor =
         page_descriptors[page_index];
@@ -797,11 +797,14 @@ void Tui::render_events_page() noexcept
             first_data_row + MaxEventsPerPage + 1);
     }
 
+    const auto first_event =
+        ui_->event_page() * Ui::EventsPerPage;
+
     const auto count =
         ui_->event_count();
 
     for (std::size_t i = 0;
-         i < MaxEventsPerPage;
+         i < Ui::EventsPerPage;
          ++i)
     {
         const std::size_t row =
@@ -809,13 +812,16 @@ void Tui::render_events_page() noexcept
 
         clear_line(row);
 
-        if (i >= count)
+        const auto index =
+            first_event + i;
+
+        if (index >= count)
         {
             continue;
         }
 
         const auto& event =
-            ui_->event_from_newest(i);
+            ui_->event_from_newest(index);
 
         std::printf(
             "%02u:%02u:%02u  %-10s %-18s %u",
@@ -833,11 +839,10 @@ void Tui::render_events_page() noexcept
     page_rendered_ = true;
 }
 
-
 void Tui::render_samples_page() noexcept
 {
     constexpr auto page_index =
-        static_cast<std::size_t>(Ui::Page::Samples);
+        static_cast<std::size_t>(Ui::Context::Samples);
 
     const auto& descriptor =
         page_descriptors[page_index];
@@ -904,7 +909,7 @@ void Tui::render_question_page() noexcept
 
     const auto& descriptor =
         page_descriptors[
-            static_cast<std::size_t>(Ui::Page::Question)];
+            static_cast<std::size_t>(Ui::Context::Question)];
 
     clear_line(title_row);
     std::printf("%s", descriptor.name);

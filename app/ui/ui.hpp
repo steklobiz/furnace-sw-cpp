@@ -84,7 +84,7 @@ public:
     using CommandCallback =
         void (*)(void* context, Action action) noexcept;
 
-    enum class Page : uint8_t
+    enum class Context : uint8_t
     {
         Main,
         ProfileSelection,
@@ -133,15 +133,16 @@ public:
     void execute(Action action) noexcept;
 
     // Returns the currently active page.
-    [[nodiscard]] Page page() const noexcept;
+    [[nodiscard]] Context context() const noexcept;
 
     // Returns the current value of a field on the specified page.
     bool get_field(
-            Page page,
+            Context page,
             uint8_t field,
             uint16_t& value) const noexcept;
 
     static constexpr std::size_t ProfilesPerPage = 10;
+    static constexpr std::size_t EventsPerPage = 4;
 
     // Returns the current profile-selection page.
     [[nodiscard]] std::size_t profile_selection_page() const noexcept;
@@ -165,6 +166,12 @@ public:
 
     // Returns the number of stored events.    
     [[nodiscard]] std::size_t event_count() const noexcept;
+
+    // Returns the current event-history page.
+    [[nodiscard]] std::size_t event_page() const noexcept;
+
+    // Returns the number of event-history pages.
+    [[nodiscard]] std::size_t event_page_count() const noexcept;
 
     // Returns an sample by its position relative to the newest event.
     [[nodiscard]] const DataAggregator::FurnaceSample&
@@ -250,6 +257,10 @@ private:
 
     // Opens the event history page.
     void show_events(uint16_t) noexcept;
+    // Moves to the next event-history page with circular navigation.
+    void next_event_page() noexcept;
+    // Moves to the previous event-history page with circular navigation.
+    void previous_event_page() noexcept;
 
     // Opens a confirmation question before stopping the profile.
     void ask_stop_profile(uint16_t) noexcept;
@@ -369,9 +380,10 @@ private:
     SettingManager*settings_ = nullptr;
     Furnace*furnace_ = nullptr;
 
-    Page page_ = Page::Main;
+    Context context_ = Context::Main;
 
     uint8_t current_step_ = 0;
+    std::size_t event_page_ = 0;
 
     // Determines whether profile selection is used for starting or editing a profile.
     ProfileSelectionMode profile_selection_mode_ =

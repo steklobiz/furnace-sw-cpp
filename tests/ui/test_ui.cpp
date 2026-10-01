@@ -11,7 +11,7 @@ namespace
 void execute(
     app::Ui& ui,
     app::Ui::ActionType type,
-    uint16_t argument = 0) noexcept
+    uint16_t argument = 0U) noexcept
 {
     ui.execute({type, argument});
 }
@@ -19,7 +19,7 @@ void execute(
 void test_initial_state(
     app::Ui& ui) noexcept
 {
-    assert(ui.page() == app::Ui::Page::Main);
+    assert(ui.context() == app::Ui::Context::Main);
     assert(ui.profile_selection_page() == 0);
     assert(ui.current_step() == 0);
 }
@@ -32,7 +32,7 @@ void test_profile_selection(
         ui,
         app::Ui::ActionType::StartProfileSelection);
 
-    assert(ui.page() == app::Ui::Page::ProfileSelection);
+    assert(ui.context() == app::Ui::Context::ProfileSelection);
     assert(ui.profile_selection_page() == 0);
     assert(ui.profile_selection_page_count() == 3);
 
@@ -91,7 +91,7 @@ void test_profile_selection_reset(
         ui,
         app::Ui::ActionType::EditProfileSelection);
 
-    assert(ui.page() == app::Ui::Page::ProfileSelection);
+    assert(ui.context() == app::Ui::Context::ProfileSelection);
     assert(ui.profile_selection_page() == 0);
 }
 
@@ -106,9 +106,9 @@ void test_profile_editor_navigation(
     execute(
         ui,
         app::Ui::ActionType::SelectProfile,
-        0);
+        0U);
 
-    assert(ui.page() == app::Ui::Page::ProfileEditor);
+    assert(ui.context() == app::Ui::Context::ProfileEditor);
     assert(ui.current_step() == 0);
 
     // Next is interpreted as "next profile step".
@@ -141,7 +141,7 @@ void test_profile_editor_last_step(
     execute(
         ui,
         app::Ui::ActionType::SelectProfile,
-        0);
+        0U);
 
     for (std::size_t i = 0; i < app::config::profiles::max_steps - 1; ++i)
     {
@@ -180,7 +180,7 @@ void test_invalid_profile_slot(
         5);
 
     // Selecting an empty slot must have no effect.
-    assert(ui.page() == app::Ui::Page::ProfileSelection);
+    assert(ui.context() == app::Ui::Context::ProfileSelection);
     assert(ui.profile_selection_page() == 2);
 }
 

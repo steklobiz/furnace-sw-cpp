@@ -78,7 +78,7 @@ private:
     // Render a regular page using its labels and buttons descriptor.
     void render_page(
         const PageDescriptor& descriptor,
-        Ui::Page page) noexcept;
+        Ui::Context page) noexcept;
     
     // Common button rendering.    
     static void render_buttons(
@@ -114,14 +114,14 @@ private:
     Ui* ui_ = nullptr;
 
     // Page that was rendered during the previous render cycle.
-    Ui::Page rendered_page_ = Ui::Page::Count;
+    Ui::Context rendered_page_ = Ui::Context::Count;
     
     // Indicates whether the current page has been rendered at least once.
     bool page_rendered_ = false;
      
     // Last values rendered for each field of each page.   
     uint16_t rendered_values_[
-        static_cast<std::size_t>(Ui::Page::Count)][MaxFieldsPerPage]{};
+        static_cast<std::size_t>(Ui::Context::Count)][MaxFieldsPerPage]{};
     
     // Last profile step rendered by the profile editor.    
     Step rendered_step_{};

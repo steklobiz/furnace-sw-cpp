@@ -37,48 +37,47 @@ const DwinRenderer::FieldMapping DwinRenderer::settings_other_fields[] = {
     {5U, 0x1212U}, // Prestep outputs
 };
 
-const DwinRenderer::ViewDescriptor DwinRenderer::view_descriptors[] = {
+const DwinRenderer::ScreenDescriptor DwinRenderer::screen_descriptors[] = {
     {
-        Ui::Page::Main,
-        DwinView::Main,
+        Ui::Context::Main,
+        DwinScreen::Main,
         0U,
         main_fields,
         std::size(main_fields),
         nullptr
     },
     {
-        Ui::Page::Monitor,
-        DwinView::Monitor,
+        Ui::Context::Monitor,
+        DwinScreen::Monitor,
         1U,
         monitor_fields,
         std::size(monitor_fields),
         nullptr
     },
     {
-        Ui::Page::Settings,
-        DwinView::SettingsPid,
+        Ui::Context::Settings,
+        DwinScreen::SettingsPid,
         2U,
         settings_pid_fields,
         std::size(settings_pid_fields),
         &DwinRenderer::on_enter_settings_pid
     },
     {
-        Ui::Page::Settings,
-        DwinView::SettingsOther,
+        Ui::Context::Settings,
+        DwinScreen::SettingsOther,
         3U,
         settings_other_fields,
         std::size(settings_other_fields),
         &DwinRenderer::on_enter_settings_other
     },
     {
-        Ui::Page::ProfileSelection,
-        DwinView::ProfileSelection,
+        Ui::Context::ProfileSelection,
+        DwinScreen::ProfileSelection,
         4U,
-        settings_other_fields,
-        std::size(settings_other_fields),
+        nullptr,
+        0U,
         nullptr
     },
-
 };
 
 DwinRenderer::DwinAction DwinRenderer::decode_action(
@@ -103,13 +102,13 @@ DwinRenderer::DwinAction DwinRenderer::decode_action(
     }
 }
 
-const DwinRenderer::ViewDescriptor* DwinRenderer::find_view(
-    Ui::Page page,
-    DwinView view) const noexcept
+const DwinRenderer::ScreenDescriptor* DwinRenderer::find_screen(
+    Ui::Context context,
+    DwinScreen screen) const noexcept
 {
-    for (const ViewDescriptor& descriptor : view_descriptors)
+    for (const ScreenDescriptor& descriptor : screen_descriptors)
     {
-        if (descriptor.page == page && descriptor.view == view)
+        if (descriptor.context == context && descriptor.screen == screen)
         {
             return &descriptor;
         }
@@ -125,10 +124,10 @@ void DwinRenderer::init(
 {
     ui_ = &ui;
     transport_ = &transport;
-    rendered_page_ = Ui::Page::Count;
-    rendered_view_ = DwinView::Main;
-    rendered_dwin_page_ = 0xFFFFU;
-    view_ = DwinView::Main;
+    rendered_context_ = Ui::Context::Count;
+    rendered_screen_ = DwinScreen::Count;
+    rendered_dwin_page_id_ = 0xFFFFU;
+    screen_ = DwinScreen::Main;
 
     for (std::size_t i = 0; i < MaxRenderedFields; ++i)
     {
@@ -162,50 +161,50 @@ void DwinRenderer::process() noexcept
         }
     }
 
-    const Ui::Page page = ui_->page();
+    const Ui::Context context = ui_->context();
 
-    if (page != rendered_page_)
+    if (context != rendered_context_)
     {
-        set_view_for_page(page);
+        set_screen_for_context(context);
     }
 
-    const ViewDescriptor* view = find_view(page, view_);
+    const ScreenDescriptor* screen = find_screen(context, screen_);
 
-    if (view == nullptr)
+    if (screen == nullptr)
     {
         return;
     }
 
-    if (page != rendered_page_ || view_ != rendered_view_)
+    if (context != rendered_context_ || screen_ != rendered_screen_)
     {
-        enter_view(*view);
-        rendered_page_ = page;
-        rendered_view_ = view_;
+        enter_screen(*screen);
+        rendered_context_ = context;
+        rendered_screen_ = screen_;
         return;
     }
 
-    render_view(*view);
+    render_screen(*screen);
 }
 
 
 
-void DwinRenderer::set_view_for_page(Ui::Page page) noexcept
+void DwinRenderer::set_screen_for_context(Ui::Context context) noexcept
 {
-    switch (page)
+    switch (context)
     {
-        case Ui::Page::Main:
-            view_ = DwinView::Main;
+        case Ui::Context::Main:
+            screen_ = DwinScreen::Main;
             break;
 
-        case Ui::Page::Monitor:
-            view_ = DwinView::Monitor;
+        case Ui::Context::Monitor:
+            screen_ = DwinScreen::Monitor;
             break;
 
-        case Ui::Page::Settings:
-            if (view_ != DwinView::SettingsPid &&
-                view_ != DwinView::SettingsOther)
+        case Ui::Context::Settings:
+            if (screen_ != DwinScreen::SettingsPid &&
+                screen_ != DwinScreen::SettingsOther)
             {
-                view_ = DwinView::SettingsPid;
+                screen_ = DwinScreen::SettingsPid;
             }
             break;
 
@@ -214,19 +213,19 @@ void DwinRenderer::set_view_for_page(Ui::Page page) noexcept
     }
 }
 
-void DwinRenderer::enter_view(const ViewDescriptor& view) noexcept
+void DwinRenderer::enter_screen(const ScreenDescriptor& descriptor) noexcept
 {
-    if (view.dwin_page != rendered_dwin_page_)
+    if (descriptor.dwin_page != rendered_dwin_page_id_)
     {
         const DwinProtocol::Packet packet =
-            protocol_.switch_page(view.dwin_page);
+            protocol_.switch_page(descriptor.dwin_page);
         transport_->send(packet.data, packet.size);
-        rendered_dwin_page_ = view.dwin_page;
+        rendered_dwin_page_id_ = descriptor.dwin_page;
     }
 
-    if (view.on_enter != nullptr)
+    if (descriptor.on_enter != nullptr)
     {
-        (this->*view.on_enter)();
+        (this->*descriptor.on_enter)();
     }
 
     for (std::size_t i = 0; i < MaxRenderedFields; ++i)
@@ -234,14 +233,14 @@ void DwinRenderer::enter_view(const ViewDescriptor& view) noexcept
         field_rendered_[i] = false;
     }
 
-    render_view(view);
+    render_screen(descriptor);
 }
 
-void DwinRenderer::render_view(const ViewDescriptor& view) noexcept
+void DwinRenderer::render_screen(const ScreenDescriptor& descriptor) noexcept
 {
-    for (std::size_t i = 0; i < view.field_count; ++i)
+    for (std::size_t i = 0; i < descriptor.field_count; ++i)
     {
-        const FieldMapping& field = view.fields[i];
+        const FieldMapping& field = descriptor.fields[i];
 
         if (field.ui_field >= MaxRenderedFields)
         {
@@ -250,7 +249,7 @@ void DwinRenderer::render_view(const ViewDescriptor& view) noexcept
 
         uint16_t value = 0U;
 
-        if (!ui_->get_field(view.page, field.ui_field, value))
+        if (!ui_->get_field(descriptor.context, field.ui_field, value))
         {
             continue;
         }
@@ -284,21 +283,21 @@ void DwinRenderer::on_enter_settings_other() noexcept
 
 void DwinRenderer::handle_action(DwinAction action) noexcept
 {
-    switch (ui_->page())
+    switch (ui_->context())
     {
-        case Ui::Page::Main:
+        case Ui::Context::Main:
             handle_main_action(action);
             break;
 
-        case Ui::Page::Monitor:
+        case Ui::Context::Monitor:
             handle_monitor_action(action);
             break;
 
-        case Ui::Page::Settings:
+        case Ui::Context::Settings:
             handle_settings_action(action);
             break;
 
-        case Ui::Page::Events:
+        case Ui::Context::Events:
             handle_events_action(action);
             break;
 
@@ -353,9 +352,9 @@ void DwinRenderer::handle_settings_action(DwinAction action) noexcept
     {
         case DwinAction::Previous:
         case DwinAction::Next:
-            view_ = (view_ == DwinView::SettingsPid)
-                ? DwinView::SettingsOther
-                : DwinView::SettingsPid;
+            screen_ = (screen_ == DwinScreen::SettingsPid)
+                ? DwinScreen::SettingsOther
+                : DwinScreen::SettingsPid;
             break;
 
         case DwinAction::Back:

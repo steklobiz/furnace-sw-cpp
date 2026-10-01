@@ -113,7 +113,7 @@ int main()
     // Initial renderer cycle.
     renderer.process();
 
-    assert(ui.page() == app::Ui::Page::Main);
+    assert(ui.context() == app::Ui::Context::Main);
 
     // Press Run on Main
     std::printf("\nMain->Profile selection\n");
@@ -121,7 +121,7 @@ int main()
     feed_settings_touch(ButtonStart);
     renderer.process();
 
-    assert(ui.page() == app::Ui::Page::ProfileSelection);
+    assert(ui.context() == app::Ui::Context::ProfileSelection);
 
     // Select profile 0 on Profile selection page
 
@@ -133,7 +133,7 @@ int main()
     feed_settings_touch(ButtonSettings);
     renderer.process();
 
-    assert(ui.page() == app::Ui::Page::Settings);
+    assert(ui.context() == app::Ui::Context::Settings);
 
 
     // Press Back on the DWIN display
@@ -142,7 +142,7 @@ int main()
     feed_settings_touch(ButtonBack);
     renderer.process();
 
-    assert(ui.page() == app::Ui::Page::Main);
+    assert(ui.context() == app::Ui::Context::Main);
 
 
     std::printf("DWIN renderer test: PASS\n");
