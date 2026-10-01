@@ -1,5 +1,8 @@
 #include "dwin_renderer.hpp"
 #include <cstdio>
+
+//TODO: Sort class methods according to header order
+
 namespace app
 {
 
@@ -109,6 +112,11 @@ const DwinRenderer::ScreenDescriptor DwinRenderer::screen_descriptors[] = {
         nullptr
     },
 };
+
+// -----------------------------------------------------------------------------
+// Private helpers
+// -----------------------------------------------------------------------------
+
 
 DwinRenderer::DwinAction DwinRenderer::decode_action(
     uint16_t address,

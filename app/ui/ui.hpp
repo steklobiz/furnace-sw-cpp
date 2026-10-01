@@ -196,6 +196,13 @@ private:
         void (Ui::*callback)(uint16_t) noexcept;
     };    
 
+    // Returns the value of a ProfileSelection field for the current collection page.
+    bool get_profile_selection_field(uint8_t field, uint16_t& value) const noexcept;
+    // Returns the value of a ProfileEditor field for the current profile step.
+    bool get_profile_editor_field(uint8_t field, uint16_t& value) const noexcept;
+    // Returns the value of a field described by the generic page descriptor.
+    bool get_descriptor_field(Context context, uint8_t field, uint16_t& value) const noexcept;
+
     // Opens profile selection for starting a profile.
     void start_profile_selection(uint16_t) noexcept;
     // Opens profile selection for editing a profile.

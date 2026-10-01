@@ -121,106 +121,25 @@ Ui::Context Ui::context() const noexcept
 
 
 bool Ui::get_field(
-            const Context context,
-            const uint8_t field,
-            uint16_t& value) const noexcept
+    const Context context,
+    const uint8_t field,
+    uint16_t& value) const noexcept
 {
-
-    // TODO: Refactor method. It's too long
-
     if (context == Context::ProfileSelection)
-    {
-        const auto profile_id =
-            profile_selection_page_ * ProfilesPerPage + field;
-
-        const auto count = profiles_->profile_count();
-
-        if (profile_id >= count)
-            return false;
-
-        value = static_cast<uint16_t>(profile_id);
-        return true;
-    }
-
+        return get_profile_selection_field(field, value);
 
     if (context == Context::ProfileEditor)
-    {
-        if (current_step_ >= config::profiles::max_steps)
-            return false;
+        return get_profile_editor_field(field, value);
 
-        const auto& step =
-            profiles_->edit_profile().steps[current_step_];
-
-        switch (field)
-        {
-            case 0U:
-                value = static_cast<uint16_t>(current_step_);
-                return true;
-
-            case 1U:
-                value = step.setpoint_c;
-                return true;
-
-            case 2U:
-                value = step.duration;
-                return true;
-
-            case 3U:
-                value = step.outs;
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    const auto page_index =
-        static_cast<std::size_t>(context);
-
-    if (page_index >= std::size(page_descriptors))
-        return false;
-
-    const auto& descriptor = page_descriptors[page_index];
-
-    if (field >= descriptor.field_count)
-        return false;
-
-    const auto& mapping = descriptor.fields[field];
-
-    switch (mapping.source)
-    {
-        case DataSource::TcParser:
-            value = data_->tc_parser_item(
-                static_cast<TcParserItem>(mapping.field));
-            return true;
-
-        case DataSource::Furnace:
-            value = data_->furnace_item(
-                static_cast<FurnaceItem>(mapping.field));
-            return true;
-
-        case DataSource::Profile:
-            value = data_->profile_item(
-                static_cast<ProfileItem>(mapping.field));
-            return true;
-
-        case DataSource::Setting:
-            value = data_->setting_item(
-                static_cast<SettingItem>(mapping.field));
-            return true;
-
-        case DataSource::Alarm:
-        case DataSource::Count:
-            return false;
-    }
-
-    return false;
+    return get_descriptor_field(context, field, value);
 }
+
 
 std::size_t Ui::profile_selection_page() const noexcept
 {
     return profile_selection_page_;
 }
+
 
 std::size_t Ui::profile_selection_page_count() const noexcept
 {
@@ -303,6 +222,110 @@ void Ui::set_command_callback(
     command_context_ = context;
 }
 
+// -----------------------------------------------------------------------------
+// Private helpers
+// -----------------------------------------------------------------------------
+
+bool Ui::get_profile_selection_field(
+    const uint8_t field,
+    uint16_t& value) const noexcept
+{
+    if (field >= ProfilesPerPage)
+        return false;
+
+    const auto profile_id =
+        profile_selection_page_ * ProfilesPerPage + field;
+
+    if (profile_id >= profiles_->profile_count())
+        return false;
+
+    value = static_cast<uint16_t>(profile_id);
+    return true;
+}
+
+
+bool Ui::get_profile_editor_field(
+    const uint8_t field,
+    uint16_t& value) const noexcept
+{
+    if (current_step_ >= config::profiles::max_steps)
+        return false;
+
+    const auto& step =
+        profiles_->edit_profile().steps[current_step_];
+
+    switch (field)
+    {
+        case 0U:
+            value = static_cast<uint16_t>(current_step_);
+            return true;
+
+        case 1U:
+            value = step.setpoint_c;
+            return true;
+
+        case 2U:
+            value = step.duration;
+            return true;
+
+        case 3U:
+            value = step.outs;
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool Ui::get_descriptor_field(
+    const Context context,
+    const uint8_t field,
+    uint16_t& value) const noexcept
+{
+    const auto context_index =
+        static_cast<std::size_t>(context);
+
+    if (context_index >= std::size(page_descriptors))
+        return false;
+
+    const auto& descriptor =
+        page_descriptors[context_index];
+
+    if (field >= descriptor.field_count)
+        return false;
+
+    const auto& mapping =
+        descriptor.fields[field];
+
+    switch (mapping.source)
+    {
+        case DataSource::TcParser:
+            value = data_->tc_parser_item(
+                static_cast<TcParserItem>(mapping.field));
+            return true;
+
+        case DataSource::Furnace:
+            value = data_->furnace_item(
+                static_cast<FurnaceItem>(mapping.field));
+            return true;
+
+        case DataSource::Profile:
+            value = data_->profile_item(
+                static_cast<ProfileItem>(mapping.field));
+            return true;
+
+        case DataSource::Setting:
+            value = data_->setting_item(
+                static_cast<SettingItem>(mapping.field));
+            return true;
+
+        case DataSource::Alarm:
+        case DataSource::Count:
+            return false;
+    }
+
+    return false;
+}
 
 void Ui::start_profile_selection(uint16_t) noexcept
 {
