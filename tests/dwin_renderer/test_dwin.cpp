@@ -28,9 +28,11 @@ namespace
 constexpr uint16_t ButtonStart      = 0x2000U;
 constexpr uint16_t ButtonBack       = 0x2003U;
 constexpr uint16_t ButtonSettings   = 0x2004U;
+constexpr uint16_t ProfileSlot0     = 0x2010U;
+constexpr uint16_t ProfileSlot1     = 0x2011U;
+constexpr uint16_t ButtonEdit       = 0x2002U;
 
-
-void feed_settings_touch(uint16_t button)
+void feed_touch(uint16_t button)
 {
     // DWIN touch packet example:
     //
@@ -115,35 +117,45 @@ int main()
 
     assert(ui.context() == app::Ui::Context::Main);
 
-    // Press Run on Main
     std::printf("\nMain->Profile selection\n");
-
-    feed_settings_touch(ButtonStart);
+    // Main → ProfileSelection
+    feed_touch(ButtonStart);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::ProfileSelection);
+    assert(ui.profile_selection_page() == 0);
 
-    // Select profile 0 on Profile selection page
+    
 
-    // Press Back to return to the Main page
-
-    // Press Settings on Main page
-    std::printf("\nMain->Settings\n");
-
-    feed_settings_touch(ButtonSettings);
+    std::printf("\nProfile selection->Monitor\n");
+    // ProfileSelection → Monitor
+    feed_touch(ProfileSlot0);
     renderer.process();
 
-    assert(ui.context() == app::Ui::Context::Settings);
+    assert(ui.context() == app::Ui::Context::Monitor);
 
-
-    // Press Back on the DWIN display
-    std::printf("\nSettings->Main\n");
-
-    feed_settings_touch(ButtonBack);
+    std::printf("\nMonitor->Main\n");
+    // Monitor → Main
+    feed_touch(ButtonBack);
     renderer.process();
 
     assert(ui.context() == app::Ui::Context::Main);
 
+    std::printf("\nMain->Profile selection\n");
+    // Main → ProfileSelection
+    feed_touch(ButtonEdit);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::ProfileSelection);
+    assert(ui.profile_selection_page() == 0);
+
+    std::printf("\nProfile selection->Profile editor\n");
+    // ProfileSelection → ProfileEditor
+    feed_touch(ProfileSlot0);
+    renderer.process();
+
+    assert(ui.context() == app::Ui::Context::ProfileEditor);
+    assert(ui.current_step() == 0);
 
     std::printf("DWIN renderer test: PASS\n");
     

@@ -52,7 +52,18 @@ namespace app
             Back,
             Previous,
             Next,
-            Home
+            Home,
+
+            Select0,
+            Select1,
+            Select2,
+            Select3,
+            Select4,
+            Select5,
+            Select6,
+            Select7,
+            Select8,
+            Select9
         };
 
         struct FieldMapping
@@ -67,7 +78,7 @@ namespace app
         {
             Ui::Context context;
             DwinScreen screen;
-            uint16_t dwin_page;
+            uint16_t dwin_page_id;
             const FieldMapping* fields;
             std::size_t field_count;
             EnterCallback on_enter;
@@ -77,12 +88,15 @@ namespace app
             uint16_t address,
             uint16_t value) noexcept;
 
+        // Handles DWIN actions according to the current UI context.
         void handle_action(DwinAction action) noexcept;
         void handle_settings_action(DwinAction action) noexcept;
         void handle_main_action(DwinAction action) noexcept;
         void handle_monitor_action(DwinAction action) noexcept;
         void handle_events_action(DwinAction action) noexcept;
+        void handle_profile_selection_action(DwinAction action) noexcept;
 
+        // Selects the DWIN screen corresponding to the current UI context.
         void set_screen_for_context(Ui::Context context) noexcept;
 
         void enter_screen(const ScreenDescriptor& descriptor) noexcept;
@@ -102,6 +116,8 @@ namespace app
         static const FieldMapping monitor_fields[];
         static const FieldMapping settings_pid_fields[];
         static const FieldMapping settings_other_fields[];
+        static const FieldMapping profile_selection_fields[];
+
         static const ScreenDescriptor screen_descriptors[];
 
         Ui* ui_ = nullptr;

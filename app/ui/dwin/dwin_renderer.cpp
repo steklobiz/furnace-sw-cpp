@@ -1,5 +1,5 @@
 #include "dwin_renderer.hpp"
-
+#include <cstdio>
 namespace app
 {
 
@@ -35,6 +35,19 @@ const DwinRenderer::FieldMapping DwinRenderer::settings_other_fields[] = {
     {0U, 0x1210U}, // Buzzer
     {4U, 0x1211U}, // Max temperature
     {5U, 0x1212U}, // Prestep outputs
+};
+
+const DwinRenderer::FieldMapping DwinRenderer::profile_selection_fields[] = {
+    {0U, 0x1300U}, // Profile slot 0
+    {1U, 0x1301U}, // Profile slot 1
+    {2U, 0x1302U}, // Profile slot 2
+    {3U, 0x1303U}, // Profile slot 3
+    {4U, 0x1304U}, // Profile slot 4
+    {5U, 0x1305U}, // Profile slot 5
+    {6U, 0x1306U}, // Profile slot 6
+    {7U, 0x1307U}, // Profile slot 7
+    {8U, 0x1308U}, // Profile slot 8
+    {9U, 0x1309U}, // Profile slot 9
 };
 
 const DwinRenderer::ScreenDescriptor DwinRenderer::screen_descriptors[] = {
@@ -74,8 +87,8 @@ const DwinRenderer::ScreenDescriptor DwinRenderer::screen_descriptors[] = {
         Ui::Context::ProfileSelection,
         DwinScreen::ProfileSelection,
         4U,
-        nullptr,
-        0U,
+        profile_selection_fields,
+        std::size(profile_selection_fields),
         nullptr
     },
 };
@@ -98,7 +111,20 @@ DwinRenderer::DwinAction DwinRenderer::decode_action(
         case 0x2007U: return DwinAction::Previous;
         case 0x2008U: return DwinAction::Next;
         case 0x2009U: return DwinAction::Home;
-        default: return DwinAction::None;
+
+        case 0x2010U: return DwinAction::Select0;
+        case 0x2011U: return DwinAction::Select1;
+        case 0x2012U: return DwinAction::Select2;
+        case 0x2013U: return DwinAction::Select3;
+        case 0x2014U: return DwinAction::Select4;
+        case 0x2015U: return DwinAction::Select5;
+        case 0x2016U: return DwinAction::Select6;
+        case 0x2017U: return DwinAction::Select7;
+        case 0x2018U: return DwinAction::Select8;
+        case 0x2019U: return DwinAction::Select9;
+
+        default:
+            return DwinAction::None;
     }
 }
 
@@ -208,6 +234,10 @@ void DwinRenderer::set_screen_for_context(Ui::Context context) noexcept
             }
             break;
 
+        case Ui::Context::ProfileSelection:
+            screen_ = DwinScreen::ProfileSelection;
+            break;
+
         default:
             break;
     }
@@ -215,12 +245,13 @@ void DwinRenderer::set_screen_for_context(Ui::Context context) noexcept
 
 void DwinRenderer::enter_screen(const ScreenDescriptor& descriptor) noexcept
 {
-    if (descriptor.dwin_page != rendered_dwin_page_id_)
+
+    if (descriptor.dwin_page_id != rendered_dwin_page_id_)
     {
         const DwinProtocol::Packet packet =
-            protocol_.switch_page(descriptor.dwin_page);
+            protocol_.switch_page(descriptor.dwin_page_id);
         transport_->send(packet.data, packet.size);
-        rendered_dwin_page_id_ = descriptor.dwin_page;
+        rendered_dwin_page_id_ = descriptor.dwin_page_id;
     }
 
     if (descriptor.on_enter != nullptr)
@@ -281,12 +312,16 @@ void DwinRenderer::on_enter_settings_other() noexcept
 }
 
 
-void DwinRenderer::handle_action(DwinAction action) noexcept
+    void DwinRenderer::handle_action(DwinAction action) noexcept
 {
     switch (ui_->context())
     {
         case Ui::Context::Main:
             handle_main_action(action);
+            break;
+
+        case Ui::Context::ProfileSelection:
+            handle_profile_selection_action(action);
             break;
 
         case Ui::Context::Monitor:
@@ -344,6 +379,68 @@ void DwinRenderer::handle_monitor_action(DwinAction action) noexcept
 
 void DwinRenderer::handle_events_action(DwinAction action) noexcept
 {
+}
+
+void DwinRenderer::handle_profile_selection_action(
+    DwinAction action) noexcept
+{
+    switch (action)
+    {
+        case DwinAction::Select0:
+            ui_->execute({Ui::ActionType::SelectProfile, 0U});
+            break;
+
+        case DwinAction::Select1:
+            ui_->execute({Ui::ActionType::SelectProfile, 1U});
+            break;
+
+        case DwinAction::Select2:
+            ui_->execute({Ui::ActionType::SelectProfile, 2U});
+            break;
+
+        case DwinAction::Select3:
+            ui_->execute({Ui::ActionType::SelectProfile, 3U});
+            break;
+
+        case DwinAction::Select4:
+            ui_->execute({Ui::ActionType::SelectProfile, 4U});
+            break;
+
+        case DwinAction::Select5:
+            ui_->execute({Ui::ActionType::SelectProfile, 5U});
+            break;
+
+        case DwinAction::Select6:
+            ui_->execute({Ui::ActionType::SelectProfile, 6U});
+            break;
+
+        case DwinAction::Select7:
+            ui_->execute({Ui::ActionType::SelectProfile, 7U});
+            break;
+
+        case DwinAction::Select8:
+            ui_->execute({Ui::ActionType::SelectProfile, 8U});
+            break;
+
+        case DwinAction::Select9:
+            ui_->execute({Ui::ActionType::SelectProfile, 9U});
+            break;
+
+        case DwinAction::Previous:
+            ui_->execute({Ui::ActionType::Previous, 0U});
+            break;
+
+        case DwinAction::Next:
+            ui_->execute({Ui::ActionType::Next, 0U});
+            break;
+
+        case DwinAction::Back:
+            ui_->execute({Ui::ActionType::Back, 0U});
+            break;
+
+        default:
+            break;
+    }
 }
 
 void DwinRenderer::handle_settings_action(DwinAction action) noexcept

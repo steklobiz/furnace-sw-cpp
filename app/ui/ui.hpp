@@ -137,7 +137,7 @@ public:
 
     // Returns the current value of a field on the specified page.
     bool get_field(
-            Context page,
+            Context context,
             uint8_t field,
             uint16_t& value) const noexcept;
 

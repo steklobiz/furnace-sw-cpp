@@ -1,6 +1,7 @@
 // ui.cpp
 
 #include "ui.hpp"
+#include <cstdio>
 
 namespace app
 {
@@ -120,12 +121,30 @@ Ui::Context Ui::context() const noexcept
 
 
 bool Ui::get_field(
-            const Context page,
+            const Context context,
             const uint8_t field,
             uint16_t& value) const noexcept
 {
+
+    // Profile selection fields are derived from the current
+    // collection page rather than DataAggregator data.
+    if (context == Context::ProfileSelection)
+    {
+        const auto profile_id =
+            profile_selection_page_ * ProfilesPerPage + field;
+
+        const auto count = profiles_->profile_count();
+
+        if (profile_id >= count)
+            return false;
+
+        value = static_cast<uint16_t>(profile_id);
+        return true;
+    }
+
+
     const auto page_index =
-        static_cast<std::size_t>(page);
+        static_cast<std::size_t>(context);
 
     if (page_index >= std::size(page_descriptors))
         return false;
