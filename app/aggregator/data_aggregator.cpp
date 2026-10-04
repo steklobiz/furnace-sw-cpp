@@ -42,7 +42,6 @@ void refresh_source(
 
 constexpr Mapping<FurnaceItem, Furnace> furnace_mapping[]
 {
-    {FurnaceItem::State,          &Furnace::state},
     {FurnaceItem::Step,           &Furnace::current_step},
     {FurnaceItem::StepType,       &Furnace::step_type},
     {FurnaceItem::Temperature,    &Furnace::current_temperature},

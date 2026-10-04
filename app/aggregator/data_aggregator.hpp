@@ -36,7 +36,6 @@ enum class DataSource : uint8_t
 
 enum class FurnaceItem : uint8_t
 {
-    State,
     Step,
     StepType,
     Temperature,

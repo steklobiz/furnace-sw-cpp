@@ -458,10 +458,10 @@ void Furnace::notify(
 // Getters for UI output and History
 //------------------------------------------------------
 
-uint16_t 
+Furnace::State
 Furnace::state() const noexcept
 {
-    return static_cast<uint16_t>(fsm_.state());
+    return fsm_.state();
 }
 
 uint16_t

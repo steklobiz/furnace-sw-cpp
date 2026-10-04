@@ -58,7 +58,7 @@ public:
     static const char* step_type_name(StepType type) noexcept; // only for TUI
         
     // UI getters (uint16_t only)
-    [[nodiscard]] uint16_t state() const noexcept;
+    [[nodiscard]] State state() const noexcept;
     [[nodiscard]] uint16_t step_type() const noexcept;
     [[nodiscard]] uint16_t current_temperature() const noexcept;
     [[nodiscard]] uint16_t current_step() const noexcept;
