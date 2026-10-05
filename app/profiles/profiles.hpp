@@ -153,6 +153,8 @@ public:
         
     // Saves the currently edited profile.
     bool save_edit() noexcept;
+    // Discards the currently edited profile.
+    bool cancel_edit() noexcept;
 
     // Clears the profile selected for starting. 
     void clear_start_selection() noexcept;

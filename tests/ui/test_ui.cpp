@@ -463,6 +463,89 @@ void test_profile_selection_for_edit(
     std::cout << "test_profile_selection_for_edit: PASS\n";
 }
 
+void test_profile_edit_cancel(
+    Ui& ui,
+    Furnace& furnace,
+    ProfileManager& profiles)
+{
+    assert(furnace.state() == Furnace::State::Idle);
+
+    // Main / Brief -> ProfileSelection / Edit
+    ui.execute({Ui::ActionType::Edit});
+
+    assert(ui.position().context == Ui::Context::ProfileSelection);
+    assert(ui.position().mode == Ui::Mode::Edit);
+
+    // Select profile 0.
+    ui.execute({Ui::ActionType::Select, 0});
+
+    assert(profiles.edit_profile_id() == 0);
+    assert(ui.position().context == Ui::Context::Edit);
+    assert(ui.position().mode == Ui::Mode::None);
+    assert(ui.edit_step() == 0);
+
+    // Keep the original profile for comparison.
+    const Profile original = profiles.edit_profile();
+
+    // Modify step 0.
+    ui.execute({Ui::ActionType::SetSetpoint, 123});
+    ui.execute({Ui::ActionType::SetDuration, 45});
+    ui.execute({Ui::ActionType::SetOutputs, 7});
+
+    assert(profiles.edit_profile().steps[0].setpoint_c == 123);
+    assert(profiles.edit_profile().steps[0].duration == 45);
+    assert(profiles.edit_profile().steps[0].outs == 7);
+
+    // Cancel -> discard changes.
+    ui.execute({Ui::ActionType::Cancel});
+
+    assert(ui.position().context == Ui::Context::Main);
+    assert(ui.position().mode == Ui::Mode::Brief);
+
+    // Original profile must be restored.
+    assert(profiles.edit_profile() == original);
+
+    std::cout << "test_profile_edit_cancel: PASS\n";
+}
+
+void test_profile_edit_save(
+    Ui& ui,
+    Furnace& furnace,
+    ProfileManager& profiles)
+{
+    assert(furnace.state() == Furnace::State::Idle);
+
+    // Main / Brief -> ProfileSelection / Edit
+    ui.execute({Ui::ActionType::Edit});
+
+    assert(ui.position().context == Ui::Context::ProfileSelection);
+    assert(ui.position().mode == Ui::Mode::Edit);
+
+    // Select profile 0.
+    ui.execute({Ui::ActionType::Select, 0});
+
+    assert(profiles.edit_profile_id() == 0);
+    assert(ui.position().context == Ui::Context::Edit);
+    assert(ui.position().mode == Ui::Mode::None);
+
+    // Modify step 0.
+    ui.execute({Ui::ActionType::SetSetpoint, 123});
+    ui.execute({Ui::ActionType::SetDuration, 45});
+    ui.execute({Ui::ActionType::SetOutputs, 7});
+
+    // Save -> Main / Brief.
+    ui.execute({Ui::ActionType::Confirm});
+
+    assert(ui.position().context == Ui::Context::Main);
+    assert(ui.position().mode == Ui::Mode::Brief);
+
+    // Edited values must remain in the edit profile.
+    assert(profiles.edit_profile().steps[0].setpoint_c == 123);
+    assert(profiles.edit_profile().steps[0].duration == 45);
+    assert(profiles.edit_profile().steps[0].outs == 7);
+
+    std::cout << "test_profile_edit_save: PASS\n";
+}
 
 } // namespace
 
@@ -686,6 +769,31 @@ int main()
             profiles);
     }
 
+    {
+        app::Furnace furnace;
+        furnace.init(profiles, settings, tc_parser, pid);
+
+        app::Ui ui;
+        ui.init(data, furnace, profiles, settings);
+
+        app::test_profile_edit_cancel(
+            ui,
+            furnace,
+            profiles);
+    }
+
+    {
+        app::Furnace furnace;
+        furnace.init(profiles, settings, tc_parser, pid);
+
+        app::Ui ui;
+        ui.init(data, furnace, profiles, settings);
+
+        app::test_profile_edit_save(
+            ui,
+            furnace,
+            profiles);
+    }
 
     std::cout << "Ui tests: PASS\n";
 

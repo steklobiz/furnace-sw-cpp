@@ -45,8 +45,9 @@ public:
         Next,
         Previous,
         Select,
-        SetValue,
-        ToggleOutput,
+        SetSetpoint,
+        SetDuration,
+        SetOutputs,
         Confirm,
         Cancel,
         Edit,
@@ -90,12 +91,14 @@ public:
     [[nodiscard]] Position position() const noexcept;
     [[nodiscard]] Furnace::State state() const noexcept;
     [[nodiscard]] uint8_t profile_page() const noexcept;
+    [[nodiscard]] uint8_t edit_step() const noexcept;
 
 private:
     // Profile selection state.
     static constexpr uint8_t ProfilesPerPage = 10;
 
     uint8_t profile_page_ = 0;
+    uint8_t edit_step_ = 0;
 
     // Transition handling.
     [[nodiscard]] const Transition*
@@ -104,13 +107,34 @@ private:
     // Transition handlers.
     bool stop_furnace(const Action& action) noexcept;
     bool reset_furnace(const Action& action) noexcept;
+
     bool select_profile_to_start(const Action& action) noexcept;
     bool select_profile_to_edit(const Action& action) noexcept;
+
     bool next_profile_page(const Action& action) noexcept;
     bool previous_profile_page(const Action& action) noexcept;
 
+    // Selects the next profile step for editing.
+    bool next_edit_step(const Action& action) noexcept;
+    // Selects the previous profile step for editing.
+    bool previous_edit_step(const Action& action) noexcept;
+
+    // Updates the setpoint of the selected profile step.
+    bool edit_setpoint(const Action& action) noexcept;
+    // Updates the duration of the selected profile step.
+    bool edit_duration(const Action& action) noexcept;
+    // Updates the outputs of the selected profile step.
+    bool edit_outs(const Action& action) noexcept;
+
+    bool save_edit(const Action& action) noexcept;
+    bool cancel_edit(const Action& action) noexcept;
+
+
     // Profile selection helpers.
     [[nodiscard]] uint8_t profile_page_count() const noexcept;
+
+    // Profile edit helpers.
+    [[nodiscard]] uint8_t edit_step_count() const noexcept;
 
     // Dependencies.
     DataAggregator* data_ = nullptr;

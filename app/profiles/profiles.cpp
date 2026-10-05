@@ -160,6 +160,20 @@ ProfileManager::save_edit() noexcept
     return true;
 }
 
+bool ProfileManager::cancel_edit() noexcept
+{
+    if (edit_profile_id_ >= test_profile_count)
+        return false;
+
+    edit_profile_ = test_profiles[edit_profile_id_];
+
+    notify(
+        NotificationType::EditProfileChanged,
+        edit_profile_id_);
+
+    return true;
+}
+
 void
 ProfileManager::clear_start_selection() noexcept
 {

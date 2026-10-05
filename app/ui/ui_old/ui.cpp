@@ -277,55 +277,55 @@ bool Ui::get_profile_editor_field(
     }
 }
 
-bool Ui::get_descriptor_field(
-    const Context context,
-    const uint8_t field,
-    uint16_t& value) const noexcept
-{
-    const auto context_index =
-        static_cast<std::size_t>(context);
-
-    if (context_index >= std::size(page_descriptors))
-        return false;
-
-    const auto& descriptor =
-        page_descriptors[context_index];
-
-    if (field >= descriptor.field_count)
-        return false;
-
-    const auto& mapping =
-        descriptor.fields[field];
-
-    switch (mapping.source)
+    bool Ui::get_descriptor_field(
+        const Context context,
+        const uint8_t field,
+        uint16_t& value) const noexcept
     {
-        case DataSource::TcParser:
-            value = data_->tc_parser_item(
-                static_cast<TcParserItem>(mapping.field));
-            return true;
+        const auto context_index =
+            static_cast<std::size_t>(context);
 
-        case DataSource::Furnace:
-            value = data_->furnace_item(
-                static_cast<FurnaceItem>(mapping.field));
-            return true;
-
-        case DataSource::Profile:
-            value = data_->profile_item(
-                static_cast<ProfileItem>(mapping.field));
-            return true;
-
-        case DataSource::Setting:
-            value = data_->setting_item(
-                static_cast<SettingItem>(mapping.field));
-            return true;
-
-        case DataSource::Alarm:
-        case DataSource::Count:
+        if (context_index >= std::size(page_descriptors))
             return false;
-    }
 
-    return false;
-}
+        const auto& descriptor =
+            page_descriptors[context_index];
+
+        if (field >= descriptor.field_count)
+            return false;
+
+        const auto& mapping =
+            descriptor.fields[field];
+
+        switch (mapping.source)
+        {
+            case DataSource::TcParser:
+                value = data_->tc_parser_item(
+                    static_cast<TcParserItem>(mapping.field));
+                return true;
+
+            case DataSource::Furnace:
+                value = data_->furnace_item(
+                    static_cast<FurnaceItem>(mapping.field));
+                return true;
+
+            case DataSource::Profile:
+                value = data_->profile_item(
+                    static_cast<ProfileItem>(mapping.field));
+                return true;
+
+            case DataSource::Setting:
+                value = data_->setting_item(
+                    static_cast<SettingItem>(mapping.field));
+                return true;
+
+            case DataSource::Alarm:
+            case DataSource::Count:
+                return false;
+        }
+
+        return false;
+    }
 
 void Ui::start_profile_selection(uint16_t) noexcept
 {
