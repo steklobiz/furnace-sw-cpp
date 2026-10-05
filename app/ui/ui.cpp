@@ -7,7 +7,11 @@ namespace app
 
 const Ui::Transition Ui::transitions_[] =
 {
+    // -------------------------------------------------------------------------
     // Main / Brief
+    // -------------------------------------------------------------------------
+
+    // Idle
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Idle,
@@ -40,7 +44,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Events, Mode::None}
     },
 
-    // Main / Brief <-> Main / Detailed while running
+    // Running
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Running,
@@ -49,15 +53,6 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Detailed}
     },
 
-    {
-        {Context::Main, Mode::Detailed},
-        Furnace::State::Running,
-        ActionType::Previous,
-        nullptr,
-        {Context::Main, Mode::Brief}
-    },
-
-    // Running -> stop confirmation
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Running,
@@ -66,7 +61,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Question, Mode::Stop}
     },
 
-    // Reset after furnace has stopped/finished/errored
+    // Finished
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Finished,
@@ -75,6 +70,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
+    // Stopped
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Stopped,
@@ -83,6 +79,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
+    // Error
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Error,
@@ -91,14 +88,12 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
-    {
-        {Context::Main, Mode::Brief},
-        Furnace::State::Running,
-        ActionType::Next,
-        nullptr,
-        {Context::Main, Mode::Detailed}
-    },
 
+    // -------------------------------------------------------------------------
+    // Main / Detailed
+    // -------------------------------------------------------------------------
+
+    // Running
     {
         {Context::Main, Mode::Detailed},
         Furnace::State::Running,
@@ -107,30 +102,12 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
-    {
-        {Context::Question, Mode::Stop},
-        Furnace::State::Running,
-        ActionType::Confirm,
-        &Ui::stop_furnace,
-        {Context::Main, Mode::Brief}
-    },
 
-    {
-        {Context::Question, Mode::Stop},
-        Furnace::State::Running,
-        ActionType::Cancel,
-        nullptr,
-        {Context::Main, Mode::Brief}
-    },
+    // -------------------------------------------------------------------------
+    // ProfileSelection / Start
+    // -------------------------------------------------------------------------
 
-    {
-        {Context::Main, Mode::Brief},
-        Furnace::State::Stopped,
-        ActionType::Reset,
-        &Ui::reset_furnace,
-        {Context::Main, Mode::Brief}
-    },
-
+    // Idle
     {
         {Context::ProfileSelection, Mode::Start},
         Furnace::State::Idle,
@@ -155,14 +132,12 @@ const Ui::Transition Ui::transitions_[] =
         {Context::None, Mode::None}
     },
 
-    {
-        {Context::Main, Mode::Brief},
-        Furnace::State::Idle,
-        ActionType::Edit,
-        nullptr,
-        {Context::ProfileSelection, Mode::Edit}
-    },
 
+    // -------------------------------------------------------------------------
+    // ProfileSelection / Edit
+    // -------------------------------------------------------------------------
+
+    // Idle
     {
         {Context::ProfileSelection, Mode::Edit},
         Furnace::State::Idle,
@@ -170,8 +145,45 @@ const Ui::Transition Ui::transitions_[] =
         &Ui::select_profile_to_edit,
         {Context::Edit, Mode::None}
     },
-};
 
+    {
+        {Context::ProfileSelection, Mode::Edit},
+        Furnace::State::Idle,
+        ActionType::Next,
+        &Ui::next_profile_page,
+        {Context::None, Mode::None}
+    },
+
+    {
+        {Context::ProfileSelection, Mode::Edit},
+        Furnace::State::Idle,
+        ActionType::Previous,
+        &Ui::previous_profile_page,
+        {Context::None, Mode::None}
+    },
+
+
+    // -------------------------------------------------------------------------
+    // Question / Stop
+    // -------------------------------------------------------------------------
+
+    // Running
+    {
+        {Context::Question, Mode::Stop},
+        Furnace::State::Running,
+        ActionType::Confirm,
+        &Ui::stop_furnace,
+        {Context::Main, Mode::Brief}
+    },
+
+    {
+        {Context::Question, Mode::Stop},
+        Furnace::State::Running,
+        ActionType::Cancel,
+        nullptr,
+        {Context::Main, Mode::Brief}
+    },
+};
 
 void
 Ui::init(

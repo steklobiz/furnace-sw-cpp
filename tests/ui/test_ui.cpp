@@ -456,13 +456,11 @@ void test_profile_selection_for_edit(
     ui.execute({Ui::ActionType::Select, 3});
 
     assert(profiles.edit_profile_id() == 13);
-    assert(furnace.state() == Furnace::State::Idle);
-
+    assert(furnace.state() == Furnace::State::Idle); // See note below
     assert(ui.position().context == Ui::Context::Edit);
     assert(ui.position().mode == Ui::Mode::None);
 
     std::cout << "test_profile_selection_for_edit: PASS\n";
-
 }
 
 
@@ -675,6 +673,18 @@ int main()
             profiles);
     }
 
+    {
+        app::Furnace furnace;
+        furnace.init(profiles, settings, tc_parser, pid);
+
+        app::Ui ui;
+        ui.init(data, furnace, profiles, settings);
+
+        app::test_profile_selection_for_edit(
+            ui,
+            furnace,
+            profiles);
+    }
 
 
     std::cout << "Ui tests: PASS\n";
