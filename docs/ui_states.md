@@ -5,7 +5,8 @@ UiState
 │   ├── Mode:Brief
 │   │   ├── Idle
 │   │   ├── Running
-│   │   ├── Paused
+│   │   ├── Auto
+│   │   ├── Waiting
 │   │   ├── Stopped
 │   │   ├── Finished
 │   │   └── Error
@@ -60,8 +61,9 @@ Idle, Running, Monitor... are resulting semantic presentations depending on App 
 ### Main
 - Brief / Idle: Temperature 
 - Brief / Running: Profile, Step, Temperature, Power, Outputs
+- Brief / Auto: Temperature, Step
 - Brief / Stopped: Temperature, Profile, Step
-- Brief / Paused: Profile, Step, Outputs?
+- Brief / Waiting: Profile, Outputs
 - Brief / Finished: Temperature
 - Brief / Error: Temperature
 - Brief / Auto: Temperature, Elapsed time, Step? 

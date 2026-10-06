@@ -13,81 +13,250 @@ namespace
 
 constexpr DwinRenderer::ActionMapping action_mappings[] =
 {
-    {0x2000U, Ui::ActionType::Start},
-    {0x2001U, Ui::ActionType::Stop},
-    {0x2002U, Ui::ActionType::Edit},
-    {0x2004U, Ui::ActionType::Settings},
-    {0x2005U, Ui::ActionType::Events},
-    {0x2006U, Ui::ActionType::Reset},
-    {0x2007U, Ui::ActionType::Previous},
-    {0x2008U, Ui::ActionType::Next},
+    // Main
+    {0x0000U, Ui::ActionType::Start},
+    {0x0002U, Ui::ActionType::Edit},
+    {0x0004U, Ui::ActionType::Settings},
+
+    // Navigation
+    {0x0010U, Ui::ActionType::Previous},
+    {0x0012U, Ui::ActionType::Next},
+
+    // Common
+    {0x0020U, Ui::ActionType::Confirm },
+    {0x0022U, Ui::ActionType::Cancel },
+
+    // Settings
+    {0x0030U, Ui::ActionType::SetPidKp},
+    {0x0032U, Ui::ActionType::SetPidKi},
+    {0x0034U, Ui::ActionType::SetPidKd},
+
+    {0x0040U, Ui::ActionType::SetMaxTemperature},
+    {0x0042U, Ui::ActionType::SetBuzzer},
+    {0x0044U, Ui::ActionType::SetPrestepOuts},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_idle_fields[] =
+{
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature), 0x1002U},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_running_fields[] =
+{
+    {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId), 0x1000U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step),          0x1001U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature),   0x1002U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Power),         0x1003U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs),       0x1004U},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_auto_fields[] =
+{
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature), 0x1002U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step),          0x1001U},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_waiting_fields[] =
+{
+    {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId), 0x1000U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs),       0x1004U},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_stopped_fields[] =
+{
+    {DataSource::Profile, static_cast<uint8_t>(ProfileItem::StartProfileId), 0x1000U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs),       0x1004U},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_finished_fields[] =
+{
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature), 0x1002U},
+};
+
+constexpr DwinRenderer::FieldMapping main_brief_error_fields[] =
+{
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature), 0x1002U},
+};
+
+
+constexpr DwinRenderer::FieldMapping main_detailed_fields[] =
+{
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Step),          0x1102U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::StepType),      0x1103U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Temperature),   0x1104U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Setpoint),      0x1105U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::StepElapsed),   0x1106U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::ProfileElapsed),0x1107U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Power),         0x1108U},
+    {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs),       0x1109U},
+};
+
+constexpr DwinRenderer::FieldMapping profile_selection_fields[] =
+{
+    // To be defined.
+};
+
+constexpr DwinRenderer::FieldMapping settings_pid_fields[] =
+{
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKp), 0x1200U},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKi), 0x1201U},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PidKd), 0x1202U},
+};
+
+constexpr DwinRenderer::FieldMapping settings_other_fields[] =
+{
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::Buzzer),       0x1210U},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::MaxTemperature), 0x1211U},
+    {DataSource::Setting, static_cast<uint8_t>(SettingItem::PrestepOuts),  0x1212U},
 };
 
 // -----------------------------------------------------------------------------
 // Screen descriptors
 // -----------------------------------------------------------------------------
 
-constexpr DwinRenderer::ScreenDescriptor
-    DwinRenderer::screen_descriptors[] =
+constexpr DwinRenderer::ScreenDescriptor screen_descriptors[] =
 {
+    // Main / Brief / Idle
     {
         Ui::Context::Main,
         Ui::Mode::Brief,
         Furnace::State::Idle,
-        ScreenId::MainBrief,
-        main_brief_fields,
-        std::size(main_brief_fields),
-        &DwinRenderer::enter_main_brief
+        DwinRenderer::ScreenId::MainBriefIdle,
+        main_brief_idle_fields,
+        std::size(main_brief_idle_fields),
+        nullptr
     },
 
+    // Main / Brief / Running
+    {
+        Ui::Context::Main,
+        Ui::Mode::Brief,
+        Furnace::State::Running,
+        DwinRenderer::ScreenId::MainBriefRunning,
+        main_brief_running_fields,
+        std::size(main_brief_running_fields),
+        nullptr
+    },
+
+    // Main / Brief / Auto
+    {
+        Ui::Context::Main,
+        Ui::Mode::Brief,
+        Furnace::State::Auto,
+        DwinRenderer::ScreenId::MainBriefAuto,
+        main_brief_auto_fields,
+        std::size(main_brief_auto_fields),
+        nullptr
+    },
+
+    // Main / Brief / Waiting
+    {
+        Ui::Context::Main,
+        Ui::Mode::Brief,
+        Furnace::State::Waiting,
+        DwinRenderer::ScreenId::MainBriefWaiting,
+        main_brief_waiting_fields,
+        std::size(main_brief_waiting_fields),
+        nullptr
+    },
+
+    // Main / Brief / Stopped
+    {
+        Ui::Context::Main,
+        Ui::Mode::Brief,
+        Furnace::State::Stopped,
+        DwinRenderer::ScreenId::MainBriefStopped,
+        main_brief_stopped_fields,
+        std::size(main_brief_stopped_fields),
+        nullptr
+    },
+
+    // Main / Brief / Finished
+    {
+        Ui::Context::Main,
+        Ui::Mode::Brief,
+        Furnace::State::Finished,
+        DwinRenderer::ScreenId::MainBriefFinished,
+        main_brief_finished_fields,
+        std::size(main_brief_finished_fields),
+        nullptr
+    },
+
+    // Main / Brief / Error
+    {
+        Ui::Context::Main,
+        Ui::Mode::Brief,
+        Furnace::State::Error,
+        DwinRenderer::ScreenId::MainBriefError,
+        main_brief_error_fields,
+        std::size(main_brief_error_fields),
+        nullptr
+    },
+
+    // Main / Detailed
     {
         Ui::Context::Main,
         Ui::Mode::Detailed,
         Furnace::State::Count,
-        ScreenId::MainDetailed,
+        DwinRenderer::ScreenId::MainDetailed,
         main_detailed_fields,
         std::size(main_detailed_fields),
-        &DwinRenderer::enter_main_detailed
+        nullptr
     },
 
+    // Profile selection / Start
     {
         Ui::Context::ProfileSelection,
         Ui::Mode::Start,
         Furnace::State::Count,
-        ScreenId::ProfileSelection,
-        profile_selection_fields,
-        std::size(profile_selection_fields),
+        DwinRenderer::ScreenId::ProfileSelection,
+        nullptr,
+        0U,
         &DwinRenderer::enter_profile_selection
     },
 
+    // Profile selection / Edit
     {
         Ui::Context::ProfileSelection,
         Ui::Mode::Edit,
         Furnace::State::Count,
-        ScreenId::ProfileSelection,
-        profile_selection_fields,
-        std::size(profile_selection_fields),
+        DwinRenderer::ScreenId::ProfileSelection,
+        nullptr,
+        0U,
         &DwinRenderer::enter_profile_selection
     },
 
+    // Settings / PID
     {
         Ui::Context::Settings,
         Ui::Mode::Pid,
         Furnace::State::Count,
-        ScreenId::SettingsPid,
+        DwinRenderer::ScreenId::SettingsPid,
         settings_pid_fields,
         std::size(settings_pid_fields),
-        &DwinRenderer::enter_settings_pid
+        nullptr
     },
 
+    // Settings / Other
     {
         Ui::Context::Settings,
         Ui::Mode::Other,
         Furnace::State::Count,
-        ScreenId::SettingsOther,
+        DwinRenderer::ScreenId::SettingsOther,
         settings_other_fields,
         std::size(settings_other_fields),
-        &DwinRenderer::enter_settings_other
+        nullptr
+    },
+
+    // Question / Stop
+    {
+        Ui::Context::Question,
+        Ui::Mode::Stop,
+        Furnace::State::Count,
+        DwinRenderer::ScreenId::Question,
+        nullptr,
+        0U,
+        nullptr
     },
 };
 
@@ -164,11 +333,13 @@ DwinRenderer::update() noexcept
     }
 
     const Ui::Position position = ui_->position();
+    const Furnace::State state = ui_->state();
 
     const ScreenDescriptor* descriptor =
         find_screen_descriptor(
             position.context,
-            position.mode);
+            position.mode,
+            state);
 
     if (descriptor == nullptr)
     {
@@ -177,7 +348,8 @@ DwinRenderer::update() noexcept
 
     const bool position_changed =
         position.context != rendered_context_ ||
-        position.mode != rendered_mode_;
+        position.mode != rendered_mode_ ||
+        state != rendered_state_;
 
     if (position_changed)
     {
@@ -185,13 +357,13 @@ DwinRenderer::update() noexcept
 
         rendered_context_ = position.context;
         rendered_mode_ = position.mode;
+        rendered_state_ = state;
 
         return;
     }
 
     update_fields(*descriptor);
 }
-
 
 // -----------------------------------------------------------------------------
 // Screen lookup
@@ -200,12 +372,19 @@ DwinRenderer::update() noexcept
 const DwinRenderer::ScreenDescriptor*
 DwinRenderer::find_screen_descriptor(
     const Ui::Context context,
-    const Ui::Mode mode) const noexcept
+    const Ui::Mode mode,
+    const Furnace::State state) const noexcept
 {
     for (const ScreenDescriptor& descriptor : screen_descriptors)
     {
-        if (descriptor.context == context &&
-            descriptor.mode == mode)
+        if (descriptor.context != context ||
+            descriptor.mode != mode)
+        {
+            continue;
+        }
+
+        if (descriptor.state == state ||
+            descriptor.state == Furnace::State::Count)
         {
             return &descriptor;
         }
@@ -213,7 +392,6 @@ DwinRenderer::find_screen_descriptor(
 
     return nullptr;
 }
-
 
 // -----------------------------------------------------------------------------
 // Action lookup
@@ -279,86 +457,33 @@ DwinRenderer::get_field_value(
 
 
 // -----------------------------------------------------------------------------
-// Screen rendering
+// Screen rendering and updating
 // -----------------------------------------------------------------------------
 
 void
 DwinRenderer::render_screen(
     const ScreenDescriptor& descriptor) noexcept
 {
-    switch (descriptor.type)
+    const DwinProtocol::Packet packet =
+        protocol_.switch_page(
+            static_cast<uint16_t>(descriptor.screen_id));
+
+    transport_->send(
+        packet.data,
+        packet.size);
+
+    update_fields(descriptor);
+
+    if (descriptor.enter != nullptr)
     {
-        case ScreenType::Ordinary:
-            render_ordinary(descriptor);
-            break;
-
-        case ScreenType::Collection:
-            render_collection(descriptor);
-            break;
-
-        case ScreenType::Count:
-            break;
+        descriptor.enter(*this);
     }
 }
-
-
-void
-DwinRenderer::render_ordinary(
-    const ScreenDescriptor& descriptor) noexcept
-{
-    protocol_.switch_page(descriptor.screen_id);
-
-    for (std::size_t i = 0U;
-         i < descriptor.field_count &&
-         i < MaxFieldsPerScreen;
-         ++i)
-    {
-        const FieldMapping& field = descriptor.fields[i];
-
-        uint16_t value = 0U;
-
-        if (!get_field_value(field, value))
-        {
-            continue;
-        }
-
-        const DwinProtocol::Packet packet =
-            protocol_.write_word(
-                field.address,
-                value);
-
-        transport_->send(
-            packet.data,
-            packet.size);
-
-        rendered_values_[i] = value;
-    }
-}
-
-
-void
-DwinRenderer::render_collection(
-    const ScreenDescriptor& descriptor) noexcept
-{
-    // Collection rendering will be implemented separately.
-    // Collection screens map semantic items to physical slots.
-    (void)descriptor;
-}
-
-
-// -----------------------------------------------------------------------------
-// Incremental field update
-// -----------------------------------------------------------------------------
 
 void
 DwinRenderer::update_fields(
     const ScreenDescriptor& descriptor) noexcept
 {
-    if (descriptor.type != ScreenType::Ordinary)
-    {
-        return;
-    }
-
     for (std::size_t i = 0U;
          i < descriptor.field_count &&
          i < MaxFieldsPerScreen;
@@ -389,6 +514,15 @@ DwinRenderer::update_fields(
 
         rendered_values_[i] = value;
     }
+}
+
+// -----------------------------------------------------------------------------
+// Enter functions
+// -----------------------------------------------------------------------------
+
+void DwinRenderer::enter_profile_selection(DwinRenderer& renderer) noexcept
+{
+    // TODO: populate the visible profile slots.
 }
 
 } // namespace app

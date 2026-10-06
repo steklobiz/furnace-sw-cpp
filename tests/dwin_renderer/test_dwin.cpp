@@ -1,83 +1,63 @@
-#include <cassert>
-#include <cstdint>
-#include <cstdio>
-
 #include "alarm.hpp"
 #include "data_aggregator.hpp"
 #include "dwin_renderer.hpp"
 #include "dwin_transport.hpp"
 #include "furnace.hpp"
-#include "hal.hpp"
 #include "pid.hpp"
 #include "profiles.hpp"
 #include "settings.hpp"
 #include "tc_parser.hpp"
 #include "ui.hpp"
+#include "hal.hpp"
 
-// Process the input flow:
-//
-// DWIN packet
-//     -> DwinTransport
-//     -> DwinRenderer
-//     -> Ui::Action
-//     -> Ui::Page::Settings
-
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
 
 namespace
 {
-constexpr uint16_t ButtonStart      = 0x2000U;
-constexpr uint16_t ButtonBack       = 0x2003U;
-constexpr uint16_t ButtonSettings   = 0x2004U;
-constexpr uint16_t ProfileSlot0     = 0x2010U;
-constexpr uint16_t ProfileSlot1     = 0x2011U;
-constexpr uint16_t ButtonEdit       = 0x2002U;;
-constexpr uint16_t ButtonPrevious   = 0x2007U;;
-constexpr uint16_t ButtonNext       = 0x2008U;;
 
-void feed_touch(uint16_t button)
+void dwin_variable_change(uint16_t address, uint16_t value)
 {
-    // DWIN touch packet example:
-    //
-    // 5A A5 06 83 20 04 01 00 01
-    // 0x2004 = button
-    // value  = 1
     const uint8_t packet[] =
     {
         0x5A,
         0xA5,
         0x06,
         0x83,
-        static_cast<uint8_t>(button >> 8U),
-        static_cast<uint8_t>(button & 0xFFU),
+        static_cast<uint8_t>(address >> 8U),
+        static_cast<uint8_t>(address & 0xFFU),
         0x01,
-        0x00,
-        0x01
+        static_cast<uint8_t>(value >> 8U),
+        static_cast<uint8_t>(value & 0xFFU)
     };
 
     hal::test_feed_dwin_bytes(packet, sizeof(packet));
 }
 
-} // namespace
-
-
-int main()
+void test_initial_render()
 {
-    app::SettingManager settings;
+    app::DataAggregator data;
     app::ProfileManager profiles;
+    app::SettingManager settings;
     app::TcParser tc_parser;
+    app::AlarmDispatcher alarms;
     core::Pid pid;
-    app::Furnace furnace;
-    app::AlarmDispatcher alarm;
-    app::DataAggregator data_aggregator;
-    app::Ui ui;
 
-    pid.init({
-        settings.view().pid_kp,
-        settings.view().pid_ki,
-        settings.view().pid_kd
-    });
+    app::Furnace furnace;
+    app::Ui ui;
+    app::DwinTransport transport;
+    app::DwinRenderer renderer;
 
     tc_parser.init();
+
+    core::Pid::Config pid_config{};
+    pid_config.kp = 100;
+    pid_config.ki = 20;
+    pid_config.kd = 50;
+
+    pid.init(pid_config);
 
     furnace.init(
         profiles,
@@ -85,141 +65,130 @@ int main()
         tc_parser,
         pid);
 
-    alarm.init(
-        tc_parser,
-        furnace,
-        settings);
-
-    data_aggregator.init(
-        tc_parser,
-        furnace,
-        profiles,
-        settings,
-        alarm);
-
     ui.init(
-        data_aggregator,
+        data,
         furnace,
         profiles,
         settings);
-
-    app::DwinTransport transport;
-    app::DwinRenderer renderer;
-
-    hal::init();
-
-    transport.init();
 
     renderer.init(
         ui,
+        data,
         transport);
 
-    // Initial renderer cycle.
-    renderer.process();
+    renderer.update();
 
-    assert(ui.context() == app::Ui::Context::Main);
+    assert(ui.position().context == app::Ui::Context::Main);
+    assert(ui.position().mode == app::Ui::Mode::Brief);
 
-    // Main → ProfileSelection
-    std::printf("\nMain->Profile selection\n");
-    feed_touch(ButtonStart);
-    renderer.process();
+    feed_dwin_touch(0x2004U);
+    renderer.update();
 
-    assert(ui.context() == app::Ui::Context::ProfileSelection);
-    assert(ui.profile_selection_page() == 0);
+    assert(ui.position().context == app::Ui::Context::Settings);
+    assert(ui.position().mode == app::Ui::Mode::Pid);
+}
 
-    // Next: page 0 -> page 1.
-    std::printf("\nNext: page 0 -> page 1\n");
-    feed_touch(ButtonNext);
-    renderer.process();
+void test_settings_switching()
+{
+    app::DataAggregator data;
+    app::ProfileManager profiles;
+    app::SettingManager settings;
+    app::TcParser tc_parser;
+    core::Pid pid;
 
-    assert(ui.context() == app::Ui::Context::ProfileSelection);
-    assert(ui.profile_selection_page() == 1U);
+    app::Furnace furnace;
+    app::Ui ui;
+    app::DwinTransport transport;
+    app::DwinRenderer renderer;
 
-    // Next: page 1 -> page 2.
-    std::printf("\nNext: page 1 -> page 2\n");
-    feed_touch(ButtonNext);
-    renderer.process();
+    tc_parser.init();
 
-    assert(ui.profile_selection_page() == 2U);
+    core::Pid::Config pid_config{};
+    pid_config.kp = 100;
+    pid_config.ki = 20;
+    pid_config.kd = 50;
 
-    // Next: page 2 -> page 0.
-    std::printf("\nNext: page 2 -> page 0\n");
-    feed_touch(ButtonNext);
-    renderer.process();
+    pid.init(pid_config);
 
-    assert(ui.profile_selection_page() == 0U);
+    furnace.init(
+        profiles,
+        settings,
+        tc_parser,
+        pid);
 
-    // ProfileSelection → Monitor
-    std::printf("\nProfile selection->Monitor\n");
-    feed_touch(ProfileSlot0);
-    renderer.process();
+    ui.init(
+        data,
+        furnace,
+        profiles,
+        settings);
 
-    assert(ui.context() == app::Ui::Context::Monitor);
+    renderer.init(
+        ui,
+        data,
+        transport);
 
-    // Monitor → Main
-    std::printf("\nMonitor->Main\n");
-    feed_touch(ButtonBack);
-    renderer.process();
+    // Main -> Settings PID
+    renderer.update();
 
-    assert(ui.context() == app::Ui::Context::Main);
+    dwin_variable_change(0x3000, 150U);
+    renderer.update();
 
-    // Main → ProfileSelection
-    std::printf("\nMain->Profile selection\n");
-    feed_touch(ButtonEdit);
-    renderer.process();
+    assert(ui.position().context == app::Ui::Context::Settings);
+    assert(ui.position().mode == app::Ui::Mode::Pid);
 
-    assert(ui.context() == app::Ui::Context::ProfileSelection);
-    assert(ui.profile_selection_page() == 0);
+    // Change PID settings
+    dwin_variable_change(0x2020U, 150U);
+    renderer.update();
 
-    // ProfileSelection → ProfileEditor
-    std::printf("\nProfile selection->Profile editor\n");
-    feed_touch(ProfileSlot0);
-    renderer.process();
+    feed_dwin_touch(0x2021U);
+    renderer.update();
 
-    assert(ui.context() == app::Ui::Context::ProfileEditor);
-    assert(ui.current_step() == 0);
+    feed_dwin_touch(0x2022U);
+    renderer.update();
 
-    // Next: page 0 -> page 1.
-    std::printf("\nNext: step 0 -> step 1\n");
-    feed_touch(ButtonNext);
-    renderer.process();
+    // Change PID settings
+    feed_dwin_touch(0x2020U);
+    renderer.update();
+    assert(settings.get_pid_kp() == 150U);
 
-    assert(ui.context() == app::Ui::Context::ProfileEditor);
-    assert(ui.current_step() == 1U);
+    feed_dwin_touch(0x2021U);
+    renderer.update();
+    assert(settings.get_pid_ki() == 30U);
 
-    // Previous: step 1 -> step 0.
-    std::printf("\nPrevious: step 1 -> step 0\n");
-    feed_touch(ButtonPrevious);
-    renderer.process();
+    feed_dwin_touch(0x2022U);
+    renderer.update();
+    assert(settings.get_pid_kd() == 70U);
 
-    assert(ui.context() == app::Ui::Context::ProfileEditor);
-    assert(ui.current_step() == 0U);
+    // Settings PID -> Settings Other
+    feed_dwin_touch(0x2008U);
+    renderer.update();
 
-    // Previous: step 0 -> step 9.
-    std::printf("\nPrevious: step 0 -> last step\n");
-    feed_touch(ButtonPrevious);
-    renderer.process();
+    assert(ui.position().context == app::Ui::Context::Settings);
+    assert(ui.position().mode == app::Ui::Mode::Other);
 
-    assert(ui.context() == app::Ui::Context::ProfileEditor);
-    assert(ui.current_step() == app::config::profiles::max_steps - 1);
+    // Settings Other -> Settings PID
+    feed_dwin_touch(0x2007U);
+    renderer.update();
 
-    // Next: step 15 -> step 0.
-    std::printf("\nNext: last step -> step 0\n");
-    feed_touch(ButtonNext);
-    renderer.process();
+    assert(ui.position().context == app::Ui::Context::Settings);
+    assert(ui.position().mode == app::Ui::Mode::Pid);
 
-    assert(ui.context() == app::Ui::Context::ProfileEditor);
-    assert(ui.current_step() == 0U);
+    // Settings PID -> Main
+    feed_dwin_touch(0x2011U);
+    renderer.update();
 
-    // Profile edit → Main
-    std::printf("\nProfile edit->Main\n");
-    feed_touch(ButtonBack);
-    renderer.process();
+    assert(ui.position().context == app::Ui::Context::Main);
+    assert(ui.position().mode == app::Ui::Mode::Brief);
+}
 
-    assert(ui.context() == app::Ui::Context::Main);
+} // namespace
 
+int main()
+{
+    test_initial_render();
+    test_settings_switching();
 
-    std::printf("DWIN renderer test: PASS\n");
-    
+    std::printf("DwinRenderer tests: PASS\n");
     return 0;
 }
+

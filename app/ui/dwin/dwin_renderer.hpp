@@ -21,21 +21,18 @@ class DwinRenderer
 public:
     enum class ScreenId : uint8_t
     {
-        MainBrief,      // 0
-        MainDetailed,   // 1
-        Result,         // 2
+        MainBriefIdle,      // 0
+        MainBriefRunning,   // 1
+        MainBriefAuto,      // 2
+        MainBriefWaiting,   // 3
+        MainBriefStopped,   // 4
+        MainBriefFinished,  // 5
+        MainBriefError,     // 6
+        MainDetailed,       // 7
         ProfileSelection,
         SettingsPid,
         SettingsOther,
-        Count
-    };
-
-    static constexpr std::size_t MaxFieldsPerScreen = 16;
-
-    enum class ScreenType : uint8_t
-    {
-        Ordinary,
-        Collection,
+        Question,
         Count
     };
 
@@ -75,22 +72,22 @@ public:
 
     void update() noexcept;
 
+    static void enter_profile_selection(DwinRenderer& renderer) noexcept;
+
+
 private:
+    static constexpr std::size_t MaxFieldsPerScreen = 16U;
+
     const ScreenDescriptor* find_screen_descriptor(
         Ui::Context context,
-        Ui::Mode mode) const noexcept;
+        Ui::Mode mode,
+        Furnace::State state) const noexcept;
 
     bool get_field_value(
         const FieldMapping& mapping,
         uint16_t& value) const noexcept;
 
     void render_screen(
-        const ScreenDescriptor& descriptor) noexcept;
-
-    void render_ordinary(
-        const ScreenDescriptor& descriptor) noexcept;
-
-    void render_collection(
         const ScreenDescriptor& descriptor) noexcept;
 
     void update_fields(
@@ -100,15 +97,21 @@ private:
         uint16_t address,
         Ui::ActionType& action) const noexcept;
 
+
     Ui* ui_{nullptr};
     DataAggregator* data_{nullptr};
     DwinTransport* transport_{nullptr};
 
     DwinProtocol protocol_;
 
+    // Semantic position/state of the screen rendered during the previous update.
+    // Count means that no screen has been rendered yet.
     Ui::Context rendered_context_{Ui::Context::Count};
     Ui::Mode rendered_mode_{Ui::Mode::Count};
+    Furnace::State rendered_state_{Furnace::State::Count};
 
+    // Last values written to the DWIN VPs for the current screen.
+    // Used to avoid sending unchanged field values.
     uint16_t rendered_values_[MaxFieldsPerScreen]{};
 
     // static constexpr ActionMapping action_mappings[]{};
