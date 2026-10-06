@@ -52,8 +52,14 @@ public:
         Cancel,
         Edit,
         Settings,
+        SetPidKp,
+        SetPidKi,
+        SetPidKd,
+        SetMaxTemperature,
+        SetBuzzer,
+        SetPrestepOuts,
         Events,
-        Back,
+        // Back,
         Count
     };
 
@@ -105,6 +111,16 @@ private:
     find_transition(const Action& action) const noexcept;
 
     // Transition handlers.
+    bool begin_settings(const Action& action) noexcept;
+    bool set_pid_kp(const Action& action) noexcept;
+    bool set_pid_ki(const Action& action) noexcept;
+    bool set_pid_kd(const Action& action) noexcept;
+    bool set_max_temperature(const Action& action) noexcept;
+    bool set_buzzer(const Action& action) noexcept;
+    bool set_prestep_outs(const Action& action) noexcept;
+    bool save_settings(const Action& action) noexcept;
+    bool cancel_settings(const Action& action) noexcept;
+
     bool stop_furnace(const Action& action) noexcept;
     bool reset_furnace(const Action& action) noexcept;
 

@@ -32,7 +32,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief},
         Furnace::State::Idle,
         ActionType::Settings,
-        nullptr,
+        &Ui::begin_settings,
         {Context::Settings, Mode::Pid}
     },
 
@@ -223,6 +223,108 @@ const Ui::Transition Ui::transitions_[] =
     },
 
     // -------------------------------------------------------------------------
+    // Settings / Pid
+    // -------------------------------------------------------------------------
+
+    {
+        {Context::Settings, Mode::Pid},
+        Furnace::State::Idle,
+        ActionType::Next,
+        nullptr,
+        {Context::Settings, Mode::Other}
+    },
+
+    {
+        {Context::Settings, Mode::Pid},
+        Furnace::State::Idle,
+        ActionType::SetPidKp,
+        &Ui::set_pid_kp,
+        {Context::None, Mode::None}
+    },
+    {
+        {Context::Settings, Mode::Pid},
+        Furnace::State::Idle,
+        ActionType::SetPidKi,
+        &Ui::set_pid_ki,
+        {Context::None, Mode::None}
+    },
+    {
+        {Context::Settings, Mode::Pid},
+        Furnace::State::Idle,
+        ActionType::SetPidKd,
+        &Ui::set_pid_kd,
+        {Context::None, Mode::None}
+    },
+
+    {
+        {Context::Settings, Mode::Pid},
+        Furnace::State::Idle,
+        ActionType::Confirm,
+        &Ui::save_settings,
+        {Context::Main, Mode::Brief}
+    },
+
+    {
+        {Context::Settings, Mode::Pid},
+        Furnace::State::Idle,
+        ActionType::Cancel,
+        &Ui::cancel_settings,
+        {Context::Main, Mode::Brief}
+    },
+
+    // -------------------------------------------------------------------------
+    // Settings / Other
+    // -------------------------------------------------------------------------
+
+    {
+        {Context::Settings, Mode::Other},
+        Furnace::State::Idle,
+        ActionType::Previous,
+        nullptr,
+        {Context::Settings, Mode::Pid}
+    },
+
+    {
+        {Context::Settings, Mode::Other},
+        Furnace::State::Idle,
+        ActionType::SetMaxTemperature,
+        &Ui::set_max_temperature,
+        {Context::None, Mode::None}
+    },
+
+    {
+        {Context::Settings, Mode::Other},
+        Furnace::State::Idle,
+        ActionType::SetBuzzer,
+        &Ui::set_buzzer,
+        {Context::None, Mode::None}
+    },
+
+    {
+        {Context::Settings, Mode::Other},
+        Furnace::State::Idle,
+        ActionType::SetPrestepOuts,
+        &Ui::set_prestep_outs,
+        {Context::None, Mode::None}
+    },
+
+    {
+        {Context::Settings, Mode::Other},
+        Furnace::State::Idle,
+        ActionType::Confirm,
+        &Ui::save_settings,
+        {Context::Main, Mode::Brief}
+    },
+
+    {
+        {Context::Settings, Mode::Other},
+        Furnace::State::Idle,
+        ActionType::Cancel,
+        &Ui::cancel_settings,
+        {Context::Main, Mode::Brief}
+    },
+
+    // -------------------------------------------------------------------------
     // Question / Stop
     // -------------------------------------------------------------------------
 
@@ -339,6 +441,52 @@ Ui::find_transition(const Action& action) const noexcept
 }
 
 // --------------------- Transition handlers -----------------------
+bool Ui::begin_settings(const Action& action) noexcept
+{
+    settings_->begin_edit();
+    return true;
+}
+
+bool Ui::set_pid_kp(const Action& action) noexcept
+{
+    return settings_->set_edit_pid_kp(action.argument);
+}
+
+bool Ui::set_pid_ki(const Action& action) noexcept
+{
+    return settings_->set_edit_pid_ki(action.argument);
+}
+
+bool Ui::set_pid_kd(const Action& action) noexcept
+{
+    return settings_->set_edit_pid_kd(action.argument);
+}
+
+bool Ui::set_max_temperature(const Action& action) noexcept
+{
+    return settings_->set_edit_max_temperature(action.argument);
+}
+
+bool Ui::set_buzzer(const Action& action) noexcept
+{
+    return settings_->set_edit_buzzer_state(action.argument);
+}
+
+bool Ui::set_prestep_outs(const Action& action) noexcept
+{
+    return settings_->set_edit_prestep_outs(action.argument);
+}
+
+bool Ui::save_settings(const Action&) noexcept
+{
+    return settings_->save();
+}
+
+bool Ui::cancel_settings(const Action&) noexcept
+{
+    settings_->cancel_edit();
+    return true;
+}
 
 bool Ui::stop_furnace(const Action&) noexcept
 {
