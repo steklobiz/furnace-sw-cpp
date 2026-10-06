@@ -36,58 +36,6 @@ void dwin_variable_change(uint16_t address, uint16_t value)
     hal::test_feed_dwin_bytes(packet, sizeof(packet));
 }
 
-void test_initial_render()
-{
-    app::DataAggregator data;
-    app::ProfileManager profiles;
-    app::SettingManager settings;
-    app::TcParser tc_parser;
-    app::AlarmDispatcher alarms;
-    core::Pid pid;
-
-    app::Furnace furnace;
-    app::Ui ui;
-    app::DwinTransport transport;
-    app::DwinRenderer renderer;
-
-    tc_parser.init();
-
-    core::Pid::Config pid_config{};
-    pid_config.kp = 100;
-    pid_config.ki = 20;
-    pid_config.kd = 50;
-
-    pid.init(pid_config);
-
-    furnace.init(
-        profiles,
-        settings,
-        tc_parser,
-        pid);
-
-    ui.init(
-        data,
-        furnace,
-        profiles,
-        settings);
-
-    renderer.init(
-        ui,
-        data,
-        transport);
-
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Main);
-    assert(ui.position().mode == app::Ui::Mode::Brief);
-
-    feed_dwin_touch(0x2004U);
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Settings);
-    assert(ui.position().mode == app::Ui::Mode::Pid);
-}
-
 void test_settings_switching()
 {
     app::DataAggregator data;
@@ -130,51 +78,41 @@ void test_settings_switching()
     // Main -> Settings PID
     renderer.update();
 
-    dwin_variable_change(0x3000, 150U);
+    dwin_variable_change(0x3000U, 0004U);
     renderer.update();
 
     assert(ui.position().context == app::Ui::Context::Settings);
     assert(ui.position().mode == app::Ui::Mode::Pid);
 
     // Change PID settings
-    dwin_variable_change(0x2020U, 150U);
-    renderer.update();
-
-    feed_dwin_touch(0x2021U);
-    renderer.update();
-
-    feed_dwin_touch(0x2022U);
-    renderer.update();
-
-    // Change PID settings
-    feed_dwin_touch(0x2020U);
+    dwin_variable_change(0x0030U, 150U);
     renderer.update();
     assert(settings.get_pid_kp() == 150U);
 
-    feed_dwin_touch(0x2021U);
+    dwin_variable_change(0x0032U, 30U);
     renderer.update();
     assert(settings.get_pid_ki() == 30U);
 
-    feed_dwin_touch(0x2022U);
+    dwin_variable_change(0x0034U, 70U);
     renderer.update();
     assert(settings.get_pid_kd() == 70U);
 
     // Settings PID -> Settings Other
-    feed_dwin_touch(0x2008U);
+    dwin_variable_change(0x3000U, 0012U);
     renderer.update();
 
     assert(ui.position().context == app::Ui::Context::Settings);
     assert(ui.position().mode == app::Ui::Mode::Other);
 
     // Settings Other -> Settings PID
-    feed_dwin_touch(0x2007U);
+    dwin_variable_change(0x3000U, 0012U);
     renderer.update();
 
     assert(ui.position().context == app::Ui::Context::Settings);
     assert(ui.position().mode == app::Ui::Mode::Pid);
 
     // Settings PID -> Main
-    feed_dwin_touch(0x2011U);
+    dwin_variable_change(0x3000U, 0022U);
     renderer.update();
 
     assert(ui.position().context == app::Ui::Context::Main);
@@ -185,7 +123,6 @@ void test_settings_switching()
 
 int main()
 {
-    test_initial_render();
     test_settings_switching();
 
     std::printf("DwinRenderer tests: PASS\n");

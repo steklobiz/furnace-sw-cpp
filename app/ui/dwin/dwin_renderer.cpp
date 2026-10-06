@@ -26,11 +26,12 @@ constexpr DwinRenderer::ActionMapping action_mappings[] =
     {0x0020U, Ui::ActionType::Confirm },
     {0x0022U, Ui::ActionType::Cancel },
 
-    // Settings
+    // Settings - PID
     {0x0030U, Ui::ActionType::SetPidKp},
     {0x0032U, Ui::ActionType::SetPidKi},
     {0x0034U, Ui::ActionType::SetPidKd},
 
+    // Settings - Other
     {0x0040U, Ui::ActionType::SetMaxTemperature},
     {0x0042U, Ui::ActionType::SetBuzzer},
     {0x0044U, Ui::ActionType::SetPrestepOuts},
