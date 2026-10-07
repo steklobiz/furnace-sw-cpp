@@ -215,7 +215,7 @@ void test_profile_selection()
 
 int main()
 {
-//    test_settings_switching();
+    test_settings_switching();
     test_profile_selection();
 
     std::printf("DwinRenderer tests: PASS\n");

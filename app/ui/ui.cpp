@@ -381,8 +381,12 @@ Ui::execute(const Action& action) noexcept
     if (transition->handler != nullptr)
         success = (this->*transition->handler)(action);
 
-    if (success && transition->to.context != Context::None)
+    if (success &&
+        (transition->to.context != StayPosition.context ||
+         transition->to.mode != StayPosition.mode))
+    {
         position_ = transition->to;
+    }
 }
 
 // ------------------------- Getters -------------------------------
