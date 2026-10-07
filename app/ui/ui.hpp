@@ -75,6 +75,8 @@ public:
         Mode mode = Mode::None;
     };
 
+    static constexpr Position StayPosition{Context::None, Mode::None};
+
     using Handler = bool (Ui::*)(const Action&) noexcept;
 
     struct Transition

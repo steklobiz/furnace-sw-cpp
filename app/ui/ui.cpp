@@ -121,7 +121,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Next,
         &Ui::next_profile_page,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -129,7 +129,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Previous,
         &Ui::previous_profile_page,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
 
@@ -151,7 +151,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Next,
         &Ui::next_profile_page,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -159,7 +159,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Previous,
         &Ui::previous_profile_page,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     // -------------------------------------------------------------------------
@@ -171,7 +171,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Next,
         &Ui::next_edit_step,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -179,7 +179,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Previous,
         &Ui::previous_edit_step,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -187,7 +187,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetSetpoint,
         &Ui::edit_setpoint,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -195,7 +195,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetDuration,
         &Ui::edit_duration,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -203,7 +203,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetOutputs,
         &Ui::edit_outs,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -239,21 +239,21 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetPidKp,
         &Ui::set_pid_kp,
-        {Context::None, Mode::None}
+        StayPosition
     },
     {
         {Context::Settings, Mode::Pid},
         Furnace::State::Idle,
         ActionType::SetPidKi,
         &Ui::set_pid_ki,
-        {Context::None, Mode::None}
+        StayPosition
     },
     {
         {Context::Settings, Mode::Pid},
         Furnace::State::Idle,
         ActionType::SetPidKd,
         &Ui::set_pid_kd,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -289,7 +289,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetMaxTemperature,
         &Ui::set_max_temperature,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -297,7 +297,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetBuzzer,
         &Ui::set_buzzer,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
@@ -305,7 +305,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::SetPrestepOuts,
         &Ui::set_prestep_outs,
-        {Context::None, Mode::None}
+        StayPosition
     },
 
     {
