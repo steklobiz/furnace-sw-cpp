@@ -97,6 +97,7 @@ public:
     [[nodiscard]] Position position() const noexcept;
     [[nodiscard]] Furnace::State state() const noexcept;
     [[nodiscard]] uint8_t profile_page() const noexcept;
+    [[nodiscard]] std::size_t profile_count() const noexcept;
     [[nodiscard]] uint8_t edit_step() const noexcept;
 
 private:

@@ -198,7 +198,35 @@ uint16_t DataAggregator::setting_item(
     return setting_items_[static_cast<std::size_t>(item)];
 }
 
+uint16_t DataAggregator::item(
+    const DataSource source,
+    const uint8_t field) const noexcept
+{
+    switch (source)
+    {
+        case DataSource::TcParser:
+            return tc_parser_item(
+                static_cast<TcParserItem>(field));
 
+        case DataSource::Furnace:
+            return furnace_item(
+                static_cast<FurnaceItem>(field));
+
+        case DataSource::Profile:
+            return profile_item(
+                static_cast<ProfileItem>(field));
+
+        case DataSource::Setting:
+            return setting_item(
+                static_cast<SettingItem>(field));
+
+        case DataSource::Alarm:
+        case DataSource::Count:
+            return 0U;
+    }
+
+    return 0U;
+}
 
 const Profile&
 DataAggregator::profile() const noexcept

@@ -119,6 +119,10 @@ public:
     [[nodiscard]] uint16_t setting_item(
         SettingItem item) const noexcept;
 
+    uint16_t item(
+    DataSource source,
+    uint8_t field) const noexcept;
+
     // Returns the current profile snapshot.
     [[nodiscard]] const Profile& profile() const noexcept;
 

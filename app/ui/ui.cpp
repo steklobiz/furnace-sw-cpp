@@ -405,6 +405,12 @@ Ui::profile_page() const noexcept
     return profile_page_;
 }
 
+std::size_t
+Ui::profile_count() const noexcept
+{
+    return profiles_->profile_count();
+}
+
 uint8_t Ui::edit_step() const noexcept
 {
     return edit_step_;

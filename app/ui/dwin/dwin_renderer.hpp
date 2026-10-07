@@ -29,9 +29,9 @@ public:
         MainBriefFinished,  // 5
         MainBriefError,     // 6
         MainDetailed,       // 7
-        ProfileSelection,
-        SettingsPid,
-        SettingsOther,
+        ProfileSelection,   // 8
+        SettingsPid,        // 9
+        SettingsOther,      // A
         Question,
         Count
     };
@@ -43,7 +43,13 @@ public:
         uint16_t address;
     };
 
-    struct ActionMapping
+    struct CommandMapping
+    {
+        uint16_t value;
+        Ui::ActionType action;
+    };
+
+    struct InputMapping
     {
         uint16_t address;
         Ui::ActionType action;
@@ -77,15 +83,12 @@ public:
 
 private:
     static constexpr std::size_t MaxFieldsPerScreen = 16U;
+    static constexpr uint8_t ProfilesPerPage = 10U;
 
     const ScreenDescriptor* find_screen_descriptor(
         Ui::Context context,
         Ui::Mode mode,
         Furnace::State state) const noexcept;
-
-    bool get_field_value(
-        const FieldMapping& mapping,
-        uint16_t& value) const noexcept;
 
     void render_screen(
         const ScreenDescriptor& descriptor) noexcept;
@@ -93,10 +96,11 @@ private:
     void update_fields(
         const ScreenDescriptor& descriptor) noexcept;
 
-    bool find_action(
-        uint16_t address,
-        Ui::ActionType& action) const noexcept;
+    bool find_command(
+    uint16_t value, Ui::ActionType& action, uint16_t& argument) const noexcept;
 
+    bool find_input_action(
+        const uint16_t address, Ui::ActionType& action) const noexcept;
 
     Ui* ui_{nullptr};
     DataAggregator* data_{nullptr};
@@ -109,6 +113,10 @@ private:
     Ui::Context rendered_context_{Ui::Context::Count};
     Ui::Mode rendered_mode_{Ui::Mode::Count};
     Furnace::State rendered_state_{Furnace::State::Count};
+
+    // Profile-selection page rendered during the previous update.
+    // 0xFF means that no profile-selection page has been rendered yet.
+    uint8_t rendered_profile_page_{0xFFU};
 
     // Last values written to the DWIN VPs for the current screen.
     // Used to avoid sending unchanged field values.

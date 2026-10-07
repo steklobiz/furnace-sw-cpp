@@ -7,13 +7,19 @@ namespace app
 namespace
 {
 
+constexpr uint16_t ActionVp = 0x3000U;
+
+constexpr uint16_t ProfileSelectCommandBase = 0x1000U;
+constexpr uint16_t ProfileSelectFieldBase   = 0x1300U;
+
+
 // ----------------------------------------------------------------------------
 // Action mapping
 // ----------------------------------------------------------------------------
 
-constexpr DwinRenderer::ActionMapping action_mappings[] =
+constexpr DwinRenderer::CommandMapping command_mappings[] =
 {
-    // Main
+    // Main commands
     {0x0000U, Ui::ActionType::Start},
     {0x0002U, Ui::ActionType::Edit},
     {0x0004U, Ui::ActionType::Settings},
@@ -23,9 +29,12 @@ constexpr DwinRenderer::ActionMapping action_mappings[] =
     {0x0012U, Ui::ActionType::Next},
 
     // Common
-    {0x0020U, Ui::ActionType::Confirm },
-    {0x0022U, Ui::ActionType::Cancel },
+    {0x0020U, Ui::ActionType::Confirm},
+    {0x0022U, Ui::ActionType::Cancel},
+};
 
+constexpr DwinRenderer::InputMapping input_mappings[] =
+{
     // Settings - PID
     {0x0030U, Ui::ActionType::SetPidKp},
     {0x0032U, Ui::ActionType::SetPidKi},
@@ -90,11 +99,6 @@ constexpr DwinRenderer::FieldMapping main_detailed_fields[] =
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::ProfileElapsed),0x1107U},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Power),         0x1108U},
     {DataSource::Furnace, static_cast<uint8_t>(FurnaceItem::Outputs),       0x1109U},
-};
-
-constexpr DwinRenderer::FieldMapping profile_selection_fields[] =
-{
-    // To be defined.
 };
 
 constexpr DwinRenderer::FieldMapping settings_pid_fields[] =
@@ -282,6 +286,8 @@ DwinRenderer::init(
 
     rendered_context_ = Ui::Context::Count;
     rendered_mode_ = Ui::Mode::Count;
+    rendered_state_ = Furnace::State::Count;
+    rendered_profile_page_ = 0xFFU;
 
     for (std::size_t i = 0U;
          i < MaxFieldsPerScreen;
@@ -322,8 +328,23 @@ DwinRenderer::update() noexcept
                 event))
         {
             Ui::ActionType action = Ui::ActionType::None;
+            uint16_t argument = 0U;
 
-            if (find_action(event.address, action))
+            // ActionVp is a common command VP. Its value identifies
+            // the command and, for profile selection, the slot.
+            if (event.address == ActionVp)
+            {
+                if (find_command(event.value, action, argument))
+                {
+                    ui_->execute({
+                        action,
+                        argument
+                    });
+                }
+            }
+            // Other VPs identify an action directly. Their value
+            // is passed to the UI as the action argument.
+            else if (find_input_action(event.address, action))
             {
                 ui_->execute({
                     action,
@@ -347,10 +368,17 @@ DwinRenderer::update() noexcept
         return;
     }
 
+    // A screen is rendered completely when the semantic UI position
+    // or Furnace state changes. Otherwise only changed field values
+    // are sent to the DWIN display.
     const bool position_changed =
         position.context != rendered_context_ ||
         position.mode != rendered_mode_ ||
         state != rendered_state_;
+
+    const bool profile_page_changed =
+        position.context == Ui::Context::ProfileSelection &&
+        ui_->profile_page() != rendered_profile_page_;
 
     if (position_changed)
     {
@@ -360,6 +388,12 @@ DwinRenderer::update() noexcept
         rendered_mode_ = position.mode;
         rendered_state_ = state;
 
+        return;
+    }
+
+    if (profile_page_changed)
+    {
+        enter_profile_selection(*this);
         return;
     }
 
@@ -399,11 +433,44 @@ DwinRenderer::find_screen_descriptor(
 // -----------------------------------------------------------------------------
 
 bool
-DwinRenderer::find_action(
+DwinRenderer::find_command(
+    const uint16_t value,
+    Ui::ActionType& action,
+    uint16_t& argument) const noexcept
+{
+    if (value >= ProfileSelectCommandBase &&
+        value < ProfileSelectCommandBase + ProfilesPerPage)
+    {
+        action = Ui::ActionType::Select;
+        argument = static_cast<uint16_t>(
+            value - ProfileSelectCommandBase);
+
+        return true;
+    }
+
+    for (const CommandMapping& mapping : command_mappings)
+    {
+        if (mapping.value == value)
+        {
+            action = mapping.action;
+            argument = 0U;
+
+            return true;
+        }
+    }
+
+    action = Ui::ActionType::None;
+    argument = 0U;
+
+    return false;
+}
+
+bool
+DwinRenderer::find_input_action(
     const uint16_t address,
     Ui::ActionType& action) const noexcept
 {
-    for (const ActionMapping& mapping : action_mappings)
+    for (const InputMapping& mapping : input_mappings)
     {
         if (mapping.address == address)
         {
@@ -413,46 +480,6 @@ DwinRenderer::find_action(
     }
 
     action = Ui::ActionType::None;
-    return false;
-}
-
-
-// -----------------------------------------------------------------------------
-// Data access
-// -----------------------------------------------------------------------------
-
-bool
-DwinRenderer::get_field_value(
-    const FieldMapping& mapping,
-    uint16_t& value) const noexcept
-{
-    switch (mapping.source)
-    {
-        case DataSource::TcParser:
-            value = data_->tc_parser_item(
-                static_cast<TcParserItem>(mapping.field));
-            return true;
-
-        case DataSource::Furnace:
-            value = data_->furnace_item(
-                static_cast<FurnaceItem>(mapping.field));
-            return true;
-
-        case DataSource::Profile:
-            value = data_->profile_item(
-                static_cast<ProfileItem>(mapping.field));
-            return true;
-
-        case DataSource::Setting:
-            value = data_->setting_item(
-                static_cast<SettingItem>(mapping.field));
-            return true;
-
-        case DataSource::Alarm:
-        case DataSource::Count:
-            return false;
-    }
-
     return false;
 }
 
@@ -492,12 +519,8 @@ DwinRenderer::update_fields(
     {
         const FieldMapping& field = descriptor.fields[i];
 
-        uint16_t value = 0U;
-
-        if (!get_field_value(field, value))
-        {
-            continue;
-        }
+        const uint16_t value =
+            data_->item(field.source, field.field);
 
         if (rendered_values_[i] == value)
         {
@@ -521,9 +544,47 @@ DwinRenderer::update_fields(
 // Enter functions
 // -----------------------------------------------------------------------------
 
-void DwinRenderer::enter_profile_selection(DwinRenderer& renderer) noexcept
+void
+DwinRenderer::enter_profile_selection(
+    DwinRenderer& renderer) noexcept
 {
-    // TODO: populate the visible profile slots.
+    const uint8_t page = renderer.ui_->profile_page();
+    const std::size_t profile_count =
+        renderer.ui_->profile_count();
+
+    const std::size_t first_profile =
+        static_cast<std::size_t>(page) *
+        ProfilesPerPage;
+
+    for (uint8_t slot = 0U;
+         slot < ProfilesPerPage;
+         ++slot)
+    {
+        const std::size_t profile_id =
+            first_profile + slot;
+
+        const uint16_t address =
+            static_cast<uint16_t>(
+                ProfileSelectFieldBase + slot);
+
+        uint16_t value = 0U;
+
+        if (profile_id < profile_count)
+        {
+            value = static_cast<uint16_t>(profile_id);
+        }
+
+        const DwinProtocol::Packet packet =
+            renderer.protocol_.write_word(
+                address,
+                value);
+
+        renderer.transport_->send(
+            packet.data,
+            packet.size);
+    }
+
+    renderer.rendered_profile_page_ = page;
 }
 
 } // namespace app
