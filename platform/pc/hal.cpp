@@ -144,7 +144,7 @@ void dwin_send(
         return;
     }
 
-    std::printf("DWIN RAW:");
+    std::printf("DWIN TX:");
 
     for (std::size_t i = 0U; i < size; ++i)
     {
@@ -183,11 +183,23 @@ bool dwin_receive(
 
 void test_feed_dwin_bytes(
     const uint8_t* data,
-    std::size_t size) noexcept {
+    std::size_t size) noexcept
+{
     if (data == nullptr)
     {
         return;
     }
+
+    std::printf("DWIN RX:");
+
+    for (std::size_t i = 0U; i < size; ++i)
+    {
+        std::printf(
+            " %02X",
+            static_cast<unsigned int>(data[i]));
+    }
+
+    std::printf("\n");
 
     for (std::size_t i = 0U; i < size; ++i)
     {

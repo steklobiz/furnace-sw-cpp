@@ -492,6 +492,11 @@ void
 DwinRenderer::render_screen(
     const ScreenDescriptor& descriptor) noexcept
 {
+    for (std::size_t i = 0U; i < MaxFieldsPerScreen; ++i)
+    {
+        rendered_values_[i] = 0xFFFFU;
+    }
+
     const DwinProtocol::Packet packet =
         protocol_.switch_page(
             static_cast<uint16_t>(descriptor.screen_id));

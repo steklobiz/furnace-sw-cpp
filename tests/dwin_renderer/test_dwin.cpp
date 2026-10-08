@@ -199,15 +199,16 @@ void test_profile_selection()
 
     assert(ui.profile_page() == 0U);
 
-    // Selecting profile 0 starts the profile and returns to Main Brief.
+    // Selecting profile 0 starts the profile and switches to Main Detailed.
     dwin_variable_change(0x3000U, 0x1000U);
     renderer.update();
 
     assert(profiles.start_profile_id() == 0U);
+    std::printf("--------------------\n");
 
-    // Main Brief -> Main Detailed.
-    dwin_variable_change(0x3000U, 0x0012U); // Next
-    renderer.update();
+    // Profile selection -> Main Detailed.
+    assert(ui.position().context == app::Ui::Context::Main);
+    assert(ui.position().mode == app::Ui::Mode::Detailed);
 
 }
 

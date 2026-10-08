@@ -113,7 +113,7 @@ const Ui::Transition Ui::transitions_[] =
         Furnace::State::Idle,
         ActionType::Select,
         &Ui::select_profile_to_start,
-        {Context::Main, Mode::Brief}
+        {Context::Main, Mode::Detailed}
     },
 
     {
