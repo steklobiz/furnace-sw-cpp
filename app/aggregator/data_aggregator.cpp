@@ -67,12 +67,12 @@ constexpr Mapping<ProfileItem, ProfileManager> profile_mapping[] =
 
 constexpr Mapping<SettingItem, SettingManager> setting_mapping[] =
 {
-    {SettingItem::Buzzer,          &SettingManager::get_buzzer_state},
-    {SettingItem::PidKp,           &SettingManager::get_pid_kp},
-    {SettingItem::PidKi,           &SettingManager::get_pid_ki},
-    {SettingItem::PidKd,           &SettingManager::get_pid_kd},
-    {SettingItem::MaxTemperature,  &SettingManager::get_max_temperature},
-    {SettingItem::PrestepOuts,     &SettingManager::get_prestep_outs}
+    {SettingItem::Buzzer,         &SettingManager::get_edit_buzzer_state},
+    {SettingItem::PidKp,          &SettingManager::get_edit_pid_kp},
+    {SettingItem::PidKi,          &SettingManager::get_edit_pid_ki},
+    {SettingItem::PidKd,          &SettingManager::get_edit_pid_kd},
+    {SettingItem::MaxTemperature, &SettingManager::get_edit_max_temperature},
+    {SettingItem::PrestepOuts,    &SettingManager::get_edit_prestep_outs}
 };
 
 } // namespace

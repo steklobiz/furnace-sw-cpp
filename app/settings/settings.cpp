@@ -52,6 +52,7 @@ void
 SettingManager::cancel_edit() noexcept
 {
     edit_settings_ = settings_;
+    settings_changed();
 }
 
 void
@@ -157,6 +158,7 @@ bool
 SettingManager::set_edit_pid_kp(uint16_t value) noexcept
 {
     edit_settings_.pid_kp = value;
+    settings_changed();
     return true;
 }
 
@@ -165,6 +167,7 @@ bool
 SettingManager::set_edit_pid_ki(uint16_t value) noexcept
 {
     edit_settings_.pid_ki = value;
+    settings_changed();
     return true;
 }
 
@@ -172,6 +175,7 @@ bool
 SettingManager::set_edit_pid_kd(uint16_t value) noexcept
 {
     edit_settings_.pid_kd = value;
+    settings_changed();
     return true;
 }
 
@@ -179,6 +183,7 @@ bool
 SettingManager::set_edit_max_temperature(uint16_t value) noexcept
 {
     edit_settings_.max_temperature_c = value;
+    settings_changed();
     return true;
 }
 
@@ -189,6 +194,7 @@ SettingManager::set_edit_buzzer_state(uint16_t value) noexcept
         return false;
 
     edit_settings_.buzzer_state = value;
+    settings_changed();
     return true;
 }
 
@@ -199,6 +205,7 @@ SettingManager::set_edit_prestep_outs(uint16_t value) noexcept
         return false;
 
     edit_settings_.prestep_outs = value;
+    settings_changed();
     return true;
 }
 
