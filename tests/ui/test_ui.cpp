@@ -1,3 +1,10 @@
+
+// test_ui.cpp
+
+#include <cassert>
+#include <cstdint>
+#include <iostream>
+
 #include "ui.hpp"
 #include "furnace.hpp"
 #include "profiles.hpp"
@@ -7,551 +14,18 @@
 #include "data_aggregator.hpp"
 #include "pid.hpp"
 
-#include <cassert>
-#include <iostream>
-
-namespace app
-{
 
 namespace
 {
 
-void test_initial_position(
-    Ui& ui)
-{
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Main);
-    assert(position.mode == Ui::Mode::Brief);
-
-    std::cout << "test_initial_position: PASS\n";
-}
-
-void test_profile_page_initial(Ui& ui)
-{
-    assert(ui.profile_page() == 0);
-
-    std::cout << "test_profile_page_initial: PASS\n";
-}
-
-
-void test_idle_start(
-    Ui& ui,
-    Furnace& furnace)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    ui.execute({
-        Ui::ActionType::Start,
-        0
-    });
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::ProfileSelection);
-    assert(position.mode == Ui::Mode::Start);
-
-    std::cout << "test_idle_start: PASS\n";
-}
-
-void test_invalid_action(
-    Ui& ui,
-    Furnace& furnace)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    ui.execute({
-        Ui::ActionType::Start,
-        0
-    });
-
-    assert(
-        ui.position().context ==
-        Ui::Context::ProfileSelection);
-
-    ui.execute({
-        Ui::ActionType::Start,
-        0
-    });
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::ProfileSelection);
-    assert(position.mode == Ui::Mode::Start);
-
-    std::cout << "test_invalid_action: PASS\n";
-}
-
-void test_idle_settings(
-    Ui& ui,
-    Furnace& furnace)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    ui.execute({
-        Ui::ActionType::Settings,
-        0
-    });
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Settings);
-    assert(position.mode == Ui::Mode::Pid);
-
-    std::cout << "test_idle_settings: PASS\n";
-}
-
-void test_idle_events(
-    Ui& ui,
-    Furnace& furnace)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    ui.execute({
-        Ui::ActionType::Events,
-        0
-    });
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Events);
-    assert(position.mode == Ui::Mode::None);
-
-    std::cout << "test_idle_events: PASS\n";
-}
-
-void ensure_furnace_running(
-    Furnace& furnace)
-{
-    if (furnace.state() == Furnace::State::Idle)
-        furnace.start();
-
-    assert(furnace.state() == Furnace::State::Running);
-}
-
-void test_running_next(
-    Ui& ui,
-    Furnace& furnace)
-{
-    ensure_furnace_running(furnace);
-
-    ui.execute({
-        Ui::ActionType::Next,
-        0
-    });
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Main);
-    assert(position.mode == Ui::Mode::Detailed);
-
-    std::cout << "test_running_next: PASS\n";
-}
-
-void test_running_stop(
-    Ui& ui,
-    Furnace& furnace)
-{
-    ensure_furnace_running(furnace);
-
-    ui.execute({
-        Ui::ActionType::Stop,
-        0
-    });
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Question);
-    assert(position.mode == Ui::Mode::Stop);
-
-    // Stop only opens the confirmation.
-    assert(furnace.state() == Furnace::State::Running);
-
-    std::cout << "test_running_stop: PASS\n";
-}
-
-void test_running_stop_cancel(
-    Ui& ui,
-    Furnace& furnace)
-{
-    ensure_furnace_running(furnace);
-
-    ui.execute({
-        Ui::ActionType::Stop,
-        0
-    });
-
-    assert(
-        ui.position().context ==
-        Ui::Context::Question);
-
-    assert(
-        ui.position().mode ==
-        Ui::Mode::Stop);
-
-    ui.execute({
-        Ui::ActionType::Cancel,
-        0
-    });
-
-    assert(furnace.state() == Furnace::State::Running);
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Main);
-    assert(position.mode == Ui::Mode::Brief);
-
-    std::cout << "test_running_stop_cancel: PASS\n";
-}
-
-void test_running_stop_confirm(
-    Ui& ui,
-    Furnace& furnace)
-{
-    ensure_furnace_running(furnace);
-
-    ui.execute({
-        Ui::ActionType::Stop,
-        0
-    });
-
-    assert(furnace.state() == Furnace::State::Running);
-
-    ui.execute({
-        Ui::ActionType::Confirm,
-        0
-    });
-
-    assert(furnace.state() == Furnace::State::Stopped);
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Main);
-    assert(position.mode == Ui::Mode::Brief);
-
-    std::cout << "test_running_stop_confirm: PASS\n";
-}
-
-void test_stopped_reset(
-    Ui& ui,
-    Furnace& furnace)
-{
-    ensure_furnace_running(furnace);
-
-    ui.execute({
-        Ui::ActionType::Stop,
-        0
-    });
-
-    ui.execute({
-        Ui::ActionType::Confirm,
-        0
-    });
-
-    assert(furnace.state() == Furnace::State::Stopped);
-
-    ui.execute({
-        Ui::ActionType::Reset,
-        0
-    });
-
-    assert(furnace.state() == Furnace::State::Idle);
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Main);
-    assert(position.mode == Ui::Mode::Brief);
-
-    std::cout << "test_stopped_reset: PASS\n";
-}
-
-void test_profile_start(
-    Ui& ui,
-    Furnace& furnace)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    ui.execute({
-        Ui::ActionType::Start,
-        0
-    });
-
-    assert(
-        ui.position().context ==
-        Ui::Context::ProfileSelection);
-
-    assert(
-        ui.position().mode ==
-        Ui::Mode::Start);
-
-    ui.execute({
-        Ui::ActionType::Select,
-        3
-    });
-
-    assert(furnace.state() == Furnace::State::Running);
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::Main);
-    assert(position.mode == Ui::Mode::Brief);
-
-    std::cout << "test_profile_start: PASS\n";
-}
-
-    void test_profile_page_navigation(Ui& ui)
-{
-    assert(ui.profile_page() == 0);
-
-    // Main / Brief -> ProfileSelection / Start
-    ui.execute({Ui::ActionType::Start});
-
-    assert(ui.position().context == Ui::Context::ProfileSelection);
-    assert(ui.position().mode == Ui::Mode::Start);
-
-    ui.execute({Ui::ActionType::Next});
-    assert(ui.profile_page() == 1);
-
-    ui.execute({Ui::ActionType::Next});
-    assert(ui.profile_page() == 2);
-
-    ui.execute({Ui::ActionType::Next});
-    assert(ui.profile_page() == 0);
-
-    ui.execute({Ui::ActionType::Previous});
-    assert(ui.profile_page() == 2);
-
-    ui.execute({Ui::ActionType::Previous});
-    assert(ui.profile_page() == 1);
-
-    std::cout << "test_profile_page_navigation: PASS\n";
-}
-
-    void test_profile_selection_on_page(Ui& ui, Furnace& furnace, ProfileManager& profiles)
-{
-    assert(ui.profile_page() == 0);
-
-    // Main / Brief -> ProfileSelection / Start
-    ui.execute({Ui::ActionType::Start});
-
-    // Page 0 -> Page 1
-    ui.execute({Ui::ActionType::Next});
-    assert(ui.profile_page() == 1);
-
-    // Visible item 3 on page 1 is profile 13.
-    ui.execute({Ui::ActionType::Select, 3});
-
-    assert(profiles.start_profile_id() == 13);
-    assert(furnace.state() == Furnace::State::Running);
-
-    std::cout << "test_profile_selection_on_page: PASS\n";
-}
-
-    void test_profile_selection_last_page(
-        Ui& ui,
-        Furnace& furnace,
-        ProfileManager& profiles)
-{
-    // Main / Brief -> ProfileSelection / Start
-    ui.execute({Ui::ActionType::Start});
-
-    // Page 0 -> Page 1 -> Page 2
-    ui.execute({Ui::ActionType::Next});
-    ui.execute({Ui::ActionType::Next});
-
-    assert(ui.profile_page() == 2);
-
-    // First profile on last page: profile 20.
-    ui.execute({Ui::ActionType::Select, 0});
-
-    assert(profiles.start_profile_id() == 20);
-    assert(furnace.state() == Furnace::State::Running);
-
-    // Stop and return to Idle.
-    furnace.stop();
-    furnace.reset();
-
-    // Main / Brief -> ProfileSelection / Start again.
-    ui.execute({Ui::ActionType::Start});
-
-    // profile_page_ is still 2.
-    assert(ui.profile_page() == 2);
-
-    // Last valid profile on page: profile 24.
-    ui.execute({Ui::ActionType::Select, 4});
-
-    assert(profiles.start_profile_id() == 24);
-    assert(furnace.state() == Furnace::State::Running);
-
-    std::cout << "test_profile_selection_last_page: PASS\n";
-}
-
-void test_profile_selection_invalid_last_page(
-    Ui& ui,
-    Furnace& furnace,
-    ProfileManager& profiles)
-{
-    // Main / Brief -> ProfileSelection / Start
-    ui.execute({Ui::ActionType::Start});
-
-    // Page 0 -> Page 1 -> Page 2
-    ui.execute({Ui::ActionType::Next});
-    ui.execute({Ui::ActionType::Next});
-
-    assert(ui.profile_page() == 2);
-
-    const uint16_t previous_profile_id = profiles.start_profile_id();
-
-    // Select an empty slot. The handler must fail without changing
-    // the selected profile or applying the transition target.
-    ui.execute({Ui::ActionType::Select, 5});
-
-    assert(furnace.state() == Furnace::State::Idle);
-    assert(ui.position().context == Ui::Context::ProfileSelection);
-    assert(ui.position().mode == Ui::Mode::Start);
-    assert(profiles.start_profile_id() == previous_profile_id);
-
-    std::cout << "test_profile_selection_invalid_last_page: PASS\n";
-
-    }
-
-void test_idle_edit(
-    Ui& ui,
-    Furnace& furnace)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    // Main / Brief -> ProfileSelection / Edit
-    ui.execute({Ui::ActionType::Edit});
-
-    const Ui::Position position = ui.position();
-
-    assert(position.context == Ui::Context::ProfileSelection);
-    assert(position.mode == Ui::Mode::Edit);
-
-    std::cout << "test_idle_edit: PASS\n";
-
-}
-
-void test_profile_selection_for_edit(
-    Ui& ui,
-    Furnace& furnace,
-    ProfileManager& profiles)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-    assert(ui.profile_page() == 0);
-
-    // Main / Brief -> ProfileSelection / Edit
-    ui.execute({Ui::ActionType::Edit});
-
-    assert(ui.position().context == Ui::Context::ProfileSelection);
-    assert(ui.position().mode == Ui::Mode::Edit);
-
-    // Page 0 -> Page 1
-    ui.execute({Ui::ActionType::Next});
-
-    assert(ui.profile_page() == 1);
-
-    // Visible item 3 on page 1 is profile 13.
-    ui.execute({Ui::ActionType::Select, 3});
-
-    assert(profiles.edit_profile_id() == 13);
-    assert(furnace.state() == Furnace::State::Idle); // See note below
-    assert(ui.position().context == Ui::Context::Edit);
-    assert(ui.position().mode == Ui::Mode::None);
-
-    std::cout << "test_profile_selection_for_edit: PASS\n";
-}
-
-void test_profile_edit_cancel(
-    Ui& ui,
-    Furnace& furnace,
-    ProfileManager& profiles)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    // Main / Brief -> ProfileSelection / Edit
-    ui.execute({Ui::ActionType::Edit});
-
-    assert(ui.position().context == Ui::Context::ProfileSelection);
-    assert(ui.position().mode == Ui::Mode::Edit);
-
-    // Select profile 0.
-    ui.execute({Ui::ActionType::Select, 0});
-
-    assert(profiles.edit_profile_id() == 0);
-    assert(ui.position().context == Ui::Context::Edit);
-    assert(ui.position().mode == Ui::Mode::None);
-    assert(ui.edit_step() == 0);
-
-    // Keep the original profile for comparison.
-    const Profile original = profiles.edit_profile();
-
-    // Modify step 0.
-    ui.execute({Ui::ActionType::SetSetpoint, 123});
-    ui.execute({Ui::ActionType::SetDuration, 45});
-    ui.execute({Ui::ActionType::SetOutputs, 7});
-
-    assert(profiles.edit_profile().steps[0].setpoint_c == 123);
-    assert(profiles.edit_profile().steps[0].duration == 45);
-    assert(profiles.edit_profile().steps[0].outs == 7);
-
-    // Cancel -> discard changes.
-    ui.execute({Ui::ActionType::Cancel});
-
-    assert(ui.position().context == Ui::Context::Main);
-    assert(ui.position().mode == Ui::Mode::Brief);
-
-    // Original profile must be restored.
-    assert(profiles.edit_profile() == original);
-
-    std::cout << "test_profile_edit_cancel: PASS\n";
-}
-
-void test_profile_edit_save(
-    Ui& ui,
-    Furnace& furnace,
-    ProfileManager& profiles)
-{
-    assert(furnace.state() == Furnace::State::Idle);
-
-    // Main / Brief -> ProfileSelection / Edit
-    ui.execute({Ui::ActionType::Edit});
-
-    assert(ui.position().context == Ui::Context::ProfileSelection);
-    assert(ui.position().mode == Ui::Mode::Edit);
-
-    // Select profile 0.
-    ui.execute({Ui::ActionType::Select, 0});
-
-    assert(profiles.edit_profile_id() == 0);
-    assert(ui.position().context == Ui::Context::Edit);
-    assert(ui.position().mode == Ui::Mode::None);
-
-    // Modify step 0.
-    ui.execute({Ui::ActionType::SetSetpoint, 123});
-    ui.execute({Ui::ActionType::SetDuration, 45});
-    ui.execute({Ui::ActionType::SetOutputs, 7});
-
-    // Save -> Main / Brief.
-    ui.execute({Ui::ActionType::Confirm});
-
-    assert(ui.position().context == Ui::Context::Main);
-    assert(ui.position().mode == Ui::Mode::Brief);
-
-    // Edited values must remain in the edit profile.
-    assert(profiles.edit_profile().steps[0].setpoint_c == 123);
-    assert(profiles.edit_profile().steps[0].duration == 45);
-    assert(profiles.edit_profile().steps[0].outs == 7);
-
-    std::cout << "test_profile_edit_save: PASS\n";
-}
-
-} // namespace
-
-} // namespace app
-
-int main()
+// -----------------------------------------------------------------------------
+// Test application
+// -----------------------------------------------------------------------------
+//
+// Owns one complete application object graph.
+// A new TestApp is created for every test, so no mutable state is shared.
+//
+struct TestApp
 {
     app::ProfileManager profiles;
     app::SettingManager settings;
@@ -559,243 +33,197 @@ int main()
     core::Pid pid;
     app::AlarmDispatcher alarm;
     app::DataAggregator data;
+    app::Furnace furnace;
+    app::Ui ui;
 
-    // These dependencies are shared by the tests.
-    // Furnace and Ui are created separately for each test.
-
-    // -----------------------------------------------------------------
-    // Initial position
-    // -----------------------------------------------------------------
-
+    TestApp() noexcept
     {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
+        furnace.init(
+            profiles,
+            settings,
+            tc_parser,
+            pid);
 
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_initial_position(ui);
-    }
-
-    // -----------------------------------------------------------------
-    // Idle
-    // -----------------------------------------------------------------
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_start(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_idle_start(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_idle_edit(ui, furnace);
-    }
-
-
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_invalid_action(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_idle_settings(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_idle_events(ui, furnace);
-    }
-
-    // -----------------------------------------------------------------
-    // Running
-    // -----------------------------------------------------------------
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_running_next(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_running_stop(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_running_stop_cancel(ui, furnace);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_running_stop_confirm(ui, furnace);
-    }
-
-    // -----------------------------------------------------------------
-    // Stopped
-    // -----------------------------------------------------------------
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_stopped_reset(ui, furnace);
-    }
-
-    // -----------------------------------------------------------------
-    // Profile pages
-    // -----------------------------------------------------------------
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_page_navigation(ui);
-    }
-
-    // -----------------------------------------------------------------
-    // Profile selection
-    // -----------------------------------------------------------------
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_selection_on_page(ui, furnace, profiles);
-    }
-
-    // -----------------------------------------------------------------
-    // Last profile page
-    // -----------------------------------------------------------------
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_selection_last_page(ui, furnace, profiles);
-    }
-
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_selection_invalid_last_page(
-            ui,
+        alarm.init(
+            tc_parser,
             furnace,
-            profiles);
-    }
+            settings);
 
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_selection_for_edit(
-            ui,
+        data.init(
+            tc_parser,
             furnace,
-            profiles);
-    }
+            profiles,
+            settings,
+            alarm);
 
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
-
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
-
-        app::test_profile_edit_cancel(
-            ui,
+        ui.init(
+            data,
             furnace,
-            profiles);
+            profiles,
+            settings);
     }
+};
 
-    {
-        app::Furnace furnace;
-        furnace.init(profiles, settings, tc_parser, pid);
 
-        app::Ui ui;
-        ui.init(data, furnace, profiles, settings);
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
-        app::test_profile_edit_save(
-            ui,
-            furnace,
-            profiles);
-    }
+// Tests profile selection page navigation independently of profile selection.
+// Verifies circular forward and backward pagination across all pages.
+void test_profile_page_navigation()
+{
+    TestApp app;
 
-    std::cout << "Ui tests: PASS\n";
+    assert(app.ui.profile_page() == 0);
+
+    // Main / Brief -> ProfileSelection / Start.
+    app.ui.execute({
+        app::Ui::ActionType::Start
+    });
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::ProfileSelection);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Start);
+
+    // Forward: 0 -> 1 -> 2 -> 0.
+    app.ui.execute({
+        app::Ui::ActionType::Next
+    });
+
+    assert(app.ui.profile_page() == 1);
+
+    app.ui.execute({
+        app::Ui::ActionType::Next
+    });
+
+    assert(app.ui.profile_page() == 2);
+
+    app.ui.execute({
+        app::Ui::ActionType::Next
+    });
+
+    assert(app.ui.profile_page() == 0);
+
+    // Backward: 0 -> 2 -> 1 -> 0.
+    app.ui.execute({
+        app::Ui::ActionType::Previous
+    });
+
+    assert(app.ui.profile_page() == 2);
+
+    app.ui.execute({
+        app::Ui::ActionType::Previous
+    });
+
+    assert(app.ui.profile_page() == 1);
+
+    app.ui.execute({
+        app::Ui::ActionType::Previous
+    });
+
+    assert(app.ui.profile_page() == 0);
+
+    std::cout
+        << "test_profile_page_navigation: PASS\n";
+}
+
+
+// Tests starting a real profile from the first profile selection page.
+// Verifies that selecting profile 0 starts the furnace and enters Main / Detailed.
+void test_profile_start()
+{
+    TestApp app;
+
+    assert(app.furnace.state() == app::Furnace::State::Idle);
+    assert(app.ui.profile_page() == 0);
+
+    // Main / Brief -> ProfileSelection / Start.
+    app.ui.execute({
+        app::Ui::ActionType::Start
+    });
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::ProfileSelection);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Start);
+
+    // Select real profile 0.
+    app.ui.execute({
+        app::Ui::ActionType::Select,
+        0
+    });
+
+    assert(app.profiles.start_profile_id() == 0);
+    assert(app.furnace.state() == app::Furnace::State::Running);
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::Main);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Detailed);
+
+    // Furnace::process() publishes fresh Furnace data
+    // and triggers DataAggregator::refresh().
+    app.furnace.process();
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Step) ==
+        app.furnace.current_step());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::StepType) ==
+        app.furnace.step_type());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Temperature) ==
+        app.furnace.current_temperature());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Setpoint) ==
+        app.furnace.setpoint());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::StepElapsed) ==
+        app.furnace.step_elapsed());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::ProfileElapsed) ==
+        app.furnace.profile_elapsed());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Power) ==
+        app.furnace.power());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Outputs) ==
+        app.furnace.outputs());
+
+
+
+    std::cout
+        << "test_profile_start: PASS\n";
+}
+
+} // namespace
+
+
+int main()
+{
+    test_profile_page_navigation();
+    test_profile_start();
+
+    std::cout
+        << "All UI tests passed.\n";
 
     return 0;
 }

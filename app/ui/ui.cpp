@@ -102,6 +102,13 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
+    {
+        {Context::Main, Mode::Detailed},
+        Furnace::State::Running,
+        ActionType::Stop,
+        nullptr,
+        {Context::Question, Mode::Stop}
+    },
 
     // -------------------------------------------------------------------------
     // ProfileSelection / Start

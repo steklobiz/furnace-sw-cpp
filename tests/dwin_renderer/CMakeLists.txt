@@ -16,6 +16,7 @@ add_executable(test_dwin_renderer
         ${CMAKE_SOURCE_DIR}/core/pid/pid.cpp
 
         ${CMAKE_SOURCE_DIR}/platform/pc/hal.cpp
+        test_dwin.cpp
 )
 
 target_compile_definitions(test_dwin_renderer PRIVATE

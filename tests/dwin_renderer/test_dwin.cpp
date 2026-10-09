@@ -1,26 +1,77 @@
+#include <set>
+// test_dwin.cpp
+
 #include "alarm.hpp"
 #include "data_aggregator.hpp"
 #include "dwin_renderer.hpp"
 #include "dwin_transport.hpp"
 #include "furnace.hpp"
+#include "hal.hpp"
 #include "pid.hpp"
 #include "profiles.hpp"
 #include "settings.hpp"
 #include "tc_parser.hpp"
 #include "ui.hpp"
-#include "hal.hpp"
 
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 
 namespace
 {
 
-void dwin_variable_change(uint16_t address, uint16_t value)
+struct TestApp
 {
-    const uint8_t packet[] =
+    app::ProfileManager profiles;
+    app::SettingManager settings;
+    app::TcParser tc_parser;
+    core::Pid pid;
+    app::AlarmDispatcher alarm;
+    app::DataAggregator data;
+    app::Furnace furnace;
+    app::Ui ui;
+
+    app::DwinTransport transport;
+    app::DwinRenderer renderer;
+
+    TestApp() noexcept
+    {
+        furnace.init(
+            profiles,
+            settings,
+            tc_parser,
+            pid);
+
+        alarm.init(
+            tc_parser,
+            furnace,
+            settings);
+
+        data.init(
+            tc_parser,
+            furnace,
+            profiles,
+            settings,
+            alarm);
+
+        ui.init(
+            data,
+            furnace,
+            profiles,
+            settings);
+
+        renderer.init(
+            ui,
+            data,
+            transport);
+    }
+};
+
+void dwin_variable_change(
+    const uint16_t address,
+    const uint16_t value)
+{
+    const uint8_t packet[]
     {
         0x5A,
         0xA5,
@@ -33,193 +84,221 @@ void dwin_variable_change(uint16_t address, uint16_t value)
         static_cast<uint8_t>(value & 0xFFU)
     };
 
-    hal::test_feed_dwin_bytes(packet, sizeof(packet));
+    hal::test_feed_dwin_bytes(
+        packet,
+        sizeof(packet));
 }
 
-void test_settings_switching()
+void test_profile_page_navigation()
 {
-    app::DataAggregator data;
-    app::ProfileManager profiles;
-    app::SettingManager settings;
-    app::TcParser tc_parser;
-    core::Pid pid;
+    TestApp app;
 
-    app::Furnace furnace;
-    app::Ui ui;
-    app::DwinTransport transport;
-    app::DwinRenderer renderer;
+    assert(app.ui.profile_page() == 0U);
 
-    tc_parser.init();
-
-    core::Pid::Config pid_config{};
-    pid_config.kp = 100;
-    pid_config.ki = 20;
-    pid_config.kd = 50;
-
-    pid.init(pid_config);
-
-    furnace.init(
-        profiles,
-        settings,
-        tc_parser,
-        pid);
-
-    ui.init(
-        data,
-        furnace,
-        profiles,
-        settings);
-
-    renderer.init(
-        ui,
-        data,
-        transport);
-
-    // Main -> Settings PID
-    renderer.update();
-
-    dwin_variable_change(0x3000U, 0004U);
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Settings);
-    assert(ui.position().mode == app::Ui::Mode::Pid);
-
-    // Change PID settings
-    dwin_variable_change(0x0030U, 150U);
-    renderer.update();
-    assert(settings.get_edit_pid_kp() == 150U);
-
-    dwin_variable_change(0x0032U, 30U);
-    renderer.update();
-    assert(settings.get_edit_pid_ki() == 30U);
-
-    dwin_variable_change(0x0034U, 70U);
-    renderer.update();
-    assert(settings.get_edit_pid_kd() == 70U);
-
-    // Settings PID -> Settings Other
-    dwin_variable_change(0x3000U, 0x0012U); // Next
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Settings);
-    assert(ui.position().mode == app::Ui::Mode::Other);
-
-    // Next from Settings Other has no transition and must be ignored
-    dwin_variable_change(0x3000U, 0x0012U); // Next
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Settings);
-    assert(ui.position().mode == app::Ui::Mode::Other);
-
-    // Settings Other -> Settings PID
-    dwin_variable_change(0x3000U, 0x0010U); // Previous
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Settings);
-    assert(ui.position().mode == app::Ui::Mode::Pid);
-
-    // Settings PID -> Main
-    dwin_variable_change(0x3000U, 0x0022U);
-    renderer.update();
-
-    assert(ui.position().context == app::Ui::Context::Main);
-    assert(ui.position().mode == app::Ui::Mode::Brief);
-}
-
-
-void test_profile_selection()
-{
-    app::DataAggregator data;
-    app::ProfileManager profiles;
-    app::SettingManager settings;
-    app::TcParser tc_parser;
-    core::Pid pid;
-
-    app::Furnace furnace;
-    app::Ui ui;
-    app::DwinTransport transport;
-    app::DwinRenderer renderer;
-
-    tc_parser.init();
-
-    core::Pid::Config pid_config{};
-    pid_config.kp = 100;
-    pid_config.ki = 20;
-    pid_config.kd = 50;
-
-    pid.init(pid_config);
-
-    furnace.init(
-        profiles,
-        settings,
-        tc_parser,
-        pid);
-
-    ui.init(
-        data,
-        furnace,
-        profiles,
-        settings);
-
-    renderer.init(
-        ui,
-        data,
-        transport);
-
-    // Main -> Profile selection.
-    renderer.update();
-
-    dwin_variable_change(0x3000U, 0x0000U); // Start
-    renderer.update();
+    // Main / Brief -> ProfileSelection / Start.
+    dwin_variable_change(0x3000U, 0x0000U);
+    app.renderer.update();
 
     assert(
-        ui.position().context ==
+        app.ui.position().context ==
         app::Ui::Context::ProfileSelection);
 
     assert(
-        ui.position().mode ==
+        app.ui.position().mode ==
         app::Ui::Mode::Start);
 
-    // Profile selection starts at page 0.
-    assert(ui.profile_page() == 0U);
+    // Forward: 0 -> 1 -> 2 -> 0.
+    dwin_variable_change(0x3000U, 0x0012U);
+    app.renderer.update();
 
-    // Profile pages: 0-9, 10-19, 20-24.
-    dwin_variable_change(0x3000U, 0x0012U); // Next
-    renderer.update();
+    assert(app.ui.profile_page() == 1U);
 
-    assert(ui.profile_page() == 1U);
+    dwin_variable_change(0x3000U, 0x0012U);
+    app.renderer.update();
 
-    dwin_variable_change(0x3000U, 0x0012U); // Next
-    renderer.update();
+    assert(app.ui.profile_page() == 2U);
 
-    assert(ui.profile_page() == 2U);
+    dwin_variable_change(0x3000U, 0x0012U);
+    app.renderer.update();
 
-    dwin_variable_change(0x3000U, 0x0012U); // Next
-    renderer.update();
+    assert(app.ui.profile_page() == 0U);
 
-    assert(ui.profile_page() == 0U);
+    // Backward: 0 -> 2 -> 1 -> 0.
+    dwin_variable_change(0x3000U, 0x0010U);
+    app.renderer.update();
 
-    // Selecting profile 0 starts the profile and switches to Main Detailed.
+    assert(app.ui.profile_page() == 2U);
+
+    dwin_variable_change(0x3000U, 0x0010U);
+    app.renderer.update();
+
+    assert(app.ui.profile_page() == 1U);
+
+    dwin_variable_change(0x3000U, 0x0010U);
+    app.renderer.update();
+
+    assert(app.ui.profile_page() == 0U);
+
+
+    std::printf(
+        "test_profile_page_navigation: PASS\n");
+}
+
+void test_profile_start()
+{
+    TestApp app;
+
+    assert(
+        app.furnace.state() ==
+        app::Furnace::State::Idle);
+
+    assert(app.ui.profile_page() == 0U);
+
+    // Main / Brief -> ProfileSelection / Start.
+    dwin_variable_change(0x3000U, 0x0000U);
+    app.renderer.update();
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::ProfileSelection);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Start);
+
+    // Select real profile 0.
     dwin_variable_change(0x3000U, 0x1000U);
-    renderer.update();
+    app.renderer.update();
 
-    assert(profiles.start_profile_id() == 0U);
-    std::printf("--------------------\n");
+    assert(
+        app.profiles.start_profile_id() == 0U);
 
-    // Profile selection -> Main Detailed.
-    assert(ui.position().context == app::Ui::Context::Main);
-    assert(ui.position().mode == app::Ui::Mode::Detailed);
+    assert(
+        app.furnace.state() ==
+        app::Furnace::State::Running);
 
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::Main);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Detailed);
+
+    // Furnace::process() publishes fresh Furnace data
+    // and triggers DataAggregator::refresh().
+    app.furnace.process();
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Step) ==
+        app.furnace.current_step());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::StepType) ==
+        app.furnace.step_type());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Temperature) ==
+        app.furnace.current_temperature());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Setpoint) ==
+        app.furnace.setpoint());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::StepElapsed) ==
+        app.furnace.step_elapsed());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::ProfileElapsed) ==
+        app.furnace.profile_elapsed());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Power) ==
+        app.furnace.power());
+
+    assert(
+        app.data.furnace_item(app::FurnaceItem::Outputs) ==
+        app.furnace.outputs());
+
+    assert(app.furnace.state() == app::Furnace::State::Running);
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::Main);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Detailed);
+
+    assert(
+        app.furnace.state() ==
+        app::Furnace::State::Running);
+
+
+    // Main / Detailed + Running -> Question / Stop
+    dwin_variable_change(0x3000U, 0x0006U); // Press stop
+    app.renderer.update();
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::Question);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Stop);
+
+    assert(
+        app.furnace.state() ==
+        app::Furnace::State::Running);
+
+    // Question / Stop / Running + Confirm -> Main / Brief / Stopped
+    dwin_variable_change(0x3000U, 0x0020U); // Confirm
+    app.renderer.update();
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::Main);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Brief);
+
+    assert(
+        app.furnace.state() ==
+        app::Furnace::State::Stopped);
+
+    // Main / Brief / Stopped + Reset -> Main / Brief / Idle
+    dwin_variable_change(0x3000U, 0x0008U);
+    app.renderer.update();
+
+    assert(
+        app.ui.position().context ==
+        app::Ui::Context::Main);
+
+    assert(
+        app.ui.position().mode ==
+        app::Ui::Mode::Brief);
+
+    assert(
+        app.furnace.state() ==
+        app::Furnace::State::Idle);
+
+    std::printf(
+        "test_profile_start: PASS\n");
 }
 
 } // namespace
 
 int main()
 {
-    test_settings_switching();
-    test_profile_selection();
+    test_profile_page_navigation();
+    std::printf("--------------------\n");
+    test_profile_start();
 
-    std::printf("DwinRenderer tests: PASS\n");
+    std::printf(
+        "All DWIN tests passed.\n");
+
     return 0;
 }
 

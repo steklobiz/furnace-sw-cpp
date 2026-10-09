@@ -23,6 +23,8 @@ constexpr DwinRenderer::CommandMapping command_mappings[] =
     {0x0000U, Ui::ActionType::Start},
     {0x0002U, Ui::ActionType::Edit},
     {0x0004U, Ui::ActionType::Settings},
+    {0x0006U, Ui::ActionType::Stop},
+    {0x0008U, Ui::ActionType::Reset},
 
     // Navigation
     {0x0010U, Ui::ActionType::Previous},
