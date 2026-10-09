@@ -119,6 +119,7 @@ public:
     [[nodiscard]] std::size_t profile_count() const noexcept;
     [[nodiscard]] uint8_t edit_step() const noexcept;
 
+    // Event history access.
     [[nodiscard]] uint8_t event_page() const noexcept;
     [[nodiscard]] std::size_t event_count() const noexcept;
 

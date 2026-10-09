@@ -12,6 +12,9 @@ constexpr uint16_t ActionVp = 0x3000U;
 constexpr uint16_t ProfileSelectCommandBase = 0x1000U;
 constexpr uint16_t ProfileSelectFieldBase   = 0x1300U;
 
+constexpr uint16_t EventStringFieldBase = 0x1400U;
+constexpr std::size_t EventStringLength = 32U;
+
 
 // ----------------------------------------------------------------------------
 // Action mapping

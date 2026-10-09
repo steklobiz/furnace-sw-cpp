@@ -48,6 +48,57 @@ DwinProtocol::Packet DwinProtocol::write_word(
     return packet;
 }
 
+DwinProtocol::Packet DwinProtocol::write_string(
+    const uint16_t address,
+    const char* text,
+    const std::size_t length) const noexcept
+{
+    Packet packet{};
+
+    // Header and command.
+    packet.data[0] = Header1;
+    packet.data[1] = Header2;
+    packet.data[3] = WriteVp;
+
+    // The packet contains:
+    //   1 byte command
+    //   2 bytes VP address
+    //   length bytes of string data
+    //
+    // The packet buffer includes a 3-byte header.
+    constexpr std::size_t HeaderSize = 3U;
+    constexpr std::size_t CommandAndAddressSize = 3U;
+
+    if (text == nullptr ||
+        length == 0U ||
+        length > MaxPacketSize - HeaderSize - CommandAndAddressSize ||
+        length > 255U - CommandAndAddressSize)
+    {
+        return packet;
+    }
+
+    packet.data[2] = static_cast<uint8_t>(
+        CommandAndAddressSize + length);
+
+    // VP address, big endian.
+    packet.data[4] = static_cast<uint8_t>(address >> 8U);
+    packet.data[5] = static_cast<uint8_t>(address & 0xFFU);
+
+    // String data, padded with zero bytes.
+    for (std::size_t i = 0U; i < length; ++i)
+    {
+        packet.data[6U + i] =
+            text[i] != '\0'
+                ? static_cast<uint8_t>(text[i])
+                : 0U;
+    }
+
+    packet.size = HeaderSize + CommandAndAddressSize + length;
+
+    return packet;
+}
+
+
 DwinProtocol::Packet DwinProtocol::switch_page(uint16_t page) const noexcept
     {
         Packet packet{};

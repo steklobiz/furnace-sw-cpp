@@ -37,6 +37,13 @@ public:
         uint16_t address,
         uint16_t value) const noexcept;
 
+    // Creates a DWIN VP write command containing a fixed-length string.
+    // The remaining bytes are zero-padded to clear any previous text.
+    [[nodiscard]] Packet write_string(
+        uint16_t address,
+        const char* text,
+        std::size_t length) const noexcept;
+
     // Creates a DWIN page-switch command for the specified page ID.
     [[nodiscard]] Packet switch_page(uint16_t page) const noexcept;
 

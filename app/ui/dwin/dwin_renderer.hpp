@@ -83,6 +83,7 @@ public:
 private:
     static constexpr std::size_t MaxFieldsPerScreen = 16U;
     static constexpr uint8_t ProfilesPerPage = 10U;
+    static constexpr uint8_t EventsPerPage = 4U;
 
     const ScreenDescriptor* find_screen_descriptor(
         Ui::Position position,
