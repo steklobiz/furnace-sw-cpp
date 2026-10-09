@@ -286,8 +286,11 @@ DwinRenderer::init(
     data_ = &data;
     transport_ = &transport;
 
-    rendered_context_ = Ui::Context::Count;
-    rendered_mode_ = Ui::Mode::Count;
+    rendered_position_ = {
+        Ui::Context::Count,
+        Ui::Mode::Count
+    };
+
     rendered_state_ = Furnace::State::Count;
     rendered_profile_page_ = 0xFFU;
 
@@ -361,8 +364,7 @@ DwinRenderer::update() noexcept
 
     const ScreenDescriptor* descriptor =
         find_screen_descriptor(
-            position.context,
-            position.mode,
+            position,
             state);
 
     if (descriptor == nullptr)
@@ -374,8 +376,7 @@ DwinRenderer::update() noexcept
     // or Furnace state changes. Otherwise only changed field values
     // are sent to the DWIN display.
     const bool position_changed =
-        position.context != rendered_context_ ||
-        position.mode != rendered_mode_ ||
+        position != rendered_position_ ||
         state != rendered_state_;
 
     const bool profile_page_changed =
@@ -386,8 +387,8 @@ DwinRenderer::update() noexcept
     {
         render_screen(*descriptor);
 
-        rendered_context_ = position.context;
-        rendered_mode_ = position.mode;
+        rendered_position_ = position;
+        rendered_state_ = state;
         rendered_state_ = state;
 
         return;
@@ -408,17 +409,13 @@ DwinRenderer::update() noexcept
 
 const DwinRenderer::ScreenDescriptor*
 DwinRenderer::find_screen_descriptor(
-    const Ui::Context context,
-    const Ui::Mode mode,
+    Ui::Position position,
     const Furnace::State state) const noexcept
 {
     for (const ScreenDescriptor& descriptor : screen_descriptors)
     {
-        if (descriptor.context != context ||
-            descriptor.mode != mode)
-        {
+        if (descriptor.position != position)
             continue;
-        }
 
         if (descriptor.state == state ||
             descriptor.state == Furnace::State::Count)

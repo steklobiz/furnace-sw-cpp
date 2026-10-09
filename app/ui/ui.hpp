@@ -38,28 +38,34 @@ public:
 
     enum class ActionType : uint8_t
     {
-        None,
+
+        // Context entry
         Start,
         Stop,
         Reset,
+        Settings,
+        Events,
+        Edit,
+
+        // Navigation
         Next,
         Previous,
         Select,
+        Confirm,
+        Cancel,
+
+        // Numeric field editors
         SetSetpoint,
         SetDuration,
         SetOutputs,
-        Confirm,
-        Cancel,
-        Edit,
-        Settings,
         SetPidKp,
         SetPidKi,
         SetPidKd,
         SetMaxTemperature,
         SetBuzzer,
         SetPrestepOuts,
-        Events,
-        // Back,
+
+        None, // do we need it??
         Count
     };
 
@@ -73,6 +79,17 @@ public:
     {
         Context context = Context::None;
         Mode mode = Mode::None;
+
+        bool operator==(const Position& other) const noexcept
+        {
+            return context == other.context &&
+                   mode == other.mode;
+        }
+
+        bool operator!=(const Position& other) const noexcept
+        {
+            return !(*this == other);
+        }
     };
 
     static constexpr Position StayPosition{Context::None, Mode::None};

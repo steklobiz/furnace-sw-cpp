@@ -57,8 +57,7 @@ public:
 
     struct ScreenDescriptor
     {
-        Ui::Context context;
-        Ui::Mode mode;
+        Ui::Position position;
         Furnace::State state;
 
         ScreenId screen_id;
@@ -86,8 +85,7 @@ private:
     static constexpr uint8_t ProfilesPerPage = 10U;
 
     const ScreenDescriptor* find_screen_descriptor(
-        Ui::Context context,
-        Ui::Mode mode,
+        Ui::Position position,
         Furnace::State state) const noexcept;
 
     void render_screen(
@@ -110,8 +108,10 @@ private:
 
     // Semantic position/state of the screen rendered during the previous update.
     // Count means that no screen has been rendered yet.
-    Ui::Context rendered_context_{Ui::Context::Count};
-    Ui::Mode rendered_mode_{Ui::Mode::Count};
+    Ui::Position rendered_position_{
+        Ui::Context::Count,
+        Ui::Mode::Count
+    };
     Furnace::State rendered_state_{Furnace::State::Count};
 
     // Profile-selection page rendered during the previous update.
