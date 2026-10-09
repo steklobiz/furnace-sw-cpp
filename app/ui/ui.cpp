@@ -11,7 +11,7 @@ const Ui::Transition Ui::transitions_[] =
     // Main / Brief
     // -------------------------------------------------------------------------
 
-    // Idle
+    // Main / Brief / Idle + Start
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Idle,
@@ -20,6 +20,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::ProfileSelection, Mode::Start}
     },
 
+    // Main / Brief / Idle + Edit
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Idle,
@@ -28,6 +29,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::ProfileSelection, Mode::Edit}
     },
 
+    // Main / Brief / Idle + Settings
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Idle,
@@ -36,6 +38,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Settings, Mode::Pid}
     },
 
+    // Main / Brief / Idle + Events -> Events / None
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Idle,
@@ -44,7 +47,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Events, Mode::None}
     },
 
-    // Running
+    // Main / Brief / Running + Next -> Main / Detailed
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Running,
@@ -53,6 +56,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Detailed}
     },
 
+    // Main / Brief / Running + Stop -> Question / Stop
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Running,
@@ -61,7 +65,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Question, Mode::Stop}
     },
 
-    // Finished
+    // Main / Brief / Finished + Reset -> Main / Brief
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Finished,
@@ -70,7 +74,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
-    // Stopped
+    // Main / Brief / Stopped + Reset -> Main / Brief
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Stopped,
@@ -79,7 +83,7 @@ const Ui::Transition Ui::transitions_[] =
         {Context::Main, Mode::Brief}
     },
 
-    // Error
+    // Main / Brief / Error + Reset -> Main / Brief
     {
         {Context::Main, Mode::Brief},
         Furnace::State::Error,
@@ -347,6 +351,34 @@ const Ui::Transition Ui::transitions_[] =
     {
         {Context::Question, Mode::Stop},
         Furnace::State::Running,
+        ActionType::Cancel,
+        nullptr,
+        {Context::Main, Mode::Brief}
+    },
+
+    // -------------------------------------------------------------------------
+    // Events / None
+    // -------------------------------------------------------------------------
+
+{
+        {Context::Events, Mode::None},
+        Furnace::State::Idle,
+        ActionType::Next,
+        &Ui::next_event_page,
+        StayPosition
+    },
+
+    {
+        {Context::Events, Mode::None},
+        Furnace::State::Idle,
+        ActionType::Previous,
+        &Ui::previous_event_page,
+        StayPosition
+    },
+
+    {
+        {Context::Events, Mode::None},
+        Furnace::State::Idle,
         ActionType::Cancel,
         nullptr,
         {Context::Main, Mode::Brief}
