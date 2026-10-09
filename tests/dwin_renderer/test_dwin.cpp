@@ -459,7 +459,90 @@ void test_settings_modify_save() noexcept
     assert(app.settings.get_edit_prestep_outs() == 5U);
 }
 
+void test_events_navigation()
+{
+    // Create application dependencies.
+    app::SettingManager settings;
+    app::ProfileManager profiles;
+    app::TcParser tc_parser;
+    core::Pid pid;
+    app::Furnace furnace;
+    app::AlarmDispatcher alarm;
+    app::DataAggregator data;
+    app::Ui ui;
 
+    // Initialize PID and thermocouple parser.
+    pid.init({
+        settings.view().pid_kp,
+        settings.view().pid_ki,
+        settings.view().pid_kd
+    });
+
+    tc_parser.init();
+
+    // Initialize the furnace.
+    furnace.init(
+        profiles,
+        settings,
+        tc_parser,
+        pid);
+
+    // Initialize alarms and data aggregation.
+    alarm.init(
+        tc_parser,
+        furnace,
+        settings);
+
+    data.init(
+        tc_parser,
+        furnace,
+        profiles,
+        settings,
+        alarm);
+
+    // Initialize the UI.
+    ui.init(
+        data,
+        furnace,
+        profiles,
+        settings);
+
+    // Initial position must be Main / Brief.
+    assert(ui.state() == app::Furnace::State::Idle);
+    assert(ui.position().context == app::Ui::Context::Main);
+    assert(ui.position().mode == app::Ui::Mode::Brief);
+
+    // Main -> Events.
+    ui.execute({app::Ui::ActionType::Events, 0U});
+
+    assert(ui.position().context == app::Ui::Context::Events);
+    assert(ui.position().mode == app::Ui::Mode::None);
+    assert(ui.event_page() == 0U);
+
+    // Empty history has one logical page.
+    assert(ui.event_count() == 0U);
+
+    // Next must keep the UI in Events.
+    // With no events, the page index remains zero.
+    ui.execute({app::Ui::ActionType::Next, 0U});
+
+    assert(ui.position().context == app::Ui::Context::Events);
+    assert(ui.position().mode == app::Ui::Mode::None);
+    assert(ui.event_page() == 0U);
+
+    // Previous must also keep the UI in Events.
+    ui.execute({app::Ui::ActionType::Previous, 0U});
+
+    assert(ui.position().context == app::Ui::Context::Events);
+    assert(ui.position().mode == app::Ui::Mode::None);
+    assert(ui.event_page() == 0U);
+
+    // Cancel: Events -> Main / Brief.
+    ui.execute({app::Ui::ActionType::Cancel, 0U});
+
+    assert(ui.position().context == app::Ui::Context::Main);
+    assert(ui.position().mode == app::Ui::Mode::Brief);
+}
 
 } // namespace
 
@@ -472,7 +555,8 @@ int main()
     test_settings_modify_cancel();
     std::printf("--------------------\n");
     test_settings_modify_save();
-
+    std::printf("--------------------\n");
+    test_events_navigation();
     std::printf(
         "All DWIN tests passed.\n");
 

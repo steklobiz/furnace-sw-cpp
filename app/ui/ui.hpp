@@ -119,12 +119,22 @@ public:
     [[nodiscard]] std::size_t profile_count() const noexcept;
     [[nodiscard]] uint8_t edit_step() const noexcept;
 
+    [[nodiscard]] uint8_t event_page() const noexcept;
+    [[nodiscard]] std::size_t event_count() const noexcept;
+
+    [[nodiscard]] const DataAggregator::Event&
+    event_from_newest(std::size_t index) const noexcept;
+
 private:
     // Profile selection state.
     static constexpr uint8_t ProfilesPerPage = 10;
 
+    // Event history paging.
+    static constexpr uint8_t EventsPerPage = 4;
+
     uint8_t profile_page_ = 0;
     uint8_t edit_step_ = 0;
+    uint8_t event_page_ = 0;
 
     // Transition handling.
     [[nodiscard]] const Transition*
@@ -165,7 +175,12 @@ private:
     bool save_edit(const Action& action) noexcept;
     bool cancel_edit(const Action& action) noexcept;
 
+    // Select the next or previous event-history page.
+    bool next_event_page(const Action& action) noexcept;
+    bool previous_event_page(const Action& action) noexcept;
 
+    // Number of event-history pages, including one empty page.
+    [[nodiscard]] uint8_t event_page_count() const noexcept;
     // Profile selection helpers.
     [[nodiscard]] uint8_t profile_page_count() const noexcept;
 

@@ -459,6 +459,22 @@ uint8_t Ui::edit_step() const noexcept
     return edit_step_;
 }
 
+uint8_t Ui::event_page() const noexcept
+{
+    return event_page_;
+}
+
+std::size_t Ui::event_count() const noexcept
+{
+    return data_->event_count();
+}
+
+const DataAggregator::Event&
+    Ui::event_from_newest(const std::size_t index) const noexcept
+{
+    return data_->event_from_newest(index);
+}
+
 // -----------------------------------------------------------------
 // Private helpers
 // -----------------------------------------------------------------
@@ -652,6 +668,38 @@ bool Ui::save_edit(const Action&) noexcept
 bool Ui::cancel_edit(const Action&) noexcept
 {
     return profiles_->cancel_edit();
+}
+
+
+uint8_t Ui::event_page_count() const noexcept
+{
+    const std::size_t count = data_->event_count();
+
+    if (count == 0U)
+        return 1U;
+
+    return static_cast<uint8_t>(
+        (count + EventsPerPage - 1U) / EventsPerPage);
+}
+
+bool Ui::next_event_page(const Action&) noexcept
+{
+    ++event_page_;
+
+    if (event_page_ >= event_page_count())
+        event_page_ = 0U;
+
+    return true;
+}
+
+bool Ui::previous_event_page(const Action&) noexcept
+{
+    if (event_page_ == 0U)
+        event_page_ = static_cast<uint8_t>(event_page_count() - 1U);
+    else
+        --event_page_;
+
+    return true;
 }
 
 uint8_t Ui::profile_page_count() const noexcept
