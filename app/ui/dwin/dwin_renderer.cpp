@@ -149,7 +149,7 @@ constexpr DwinRenderer::ScreenDescriptor screen_descriptors[] =
         std::size(main_brief_running_fields),
         nullptr
     },
-
+/*
     // Main / Brief / Auto
     {
         Ui::Context::Main,
@@ -160,7 +160,7 @@ constexpr DwinRenderer::ScreenDescriptor screen_descriptors[] =
         std::size(main_brief_auto_fields),
         nullptr
     },
-
+*/
     // Main / Brief / Waiting
     {
         Ui::Context::Main,
@@ -270,6 +270,17 @@ constexpr DwinRenderer::ScreenDescriptor screen_descriptors[] =
         0U,
         nullptr
     },
+
+    // Events
+    {
+        Ui::Context::Events,
+        Ui::Mode::None,
+        Furnace::State::Count,
+        DwinRenderer::ScreenId::Events,
+        nullptr,
+        0U,
+        &DwinRenderer::enter_events
+    },
 };
 
 constexpr uint16_t InvalidPage = 0xFFFFU;
@@ -298,6 +309,7 @@ DwinRenderer::init(
 
     rendered_state_ = Furnace::State::Count;
     rendered_profile_page_ = 0xFFU;
+    rendered_event_page_ = 0xFFU;
 
     for (std::size_t i = 0U;
          i < MaxFieldsPerScreen;
@@ -594,6 +606,11 @@ DwinRenderer::enter_profile_selection(
     }
 
     renderer.rendered_profile_page_ = page;
+}
+
+void DwinRenderer::enter_events(DwinRenderer& renderer) noexcept
+{
+    (void)renderer;
 }
 
 } // namespace app

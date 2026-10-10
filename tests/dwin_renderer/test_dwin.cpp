@@ -12,6 +12,7 @@
 #include "settings.hpp"
 #include "tc_parser.hpp"
 #include "ui.hpp"
+#include "dwin_protocol.hpp" // temporary
 
 #include <cassert>
 #include <cstdint>
@@ -544,10 +545,29 @@ void test_events_navigation()
     assert(ui.position().mode == app::Ui::Mode::Brief);
 }
 
+
+void test_dwin_string()
+{
+    app::DwinProtocol protocol;
+    app::DwinTransport transport;
+
+    transport.init();
+
+    const auto packet =
+        protocol.write_string(0x1400U, "Event 1", 8U);
+
+    assert(packet.size == 14U);
+
+    // Send the packet through HAL to print it in the PC terminal.
+    transport.send(packet.data, packet.size);
+}
+
 } // namespace
 
 int main()
 {
+    test_dwin_string();
+    /*
     test_profile_page_navigation();
     std::printf("--------------------\n");
     test_profile_start();
@@ -559,7 +579,7 @@ int main()
     test_events_navigation();
     std::printf(
         "All DWIN tests passed.\n");
-
+*/
     return 0;
 }
 

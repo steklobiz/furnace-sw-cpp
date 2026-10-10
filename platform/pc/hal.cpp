@@ -113,7 +113,7 @@ void update()
     model.update(current_duty);
 };
 
-void dwin_send(
+/*void dwin_send(
     const uint8_t* data,
     std::size_t size) noexcept
 {
@@ -155,6 +155,111 @@ void dwin_send(
 
     std::printf("\n");
 }
+*/
+
+
+void dwin_send(
+    const uint8_t* data,
+    std::size_t size) noexcept
+{
+    if (data == nullptr || size < 3U)
+    {
+        return;
+    }
+
+    // Check the DWIN packet header.
+    if (data[0] != DwinHeader1 ||
+        data[1] != DwinHeader2)
+    {
+        std::printf("DWIN TX:");
+
+        for (std::size_t i = 0U; i < size; ++i)
+        {
+            std::printf(
+                " %02X",
+                static_cast<unsigned int>(data[i]));
+        }
+
+        std::printf("\n");
+        return;
+    }
+
+    // Decode a single-word VP write.
+    if (size == DwinWriteWordSize &&
+        data[2] == DwinWriteWordPayload &&
+        data[3] == DwinCommandWriteVp)
+    {
+        const unsigned int address =
+            (static_cast<unsigned int>(data[4]) << 8U) |
+             static_cast<unsigned int>(data[5]);
+
+        const unsigned int value =
+            (static_cast<unsigned int>(data[6]) << 8U) |
+             static_cast<unsigned int>(data[7]);
+
+        std::printf(
+            "DWIN VP 0x%04X = %u\n",
+            address,
+            value);
+
+        return;
+    }
+
+    // Decode a string write when its payload contains only
+    // printable ASCII characters followed by optional zero padding.
+    if (size >= 7U &&
+        data[3] == DwinCommandWriteVp &&
+        static_cast<std::size_t>(data[2]) == size - 3U)
+    {
+        bool is_string = true;
+        bool terminated = false;
+
+        for (std::size_t i = 6U; i < size; ++i)
+        {
+            const uint8_t ch = data[i];
+
+            if (ch == 0U)
+            {
+                terminated = true;
+            }
+            else if (terminated || ch < 0x20U || ch > 0x7EU)
+            {
+                is_string = false;
+                break;
+            }
+        }
+
+        if (is_string)
+        {
+            const unsigned int address =
+                (static_cast<unsigned int>(data[4]) << 8U) |
+                 static_cast<unsigned int>(data[5]);
+
+            std::printf("DWIN VP 0x%04X = \"", address);
+
+            for (std::size_t i = 6U; i < size && data[i] != 0U; ++i)
+            {
+                std::printf("%c", static_cast<int>(data[i]));
+            }
+
+            std::printf("\"\n");
+            return;
+        }
+    }
+
+    // Fall back to raw bytes for other packet types.
+    std::printf("DWIN TX:");
+
+    for (std::size_t i = 0U; i < size; ++i)
+    {
+        std::printf(
+            " %02X",
+            static_cast<unsigned int>(data[i]));
+    }
+
+    std::printf("\n");
+}
+
 
 bool dwin_receive(
     uint8_t* data,

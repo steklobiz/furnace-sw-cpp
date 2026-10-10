@@ -19,7 +19,7 @@ public:
     {
         Idle = 0,   // nothing is running; normal initial/ready state.
         Running,
-        Auto,
+        // Auto,
         Waiting,
         Finished,   // a process completed normally.
         Stopped,    // a process was explicitly stopped.

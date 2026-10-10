@@ -55,17 +55,7 @@ DwinProtocol::Packet DwinProtocol::write_string(
 {
     Packet packet{};
 
-    // Header and command.
-    packet.data[0] = Header1;
-    packet.data[1] = Header2;
-    packet.data[3] = WriteVp;
-
-    // The packet contains:
-    //   1 byte command
-    //   2 bytes VP address
-    //   length bytes of string data
-    //
-    // The packet buffer includes a 3-byte header.
+    // Reject invalid input and strings that exceed the packet buffer.
     constexpr std::size_t HeaderSize = 3U;
     constexpr std::size_t CommandAndAddressSize = 3U;
 
@@ -77,27 +67,39 @@ DwinProtocol::Packet DwinProtocol::write_string(
         return packet;
     }
 
+    // Packet header and command.
+    packet.data[0] = Header1;
+    packet.data[1] = Header2;
     packet.data[2] = static_cast<uint8_t>(
         CommandAndAddressSize + length);
+    packet.data[3] = WriteVp;
 
     // VP address, big endian.
     packet.data[4] = static_cast<uint8_t>(address >> 8U);
     packet.data[5] = static_cast<uint8_t>(address & 0xFFU);
 
-    // String data, padded with zero bytes.
+    // Copy string data and zero-fill after the first null character.
+    bool terminated = false;
+
     for (std::size_t i = 0U; i < length; ++i)
     {
-        packet.data[6U + i] =
-            text[i] != '\0'
-                ? static_cast<uint8_t>(text[i])
-                : 0U;
+        if (terminated || text[i] == '\0')
+        {
+            packet.data[6U + i] = 0U;
+            terminated = true;
+        }
+        else
+        {
+            packet.data[6U + i] =
+                static_cast<uint8_t>(text[i]);
+        }
     }
 
+    // Total packet size includes the 3-byte header and command/address.
     packet.size = HeaderSize + CommandAndAddressSize + length;
 
     return packet;
 }
-
 
 DwinProtocol::Packet DwinProtocol::switch_page(uint16_t page) const noexcept
     {

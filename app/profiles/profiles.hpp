@@ -85,14 +85,19 @@ inline constexpr Profile test_profiles[config::profiles::count] =
         }}
     },
 
-    // Profile 1
+    // Profile 1 — event pagination test
     {
         {{
-            {50,  60, 0x01},
-            {50,  20, 0x02},
-            {100, 60, 0x03},
-            {100, 20, 0x00},
-            {0,   0,  0x00},
+            {50, 1, 0x01},
+            {50, 1, 0x02},
+            {75, 1, 0x03},
+            {75, 1, 0x00},
+            {100, 1, 0x01},
+            {100, 1, 0x02},
+            {125, 1, 0x03},
+            {125, 1, 0x00},
+            {50, 1, 0x01},
+            {0, 0, 0x00}, // Terminator
         }}
     },
 

@@ -33,6 +33,7 @@ public:
         SettingsPid,        // 9
         SettingsOther,      // A
         Question,
+        Events,
         Count
     };
 
@@ -78,7 +79,7 @@ public:
     void update() noexcept;
 
     static void enter_profile_selection(DwinRenderer& renderer) noexcept;
-
+    static void enter_events(DwinRenderer& renderer) noexcept;
 
 private:
     static constexpr std::size_t MaxFieldsPerScreen = 16U;
@@ -118,6 +119,9 @@ private:
     // Profile-selection page rendered during the previous update.
     // 0xFF means that no profile-selection page has been rendered yet.
     uint8_t rendered_profile_page_{0xFFU};
+
+    // Event page rendered during the previous update.
+    uint8_t rendered_event_page_{0xFFU};
 
     // Last values written to the DWIN VPs for the current screen.
     // Used to avoid sending unchanged field values.

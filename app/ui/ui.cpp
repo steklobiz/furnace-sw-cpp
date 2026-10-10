@@ -383,6 +383,14 @@ const Ui::Transition Ui::transitions_[] =
         nullptr,
         {Context::Main, Mode::Brief}
     },
+    // Events / None / Idle + Cancel -> Main / Brief
+    {
+        {Context::Events, Mode::None},
+        Furnace::State::Idle,
+        ActionType::Cancel,
+        nullptr,
+        {Context::Main, Mode::Brief}
+    },
 };
 
 // -----------------------------------------------------------------
